@@ -1,0 +1,49 @@
+---
+import { Icon } from "astro-icon/components";
+import { Mail } from "lucide-astro";
+---
+
+<footer class="border-t border-border">
+  <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 py-10 sm:flex-row sm:items-center">
+    <div>
+      <div class="flex items-center gap-2 text-sm font-semibold">
+        Ing. Samuel Hernández
+      </div>
+      <p class="mt-2 text-xs text-muted-foreground">
+        Fundador de <span class="text-foreground">BKODE</span> · Desarrollador de Software
+      </p>
+    </div>
+    <div class="flex items-center gap-1">
+      <a
+        href="https://github.com/samhernandezcdev"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="GitHub"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground     transition-colors hover:bg-surface hover:text-foreground"
+      >
+        <Icon name="simple-icons:github" class="h-4 w-4" />
+      </a>
+      <a
+        href="https://www.linkedin.com/in/samueldhernandezc"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="GitHub"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground     transition-colors hover:bg-surface hover:text-foreground"
+      >
+        <Icon name="simple-icons:linkedin" class="h-4 w-4" />
+      </a>
+      <a
+        href="mailto:sam.hernandezc103@gmail.com"
+        aria-label="Email"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground     transition-colors hover:bg-surface hover:text-foreground"
+      >
+        <Mail class="h-4 w-4" />
+      </a>
+    </div>
+  </div>
+  <div class="border-t border-border">
+    <div class="mx-auto max-w-6xl px-6 py-4 text-xs text-muted-foreground">
+      &copy; {new Date().getFullYear()} Ing. Samuel Hernández. Todos los Derechos Reservados.
+    </div>
+  </div>
+</footer>
