@@ -1,246 +1,28 @@
 ---
-import "../styles/global.css";
-import { Image } from "astro:assets";
+import Header from "@/components/layout/Header";
+import Hero from "@/components/sections/Hero.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 
-import flowersImage from '../assets/tulipanes-amarillos.png';
-import photo1 from "../assets/nosotros-1.jpg";
-import photo2 from "../assets/nosotros-2.jpeg";
-
-const pageTitle = "Para Sis Cosharon 🌻";
-const date = "21 de Marzo";
+const title = "Desarrollador de Software Full Stack";
+const description =
+  "Desarrollador de software full stack especializado en el desarrollo de aplicaciones web modernas, soluciones de automatización y sistemas de software escalables. Disponible para trabajos freelance y a distancia.";
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{pageTitle}</title>
-  </head>
-  <body>
-    <div class="falling-flowers" id="fallingFlowers"></div>
+<BaseLayout title={title} description={description}>
+  <div class="min-h-screen">
+    <!-- HEADER  -->
+    <Header client:load />
+    <main>      
+      <!-- HERO -->
+      <Hero />
 
-    <div class="card">
-      <div class="header">
-        <h1>Feliz Día de las<br />Flores Amarillas</h1>
-        <div class="date">{date}</div>
-      </div>
+      <!-- SERVICES -->
 
-      <button class="music-btn" id="musicBtn" aria-label="Reproducir música"
-        >♪</button
-      >
+      <!-- SKILLS -->
 
-      <div class="photo-frame">
-		<Image src={flowersImage} alt="Tulipanes Amarillos" />
-      </div>
+      <!-- PROJECTS -->
 
-      <p class="message" style="animation-delay: 0.3s;">
-        Las flores amarillas brillan con la luz que tú llevas dentro...
-      </p>
-
-      <p class="message" style="animation-delay: 0.6s;">
-        Con estas flores, iluminas cada rincón de mi vida con tu alegría y
-        calidez.
-      </p>      
-
-      <button class="main-btn" id="mainBtn">🌸 Descubre Mi Mensaje</button>
-
-      <div class="signature">Para ti, con cariño, Corashono</div>
-    </div>
-
-    <div class="modal" id="letterModal">
-      <button class="close-btn" id="closeBtn" aria-label="Cerrar">×</button>
-      <div class="modal-content">
-        <div class="torn-paper">
-          <h2 class="letter-title">Para Ti en Este Día Especial</h2>
-
-          <div class="memory-gallery">
-            <div class="memory-card">
-              <Image src={photo1} alt="Un recuerdo especial juntos" />
-            </div>
-            <div class="memory-card">
-              <Image src={photo2} alt="Otro momento bonito juntos" />
-            </div>
-          </div>
-
-          <div class="letter-content">
-            <p>Corashona,</p>
-            <p>
-              No conocía de este Día de las Flores Amarillas, pero investigue y
-              quiero dedicarte estas palabras así como se dedican estas flores,
-              aunque no sean físicas, te las mando de corazón.
-            </p>
-            <p>
-              Las flores amarillas simbolizan amistad, felicidad y nuevos
-              comienzos. Y no puedo pensar en mejor manera de celebrar lo que
-              significas para mí.
-            </p>
-            <p>
-              Recuerdo cada momento compartido contigo, siempre las risas, las
-              burlas entre los dos. Tu risa me encanta, y a tu manera de
-              demostrarme tu apoyo, siempre he amado cada detalle y sacrificio
-              que has hecho para este rarito friki como yo. Te amo en cada
-              faceta tuya, y siempre lo haré, porque yo te elegí.
-            </p>
-          </div>          
-        </div>
-
-        <div class="letter-signature">Con aprecio, Mr. Sam (Corashono)</div>
-      </div>
-    </div>
-  </body>
-
-  <script is:inline>
-    document.addEventListener("DOMContentLoaded", function () {
-      // DOM ELEMENTS
-      const fallingFlowers = document.getElementById("fallingFlowers");
-      const mainBtn = document.getElementById("mainBtn");
-      const letterModal = document.getElementById("letterModal");
-      const closeBtn = document.getElementById("closeBtn");
-      const musicBtn = document.getElementById("musicBtn");
-
-      const flowerSymbols = ["🌻", "🌼", "🌸", "💐", "🌺", "🌷"];
-
-      function createFallingFlowers() {
-        const flower = document.createElement("div");
-        flower.className = "flower";
-        flower.innerHTML = flowerSymbols[Math.floor(Math.random() * flowerSymbols.length)];
-        flower.style.left = Math.random() * 100 + "vw";
-        flower.style.animationDuration = 5 + Math.random() * 10 + "s";
-        flower.style.animationName =
-          Math.random() > 0.5 ? "fall" : "gentle-sway";
-        flower.style.opacity = Math.random() * 0.5 + 0.3;
-        flower.style.fontSize = 16 + Math.random() * 24 + "px";
-        fallingFlowers.appendChild(flower);
-
-        setTimeout(() => {
-          flower.remove();
-        }, 15000);
-      }
-
-      // INITIALIZE FALLING FLOWERS
-      setInterval(createFallingFlowers, 300);
-
-      const audio = new Audio("https://bcodestorague.anteroteobaldob.workers.dev/share/anteroteobaldob_gmail_com/AUDIO/those%20eyes%20.mp3");
-      audio.loop = true;
-      let isPlaying = false;
-
-      // Controlar audio
-      function toggleAudio() {
-        if (isPlaying) {
-          audio.pause();
-          musicBtn.textContent = "♪";
-          musicBtn.setAttribute("aria-label", "Reproducir música");
-        } else {
-          audio
-            .play()
-            .catch((e) =>
-              console.log(
-                "La reproducción automática fue prevenida. Haz clic manualmente."
-              )
-            );
-          musicBtn.textContent = "❚❚";
-          musicBtn.setAttribute("aria-label", "Pausar música");
-        }
-        isPlaying = !isPlaying;
-      }
-
-      // Event listeners
-      musicBtn.addEventListener("click", toggleAudio);
-
-      mainBtn.addEventListener("click", function () {
-        letterModal.style.display = "flex";
-        document.body.style.overflow = "hidden";
-
-        // Efecto de explosión de flores
-        for (let i = 0; i < 20; i++) {
-          setTimeout(() => {
-            createFlowerExplosion();
-          }, i * 100);
-        }
-
-        // Reproducir audio si no está reproduciendo
-        if (!isPlaying) {
-          toggleAudio();
-        }
-      });
-    });
-
-    closeBtn.addEventListener("click", function () {
-      letterModal.style.display = "none";
-      document.body.style.overflow = "auto";
-    });
-
-    window.addEventListener("click", function (event) {
-      if (event.target === letterModal) {
-        letterModal.style.display = "none";
-        document.body.style.overflow = "auto";
-      }
-    });
-
-    // Crear explosión de flores
-    function createFlowerExplosion() {
-      const explosion = document.createElement("div");
-      explosion.innerHTML =
-        flowerSymbols[Math.floor(Math.random() * flowerSymbols.length)];
-      explosion.style.position = "fixed";
-      explosion.style.left = Math.random() * 100 + "vw";
-      explosion.style.top = Math.random() * 100 + "vh";
-      explosion.style.color = `hsl(${Math.random() * 20 + 45}, 100%, 60%)`;
-      explosion.style.fontSize = "28px";
-      explosion.style.zIndex = "100";
-      explosion.style.pointerEvents = "none";
-      explosion.style.transform = "scale(0)";
-      explosion.style.animation = `flower-pop 0.5s forwards, flower-fade 0.5s 1s forwards`;
-
-      document.body.appendChild(explosion);
-
-      setTimeout(() => {
-        explosion.remove();
-      }, 1500);
-    }
-
-    // Prevenir zoom en doble tap en dispositivos móviles
-    document.addEventListener(
-      "dblclick",
-      function (e) {
-        e.preventDefault();
-      },
-      { passive: false }
-    );
-
-    // Agregar estilos para animaciones
-    const style = document.createElement("style");
-    style.textContent = `
-              @keyframes flower-pop {
-                  0% { transform: scale(0); opacity: 0; }
-                  50% { transform: scale(1.2); opacity: 1; }
-                  100% { transform: scale(1); opacity: 0.8; }
-              }
-              @keyframes flower-fade {
-                  to { opacity: 0; transform: translateY(-20px) rotate(45deg); }
-              }
-          `;
-    document.head.appendChild(style);
-
-    // Intento de reproducción automática con gesto del usuario
-    function tryAutoPlay() {
-      if (!isPlaying) {
-        audio
-          .play()
-          .then(() => {
-            musicBtn.textContent = "❚❚";
-            musicBtn.setAttribute("aria-label", "Pausar música");
-            isPlaying = true;
-          })
-          .catch((e) => console.log("Autoplay bloqueado por el navegador."));
-      }
-    }
-
-    // Intentar reproducción con la primera interacción
-    ["click", "touchstart", "keydown"].forEach((event) => {
-      document.addEventListener(event, tryAutoPlay, { once: true });
-    });
-  </script>
-</html>
+      <!-- CONTACT -->
+    </main>
+  </div>
+</BaseLayout>

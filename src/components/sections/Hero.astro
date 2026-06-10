@@ -1,0 +1,74 @@
+---
+import heroBg from "../../assets/hero-bg.jpg";
+import { buttonVariants } from "../ui/button";
+import { ArrowRight } from "lucide-astro";
+
+const stack = ["TypeScript", "React", "Next.js", "Node.js", "PostgreSQL", "Python", "AWS"];
+---
+
+<section id="top" class="relative overflow-hidden pt-32 pb-24 sm:pt-40 sm:pb-32" aria-labelledby="hero-heading">
+  <div 
+    class="absolute inset-0 -z-10 opacity-60"
+    style={`
+      background-image: url(${heroBg.src});
+      background-size: cover;
+      background-position: center;
+      mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+    `}
+  />
+  <div class="absolute inset-0 -z-10 bg-grid opacity-40" />
+  <div class="absolute inset-0 -z-10 bg-radial-glow" />
+
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface/80 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+      <span class="relative flex h-2 w-2">
+        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+        <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+      </span>
+      Disponible para freelance & trabajo remoto
+    </div>
+
+    <h1 id="hero-heading" class="text-balance text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+      Desarrollador de Software{" "}
+      <span class="bg-linear-to-r from-foreground via-foreground to-accent bg-clip-text text-transparent">
+        ayudando a las empresas a construir, mejorar y ampliar su negocio.
+      </span>
+    </h1>
+
+    <p class="mt-6 max-w-2xl text-balance text-base text-muted-foreground sm:text-lg">
+      Desarrollo aplicaciones web modernas, soluciones de automatización y sistemas de backend utilizando
+      Python y Node.js, diseñados para ofrecer rendimiento, fiabilidad y escalabilidad.
+    </p>
+
+    <div class="mt-8 flex flex-wrap items-center gap-3">
+      <a 
+        href="#contacto"
+        class:list={[
+          buttonVariants({ variant: "default", size: "lg" }),
+          "group"
+        ]}
+      >
+        Contáctame
+        <ArrowRight class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+      </a>
+      <a 
+        href="#proyectos"
+        class={buttonVariants({ variant: "secondary", size: "lg" })}
+      >
+        Ver Proyectos
+      </a>
+    </div>
+
+    <div class="mt-14 flex flex-wrap items-center gap-x-2 gap-y-3 text-xs text-muted-foreground">
+      <span class="mr-2 uppercase tracking-wider">Tecnologías principales</span>    
+      {stack.map((s) => (
+        <span
+          class="rounded-md border border-border bg-surface/60 px-2.5 py-1 font-mono text-[11px] text-foreground/80"
+        >
+          {s}
+        </span>
+      ))}
+    </div>
+  </div>
+</section>
