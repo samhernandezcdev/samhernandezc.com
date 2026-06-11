@@ -1,0 +1,56 @@
+---
+import Section from "@/components/layout/Section.astro";
+import { Clock, Mail, MapPin } from "lucide-astro";
+import ContactForm from "../features/ContactForm";
+---
+
+<Section
+  id="contacto"
+  eyebrow="Contacto"
+  title="Hablemos de tu próximo proyecto"
+  description="Cuéntame qué necesitas construir, corregir o automatizar. Te responderé en un plazo de 24 horas."
+>
+  <form
+    name="contacto"
+    data-netlify="true"
+    netlify-honeypot="bot-field"
+    hidden
+    >
+    <input type="text" name="name" />
+    <input type="email" name="email" />
+    <textarea name="description"></textarea>
+    <input name="bot-field" />
+  </form>
+  
+  <div class="grid gap-10 lg:grid-cols-5">
+    <div class="space-y-6 lg:col-span-2">
+      <div class="space-y-4 text-sm">
+        <div class="flex items-start gap-3">
+          <Mail class="mt-0.5 h-4 w-4 text-brand-glow" />
+          <div>
+            <div class="text-muted-foreground">Correo electrónico</div>
+            <a href="mailto:sam.hernandezc103@gmail.com" class="text-foreground hover:text-brand-glow">
+              sam.hernandezc103@gmail.com
+            </a>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <MapPin class="mt-0.5 h-4 w-4 text-brand-glow" />
+          <div>
+            <div class="text-muted-foreground">Ubicación</div>
+            <div>Remoto — Disponible en todo el mundo</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <Clock class="mt-0.5 h-4 w-4 text-brand-glow" />
+          <div>
+            <div class="text-muted-foreground">Tiempo de respuesta</div>
+            <div>En un plazo de 24 horas</div>
+          </div>
+        </div>
+      </div>
+    </div>    
+
+    <ContactForm client:visible />
+  </div>
+</Section>
