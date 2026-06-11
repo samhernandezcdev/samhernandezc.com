@@ -1,0 +1,36 @@
+---
+import { ArrowRight } from "lucide-astro";
+import { buttonVariants } from "../ui/button";
+---
+
+<section id="availability" class="scroll-mt-24 py-12">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="surface-card relative overflow-hidden rounded-3xl p-8 sm:p-12">
+      <div class="absolute inset-0 -z-10 bg-radial-glow opacity-70" />
+      <div class="flex flex-col items-start gap-8 md:flex-row md:items-center md:justify-between">
+        <div class="max-w-xl">
+          <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Disponible actualmente
+          </div>
+          <h2 class="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
+            Disponible para proyectos como freelance y oportunidades de trabajo a distancia.
+          </h2>
+          <p class="mt-3 text-sm text-muted-foreground sm:text-base">
+            Estaré agenando nuevos proyectos para el próximo trimestre. Charlemos de lo que estás desarrollando o tienes en mente.
+          </p>
+        </div>
+        <a 
+          href="#contacto"
+          class:list={[
+            buttonVariants({ variant: "default", size: "lg" }),
+            "group"
+          ]}
+        >
+          Empezar proyecto
+          <ArrowRight class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
