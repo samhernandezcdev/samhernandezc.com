@@ -68,33 +68,38 @@ export default function Header() {
         </button>
       </div>
 
-      {open && (
-        <div className="border-t border-border bg-background/95 backdrop-blur-xl md:hidden">
-          <nav className="mx-auto flex max-w-6xl flex-col px-6 py-3" aria-label="Navegación móvil">
-            {links.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </a>
-            ))}
-
+      <div
+        className={cn(
+          "border-t border-border bg-background/95 backdrop-blur-xl md:hidden",
+          "overflow-hidden transition-all duration-200 ease-out",
+          open ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
+        )}
+        aria-hidden={!open}
+      >
+        <nav className="mx-auto flex max-w-6xl flex-col px-6 py-3" aria-label="Navegación móvil">
+          {links.map((link) => (
             <a
-              href="#contacto"
+              key={link.href}
+              href={link.href}
               onClick={() => setOpen(false)}
-              className={cn(
-                buttonVariants({ variant: "secondary", size: "sm" }),
-                "mt-2 justify-center"
-              )}
+              className="py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
-              Contrátame
+              {link.label}
             </a>
-          </nav>
-        </div>
-      )}
+          ))}
+
+          <a
+            href="#contacto"
+            onClick={() => setOpen(false)}
+            className={cn(
+              buttonVariants({ variant: "secondary", size: "sm" }),
+              "mt-2 justify-center"
+            )}
+          >
+            Contrátame
+          </a>
+        </nav>
+      </div>
     </header>
   );
 }

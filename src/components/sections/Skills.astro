@@ -12,7 +12,15 @@ import { skills } from "@/data/skills";
   <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
     {skills.map((s, idx) => (
       <div
-        class="surface-card group rounded-2xl p-6 transition-all hover:border-brand/40"
+        class:list={[
+          "surface-card group rounded-2xl p-6 transition-all hover:border-brand/40",
+          "reveal",
+          idx === 1 && "reveal-delay-100",
+          idx === 2 && "reveal-delay-200",
+          idx === 3 && "reveal-delay-300",
+          idx === 4 && "reveal-delay-400",
+        ]}
+        data-reveal
       >
         <div class="mb-5 flex items-center justify-between">
           <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground">

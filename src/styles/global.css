@@ -140,3 +140,156 @@
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-card);
 }
+
+/* ── Smooth scroll ── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Reveal keyframes ── */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    translate: 0 20px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes reveal-left {
+  from {
+    opacity: 0;
+    translate: -20px 0;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes reveal-right {
+  from {
+    opacity: 0;
+    translate: 20px 0;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes reveal-scale {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* ── Reveal utilities ──
+   Only hide elements when JS is confirmed running (html.js class).
+   Without JS the content is fully visible — no invisible sections on
+   script failure, bots, or readers. ── */
+html.js .reveal {
+  opacity: 0;
+  animation: reveal-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-play-state: paused;
+}
+
+html.js .reveal-left {
+  opacity: 0;
+  animation: reveal-left 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-play-state: paused;
+}
+
+html.js .reveal-right {
+  opacity: 0;
+  animation: reveal-right 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-play-state: paused;
+}
+
+html.js .reveal-scale {
+  opacity: 0;
+  animation: reveal-scale 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-play-state: paused;
+}
+
+/* Play animation when visible */
+html.js .is-visible .reveal,
+html.js .is-visible .reveal-left,
+html.js .is-visible .reveal-right,
+html.js .is-visible .reveal-scale,
+html.js .reveal.is-visible,
+html.js .reveal-left.is-visible,
+html.js .reveal-right.is-visible,
+html.js .reveal-scale.is-visible {
+  animation-play-state: running;
+}
+
+/* ── Stagger delays ── */
+.reveal-delay-100 {
+  animation-delay: 100ms;
+}
+
+.reveal-delay-200 {
+  animation-delay: 200ms;
+}
+
+.reveal-delay-300 {
+  animation-delay: 300ms;
+}
+
+.reveal-delay-400 {
+  animation-delay: 400ms;
+}
+
+/* ── Hero immediate animation (no paused state) ── */
+.hero-reveal {
+  opacity: 0;
+  animation: reveal-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Mobile menu transition ── */
+.mobile-menu-enter {
+  animation: menu-slide 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes menu-slide {
+  from {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  html.js .reveal,
+  html.js .reveal-left,
+  html.js .reveal-right,
+  html.js .reveal-scale,
+  .hero-reveal {
+    opacity: 1;
+    animation: none;
+  }
+}

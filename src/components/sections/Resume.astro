@@ -21,7 +21,7 @@ const highlights = [
 >
   <div class="grid gap-8 lg:grid-cols-2">
     <!-- ATS-FRIENDLY -->
-    <div class="surface-card space-y-6 rounded-2xl p-6 sm:p-8">
+    <div class="surface-card space-y-6 rounded-2xl p-6 sm:p-8 reveal" data-reveal>
       <div class="flex items-center gap-3">
         <div class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10 text-brand">
           <FileText class="h-5 w-5" />
@@ -70,8 +70,17 @@ const highlights = [
         { value: "5+", label: "Proyectos entregados" },
         { value: "100%", label: "Disponible remoto" },
         { value: "24h", label: "Respuesta típica" },
-      ].map((stat) => (
-        <div class="surface-card flex flex-col justify-center rounded-2xl p-6">
+      ].map((stat, i) => (
+        <div 
+          class:list={[
+            "surface-card flex flex-col justify-center rounded-2xl p-6",
+            "reveal",
+            i === 1 && "reveal-delay-100",
+            i === 2 && "reveal-delay-200",
+            i === 3 && "reveal-delay-300",
+          ]}
+          data-reveal
+        >
           <span class="text-3xl font-bold tracking-tight text-foreground">{stat.value}</span>
           <span class="mt-1 text-sm text-muted-foreground">{stat.label}</span>
         </div>
