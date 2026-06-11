@@ -1,0 +1,81 @@
+---
+import Section from "../layout/Section.astro";
+import { Download, ExternalLink, FileText } from "lucide-astro";
+import { buttonVariants } from "../ui/button";
+
+const highlights = [
+  "Full Stack Developer enfocado en apps web, APIs y automatización",
+  "TypeScript, React, Next.js, Node.js, PostgreSQL y Python",
+  "Experiencia construyendo dashboards y herramientas internas",
+  "Fundador de BKODE — ingeniería digital para crecimiento empresarial",
+  "Disponible para freelance y oportunidades remotas",
+];
+
+---
+
+<Section
+  id="curriculum"
+  eyebrow="Currículum"
+  title="Resumen profesional"
+  description="Un resumen conciso de mi experiencia, mis habilidades y lo que puedo aportar a su equipo."
+>
+  <div class="grid gap-8 lg:grid-cols-2">
+    <!-- ATS-FRIENDLY -->
+    <div class="surface-card space-y-6 rounded-2xl p-6 sm:p-8">
+      <div class="flex items-center gap-3">
+        <div class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10 text-brand">
+          <FileText class="h-5 w-5" />
+        </div>
+        <div>
+          <h3 class="text-base font-semibold tracking-tight">Ing. Samuel Hernández</h3>
+          <p class="text-xs text-muted-foreground">
+            Desarrollador de Software Full Stack • Compatible con ATS • Actualizado Junio 2026
+          </p>
+        </div>
+      </div>
+
+      <ul class="space-y-2.5">
+        {highlights.map((h) => (
+          <li class="flex items-start gap-2 text-sm text-muted-foreground">
+            <span class="mt-2 inline-block h-1 w-1 shrink-0 rounded-full bg-brand" />
+            <span>{h}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div class="flex flex-wrap gap-3 pt-2">
+        <a 
+          href="/Samuel-Hernandez-CV.pdf"
+          download
+          class={buttonVariants({ variant: "default", size: "lg" })}
+        >
+          <Download class="mr-2 h-4 w-4" />
+          Descargar CV
+        </a>
+        <a 
+          href="/Samuel-Hernandez-CV.pdf"
+          target="_blank"
+          rel="noreferrer"
+          class={buttonVariants({ variant: "secondary", size: "lg" })}
+        >
+          <ExternalLink class="mr-2 h-4 w-4" />
+          Abrir en una nueva pestaña
+        </a>
+      </div>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      {[
+        { value: "4+", label: "Años de experiencia" },
+        { value: "5+", label: "Proyectos entregados" },
+        { value: "100%", label: "Disponible remoto" },
+        { value: "24h", label: "Respuesta típica" },
+      ].map((stat) => (
+        <div class="surface-card flex flex-col justify-center rounded-2xl p-6">
+          <span class="text-3xl font-bold tracking-tight text-foreground">{stat.value}</span>
+          <span class="mt-1 text-sm text-muted-foreground">{stat.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</Section>
