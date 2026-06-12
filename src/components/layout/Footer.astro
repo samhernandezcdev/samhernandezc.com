@@ -1,6 +1,13 @@
 ---
 import { Icon } from "astro-icon/components";
 import { Mail } from "lucide-astro";
+import type { PageContent } from "@/i18n/pages";
+
+interface Props {
+  content: PageContent["footer"];
+}
+
+const { content } = Astro.props;
 ---
 
 <footer class="border-t border-border reveal" data-reveal>
@@ -10,7 +17,7 @@ import { Mail } from "lucide-astro";
         Ing. Samuel Hernández
       </div>
       <p class="mt-2 text-xs text-muted-foreground">
-        Fundador de <span class="text-foreground">BKODE</span> · Desarrollador de Software
+        {content.founderLabel} <span class="text-foreground">BKODE</span> · {content.role}
       </p>
     </div>
     <div class="flex items-center gap-1">
@@ -43,7 +50,7 @@ import { Mail } from "lucide-astro";
   </div>
   <div class="border-t border-border">
     <div class="mx-auto max-w-6xl px-6 py-4 text-xs text-muted-foreground">
-      &copy; {new Date().getFullYear()} Ing. Samuel Hernández. Todos los Derechos Reservados.
+      &copy; {new Date().getFullYear()} Ing. Samuel Hernández. {content.copyright}
     </div>
   </div>
 </footer>

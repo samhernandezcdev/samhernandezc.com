@@ -2,22 +2,20 @@
 import Section from "../layout/Section.astro";
 import { Download, ExternalLink, FileText } from "lucide-astro";
 import { buttonVariants } from "../ui/button";
+import type { PageContent } from "@/i18n/pages";
 
-const highlights = [
-  "Full Stack Developer enfocado en apps web, APIs y automatización",
-  "TypeScript, React, Next.js, Node.js, PostgreSQL y Python",
-  "Experiencia construyendo dashboards y herramientas internas",
-  "Fundador de BKODE — ingeniería digital para crecimiento empresarial",
-  "Disponible para freelance y oportunidades remotas",
-];
+interface Props {
+  content: PageContent["resume"];
+}
 
+const { content } = Astro.props;
 ---
 
 <Section
   id="curriculum"
-  eyebrow="Currículum"
-  title="Resumen profesional"
-  description="Un resumen conciso de mi experiencia, mis habilidades y lo que puedo aportar a su equipo."
+  eyebrow={content.eyebrow}
+  title={content.title}
+  description={content.description}
 >
   <div class="grid gap-8 lg:grid-cols-2">
     <!-- ATS-FRIENDLY -->
@@ -27,15 +25,15 @@ const highlights = [
           <FileText class="h-5 w-5" />
         </div>
         <div>
-          <h3 class="text-base font-semibold tracking-tight">Ing. Samuel Hernández</h3>
+          <h3 class="text-base font-semibold tracking-tight">{content.name}</h3>
           <p class="text-xs text-muted-foreground">
-            Desarrollador de Software Full Stack • Compatible con ATS • Actualizado Junio 2026
+            {content.summary}
           </p>
         </div>
       </div>
 
       <ul class="space-y-2.5">
-        {highlights.map((h) => (
+        {content.highlights.map((h) => (
           <li class="flex items-start gap-2 text-sm text-muted-foreground">
             <span class="mt-2 inline-block h-1 w-1 shrink-0 rounded-full bg-brand" />
             <span>{h}</span>
@@ -45,32 +43,27 @@ const highlights = [
 
       <div class="flex flex-wrap gap-3 pt-2">
         <a 
-          href="/Samuel-Hernandez-CV.pdf"
+          href={content.pdfPath}
           download
           class={buttonVariants({ variant: "default", size: "lg" })}
         >
           <Download class="mr-2 h-4 w-4" />
-          Descargar CV
+          {content.downloadLabel}
         </a>
         <a 
-          href="/Samuel-Hernandez-CV.pdf"
+          href={content.pdfPath}
           target="_blank"
           rel="noreferrer"
           class={buttonVariants({ variant: "secondary", size: "lg" })}
         >
           <ExternalLink class="mr-2 h-4 w-4" />
-          Abrir en una nueva pestaña
+          {content.openLabel}
         </a>
       </div>
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">
-      {[
-        { value: "4+", label: "Años de experiencia" },
-        { value: "5+", label: "Proyectos entregados" },
-        { value: "100%", label: "Disponible remoto" },
-        { value: "24h", label: "Respuesta típica" },
-      ].map((stat, i) => (
+      {content.stats.map((stat, i) => (
         <div 
           class:list={[
             "surface-card flex flex-col justify-center rounded-2xl p-6",

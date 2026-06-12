@@ -1,6 +1,22 @@
 import { useState, type FormEvent } from "react";
 
-export default function ContactForm() {
+type ContactFormLabels = {
+  botLabel: string;
+  nameLabel: string;
+  namePlaceholder: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  descriptionLabel: string;
+  descriptionPlaceholder: string;
+  submitLabel: string;
+  sentLabel: string;
+};
+
+type ContactFormProps = {
+  labels: ContactFormLabels;
+};
+
+export default function ContactForm({ labels }: ContactFormProps) {
   const [sent, setSent] = useState(false);
 
   function encode(data: Record<string, string>) {
@@ -44,25 +60,25 @@ export default function ContactForm() {
 
       <p className="hidden">
         <label>
-          No llenar este campo:
+          {labels.botLabel}
           <input name="bot-field" />
         </label>
       </p>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Nombre" name="name" placeholder="Tu nombre" required />
-        <Field label="Correo" name="email" type="email" placeholder="tu@correo.com" required />
+        <Field label={labels.nameLabel} name="name" placeholder={labels.namePlaceholder} required />
+        <Field label={labels.emailLabel} name="email" type="email" placeholder={labels.emailPlaceholder} required />
       </div>
       <div className="space-y-2">
         <label htmlFor="description" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Descripción del Proyecto
+          {labels.descriptionLabel}
         </label>
         <textarea
           id="description"
           name="description"
           rows={6}
           required
-          placeholder="Cuéntame qué necesitas, fecha estimada y cualquier detalle importante."
+          placeholder={labels.descriptionPlaceholder}
           className="w-full resize-none rounded-md border border-border bg-background/60 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-brand/60 focus:outline-none focus:ring-2 focus:ring-brand/30"
         ></textarea>
       </div>
@@ -71,7 +87,7 @@ export default function ContactForm() {
         type="submit"
         className="inline-flex items-center justify-center rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-brand-foreground shadow-(--shadow-glow) transition-all hover:bg-brand/90 cursor-pointer"
       >
-        {sent ? "¡Mensaje enviado, gracias!" : "Enviar mensaje"}
+        {sent ? labels.sentLabel : labels.submitLabel}
       </button>
     </form>
   )

@@ -1,16 +1,22 @@
 ---
 import Section from "@/components/layout/Section.astro";
-import { services } from "@/data/services";
+import type { PageContent } from "@/i18n/pages";
+
+interface Props {
+  content: PageContent["services"];
+}
+
+const { content } = Astro.props;
 ---
 
 <Section
   id="servicios"
-  eyebrow="Servicios"
-  title="¿Cómo puedo ayudarte?"
-  description="Servicios enfocados en desarrollo de software, automatización e integración de sistemas."
+  eyebrow={content.eyebrow}
+  title={content.title}
+  description={content.description}
 >
   <div class="grid gap-px overflow-hidden rounded-2xl border border-border bg-border/60 sm:grid-cols-2 lg:grid-cols-3">
-    {services.map((s, i) => (
+    {content.items.map((s, i) => (
       <div
         class:list={[
           "group relative bg-background p-6 transition-colors hover:bg-surface sm:p-8",

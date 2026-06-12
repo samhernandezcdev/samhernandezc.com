@@ -3,7 +3,7 @@ import HomePage from "@/components/pages/HomePage.astro";
 import { languages, pages } from "@/i18n/pages";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
-const language = "es";
+const language = "en";
 const content = pages[language];
 const settings = languages[language];
 ---
@@ -13,7 +13,7 @@ const settings = languages[language];
   description={content.meta.description}
   lang={settings.htmlLang}
   ogLocale={settings.ogLocale}
-  alternateLocales={[{ lang: languages.en.htmlLang, href: languages.en.path }]}
+  alternateLocales={[{ lang: languages.es.htmlLang, href: languages.es.path }]}
 >
   <HomePage language={language} content={content} />
 </BaseLayout>

@@ -4,15 +4,38 @@ import { Menu, X } from "lucide-react";
 import { buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
 
-const links = [
-  { href: "#servicios", label: "Servicios" },
-  { href: "#skills", label: "Skills" },
-  { href: "#proyectos", label: "Proyectos" },
-  { href: "#curriculum", label: "Currículum" },
-  { href: "#contacto", label: "Contacto" },
-];
+type HeaderLink = {
+  href: string;
+  label: string;
+};
 
-export default function Header() {
+type HeaderProps = {
+  brand: string;
+  links: readonly HeaderLink[];
+  cta: string;
+  mobileCta: string;
+  mobileNavLabel: string;
+  openMenuLabel: string;
+  closeMenuLabel: string;
+  languageSwitchLabel: string;
+  currentLanguage: "es" | "en";
+  alternateUrl: string;
+  switchLabel: string;
+};
+
+export default function Header({
+  brand,
+  links,
+  cta,
+  mobileCta,
+  mobileNavLabel,
+  openMenuLabel,
+  closeMenuLabel,
+  languageSwitchLabel,
+  currentLanguage,
+  alternateUrl,
+  switchLabel,
+}: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -33,7 +56,7 @@ export default function Header() {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <a href="#top" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="text-sm">Ing. Samuel Hernández</span>
+          <span className="text-sm">{brand}</span>
         </a>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -48,12 +71,20 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-2 md:flex">
+          <a
+            href={alternateUrl}
+            hrefLang={currentLanguage === "es" ? "en" : "es"}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+            aria-label={languageSwitchLabel}
+          >
+            {switchLabel}
+          </a>
           <a 
             href="#contacto"
             className={buttonVariants({ variant: "secondary", size: "sm" })}
           >
-            Contáctame
+            {cta}
           </a>
         </div>
 
@@ -61,7 +92,7 @@ export default function Header() {
           type="button"
           onClick={() => setOpen((value) => !value)}
           className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-foreground md:hidden"
-          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          aria-label={open ? closeMenuLabel : openMenuLabel}
           aria-expanded={open}
         >
           {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -76,7 +107,7 @@ export default function Header() {
         )}
         aria-hidden={!open}
       >
-        <nav className="mx-auto flex max-w-6xl flex-col px-6 py-3" aria-label="Navegación móvil">
+        <nav className="mx-auto flex max-w-6xl flex-col px-6 py-3" aria-label={mobileNavLabel}>
           {links.map((link) => (
             <a
               key={link.href}
@@ -96,7 +127,20 @@ export default function Header() {
               "mt-2 justify-center"
             )}
           >
-            Contrátame
+            {mobileCta}
+          </a>
+
+          <a
+            href={alternateUrl}
+            hrefLang={currentLanguage === "es" ? "en" : "es"}
+            onClick={() => setOpen(false)}
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "mt-2 justify-center"
+            )}
+            aria-label={languageSwitchLabel}
+          >
+            {switchLabel}
           </a>
         </nav>
       </div>

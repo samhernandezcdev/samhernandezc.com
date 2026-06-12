@@ -1,18 +1,24 @@
 ---
 import { Image } from "astro:assets";
 import Section from "@/components/layout/Section.astro";
-import { projects } from "@/data/projects";
+import type { PageContent } from "@/i18n/pages";
 import { ArrowUpRight } from "lucide-astro";
+
+interface Props {
+  content: PageContent["projects"];
+}
+
+const { content } = Astro.props;
 ---
 
 <Section
   id="proyectos"
-  eyebrow="Proyectos Destacados"
-  title="Trabajos seleccionados"
-  description="Algunos proyectos que ponen de manifiesto mi enfoque del diseño, la ingeniería y la ejecución."
+  eyebrow={content.eyebrow}
+  title={content.title}
+  description={content.description}
 >
   <div class="grid gap-6 md:grid-cols-2">
-    {projects.map((p, i) => (
+    {content.items.map((p, i) => (
       <article
         class:list={[
           "group surface-card overflow-hidden rounded-2xl transition-all hover:border-brand/50",
@@ -44,7 +50,7 @@ import { ArrowUpRight } from "lucide-astro";
                 href={p.live}
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Live site"
+                aria-label={content.liveAriaLabel}
                 class="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
               >
                 <ArrowUpRight class="h-4 w-4" />

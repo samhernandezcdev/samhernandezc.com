@@ -1,0 +1,48 @@
+---
+import Footer from "@/components/layout/Footer.astro";
+import Header from "@/components/layout/Header";
+import Availability from "@/components/sections/Availability.astro";
+import Contact from "@/components/sections/Contact.astro";
+import Hero from "@/components/sections/Hero.astro";
+import Projects from "@/components/sections/Projects.astro";
+import Resume from "@/components/sections/Resume.astro";
+import Services from "@/components/sections/Services.astro";
+import Skills from "@/components/sections/Skills.astro";
+import type { Language, PageContent } from "@/i18n/pages";
+import { languages } from "@/i18n/pages";
+
+interface Props {
+  language: Language;
+  content: PageContent;
+}
+
+const { language, content } = Astro.props;
+const languageSettings = languages[language];
+---
+
+<div class="min-h-screen">
+  <Header
+    client:load
+    brand={content.header.brand}
+    links={content.header.nav}
+    cta={content.header.cta}
+    mobileCta={content.header.mobileCta}
+    mobileNavLabel={content.header.mobileNavLabel}
+    openMenuLabel={content.header.openMenuLabel}
+    closeMenuLabel={content.header.closeMenuLabel}
+    languageSwitchLabel={content.header.languageSwitchLabel}
+    currentLanguage={language}
+    alternateUrl={languageSettings.alternatePath}
+    switchLabel={languageSettings.switchLabel}
+  />
+  <main>
+    <Hero content={content.hero} />
+    <Services content={content.services} />
+    <Skills content={content.skills} />
+    <Projects content={content.projects} />
+    <Resume content={content.resume} />
+    <Availability content={content.availability} />
+    <Contact content={content.contact} />
+  </main>
+  <Footer content={content.footer} />
+</div>

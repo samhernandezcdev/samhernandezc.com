@@ -2,8 +2,13 @@
 import heroBg from "../../assets/hero-bg.jpg";
 import { buttonVariants } from "../ui/button";
 import { ArrowRight } from "lucide-astro";
+import type { PageContent } from "@/i18n/pages";
 
-const stack = ["TypeScript", "React", "Next.js", "Node.js", "PostgreSQL", "Python", "AWS"];
+interface Props {
+  content: PageContent["hero"];
+}
+
+const { content } = Astro.props;
 ---
 
 <section id="top" class="relative overflow-hidden pt-32 pb-24 sm:pt-40 sm:pb-32" aria-labelledby="hero-heading">
@@ -26,21 +31,21 @@ const stack = ["TypeScript", "React", "Next.js", "Node.js", "PostgreSQL", "Pytho
         <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
         <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
       </span>
-      Disponible para freelance & trabajo remoto
+      {content.badge}
     </div>
 
     <h1 
       id="hero-heading"
       class="max-w-4xl text-balance text-4xl font-semibold tracking-tight leading-[1.05] sm:text-5xl md:text-6xl lg:text-7xl hero-reveal reveal-delay-100"
     >
-      Desarrollador de Software{" "}
+      {content.title}{" "}
       <span class="bg-linear-to-r from-foreground via-foreground to-accent bg-clip-text text-transparent">
-        para empresas que necesitan operar mejor, automatizar y crecer.
+        {content.titleAccent}
       </span>
     </h1>
 
     <p class="mt-7 max-w-2xl text-pretty text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8 hero-reveal reveal-delay-200">
-      Construyo aplicaciones web, sistemas backend y automatizaciones con TypeScript, React, Node.js y Python. Me enfoco en soluciones claras, mantenibles y listas para escalar.
+      {content.description}
     </p>
 
     <div class="mt-8 flex flex-wrap items-center gap-3 hero-reveal reveal-delay-300">
@@ -51,20 +56,20 @@ const stack = ["TypeScript", "React", "Next.js", "Node.js", "PostgreSQL", "Pytho
           "group"
         ]}
       >
-        Contáctame
+        {content.primaryCta}
         <ArrowRight class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
       </a>
       <a 
         href="#proyectos"
         class={buttonVariants({ variant: "secondary", size: "lg" })}
       >
-        Ver Proyectos
+        {content.secondaryCta}
       </a>
     </div>
 
     <div class="mt-14 flex flex-wrap items-center gap-x-2 gap-y-3 text-xs text-muted-foreground hero-reveal reveal-delay-400">
-      <span class="mr-2 uppercase tracking-wider">Tecnologías principales</span>    
-      {stack.map((s) => (
+      <span class="mr-2 uppercase tracking-wider">{content.stackLabel}</span>
+      {content.stack.map((s) => (
         <span
           class="rounded-md border border-border bg-surface/60 px-2.5 py-1 font-mono text-[11px] text-foreground/80"
         >

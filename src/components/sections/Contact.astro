@@ -2,13 +2,20 @@
 import Section from "@/components/layout/Section.astro";
 import { Clock, Mail, MapPin } from "lucide-astro";
 import ContactForm from "../features/ContactForm";
+import type { PageContent } from "@/i18n/pages";
+
+interface Props {
+  content: PageContent["contact"];
+}
+
+const { content } = Astro.props;
 ---
 
 <Section
   id="contacto"
-  eyebrow="Contacto"
-  title="Hablemos de tu próximo proyecto"
-  description="Cuéntame qué necesitas construir, corregir o automatizar. Te responderé en un plazo de 24 horas."
+  eyebrow={content.eyebrow}
+  title={content.title}
+  description={content.description}
 >
   <form
     name="contacto"
@@ -28,7 +35,7 @@ import ContactForm from "../features/ContactForm";
         <div class="flex items-start gap-3">
           <Mail class="mt-0.5 h-4 w-4 text-brand-glow" />
           <div>
-            <div class="text-muted-foreground">Correo electrónico</div>
+            <div class="text-muted-foreground">{content.emailLabel}</div>
             <a href="mailto:sam.hernandezc103@gmail.com" class="text-foreground hover:text-brand-glow">
               sam.hernandezc103@gmail.com
             </a>
@@ -37,20 +44,20 @@ import ContactForm from "../features/ContactForm";
         <div class="flex items-start gap-3">
           <MapPin class="mt-0.5 h-4 w-4 text-brand-glow" />
           <div>
-            <div class="text-muted-foreground">Ubicación</div>
-            <div>Remoto — Disponible en todo el mundo</div>
+            <div class="text-muted-foreground">{content.locationLabel}</div>
+            <div>{content.location}</div>
           </div>
         </div>
         <div class="flex items-start gap-3">
           <Clock class="mt-0.5 h-4 w-4 text-brand-glow" />
           <div>
-            <div class="text-muted-foreground">Tiempo de respuesta</div>
-            <div>En un plazo de 24 horas</div>
+            <div class="text-muted-foreground">{content.responseLabel}</div>
+            <div>{content.response}</div>
           </div>
         </div>
       </div>
     </div>    
 
-    <ContactForm client:visible />
+    <ContactForm client:visible labels={content.form} />
   </div>
 </Section>
