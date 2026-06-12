@@ -184,7 +184,7 @@ export const pages = {
       title:
         "Disponible para proyectos como freelance y oportunidades de trabajo a distancia.",
       description:
-        "Estaré agendando nuevos proyectos para el próximo trimestre. Charlemos de lo que estás desarrollando o tienes en mente.",
+        "Actualmente estoy tomando proyectos freelance pequeños y medianos: sitios web, automatizaciones, bugs y herramientas internas. Charlemos de lo que estás desarrollando o tienes en mente.",
       cta: "Empezar proyecto",
     },
     contact: {
@@ -369,7 +369,7 @@ export const pages = {
       badge: "Currently available",
       title: "Available for freelance projects and remote opportunities.",
       description:
-        "I will be scheduling new projects for the next quarter. Let’s talk about what you are building or have in mind.",
+        "I'm currently taking on small to medium-sized freelance projects: websites, automation, bug fixes, and internal tools. Let’s talk about what you are building or have in mind.",
       cta: "Start a project",
     },
     contact: {
