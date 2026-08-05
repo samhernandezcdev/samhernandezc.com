@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #EFECE6; color: #1A1917; font-family: Archivo, "Helvetica Neue", Helvetica, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1D5A4A; text-decoration: none; }
+  a:hover { color: #1A1917; text-decoration: underline; }
+  p { text-wrap: pretty; }
+</style>
+</helmet>
+
+<div style="max-width:1440px;margin:0 auto;padding:0 40px 120px">
+
+  <header style="padding:64px 0 36px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D;line-height:1.6">SPEC<br />v1.0</div>
+    <div style="min-width:0">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#1D5A4A;margin-bottom:24px">Dirección C aprobada · Modernismo suizo + capa técnica de B · samhernandezc.com</div>
+      <h1 style="margin:0;font-size:50px;line-height:1.05;font-weight:600;letter-spacing:-0.025em;max-width:22ch">Especificación de implementación para Claude Code</h1>
+      <p style="margin:26px 0 0;max-width:64ch;font-size:17px;line-height:1.62;color:#4A463F">Dirección visual cerrada, tokens definitivos, retícula, tres bloques en alta fidelidad, estados, movimiento y el alcance exacto de F1 y F2. El repositorio sigue intacto: aquí no hay código de producción, commits, PRs ni borrados.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:0;margin-top:36px;border-top:1px solid #D9D4CB">
+        <div style="flex:1 1 160px;padding:14px 20px 14px 0;border-right:1px solid #D9D4CB"><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D">Acento primario</div><div style="font-size:19px;margin-top:6px;font-family:'IBM Plex Mono',monospace;color:#1D5A4A">#1D5A4A</div></div>
+        <div style="flex:1 1 160px;padding:14px 20px;border-right:1px solid #D9D4CB"><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D">CTA comercial</div><div style="font-size:19px;margin-top:6px">1</div></div>
+        <div style="flex:1 1 160px;padding:14px 20px;border-right:1px solid #D9D4CB"><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D">Dependencias nuevas</div><div style="font-size:19px;margin-top:6px">0 <span style="font-size:13px;color:#6C6961">(1 opcional, justificada)</span></div></div>
+        <div style="flex:1 1 160px;padding:14px 20px"><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D">Alcance de esta spec</div><div style="font-size:19px;margin-top:6px">F1 + F2</div></div>
+      </div>
+    </div>
+  </header>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">01</div>
+    <div style="min-width:0">
+      <h2 style="margin:0 0 8px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Paleta final y tokens visuales</h2>
+      <p style="margin:0 0 28px;max-width:66ch;font-size:15px;line-height:1.6;color:#6C6961">Once tokens de color. Verde industrial <span style="font-family:'IBM Plex Mono',monospace;font-size:13px">#1D5A4A</span> como único acento. Se declaran en OKLCH para mantener la convención que ya existe en <span style="font-family:'IBM Plex Mono',monospace;font-size:13px">global.css</span>.</p>
+
+      <div style="display:flex;flex-wrap:wrap;border:1px solid #D9D4CB;background:#FBFAF8">
+        <div style="flex:1 1 150px"><div style="height:64px;background:#FAF8F4;border-bottom:1px solid #D9D4CB"></div><div style="padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:#6C6961">--background<br /><span style="color:#1A1917">#FAF8F4</span><br />oklch(.977 .005 85)</div></div>
+        <div style="flex:1 1 150px;border-left:1px solid #D9D4CB"><div style="height:64px;background:#F2EFE9;border-bottom:1px solid #D9D4CB"></div><div style="padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:#6C6961">--surface<br /><span style="color:#1A1917">#F2EFE9</span><br />oklch(.951 .008 85)</div></div>
+        <div style="flex:1 1 150px;border-left:1px solid #D9D4CB"><div style="height:64px;background:#E9E5DD;border-bottom:1px solid #D9D4CB"></div><div style="padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:#6C6961">--surface-2<br /><span style="color:#1A1917">#E9E5DD</span><br />oklch(.921 .010 85)</div></div>
+        <div style="flex:1 1 150px;border-left:1px solid #D9D4CB"><div style="height:64px;background:#DCD7CE;border-bottom:1px solid #D9D4CB"></div><div style="padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:#6C6961">--border<br /><span style="color:#1A1917">#DCD7CE</span><br />oklch(.874 .010 85)</div></div>
+        <div style="flex:1 1 150px;border-left:1px solid #D9D4CB"><div style="height:64px;background:#C3BCB0;border-bottom:1px solid #D9D4CB"></div><div style="padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:#6C6961">--border-strong<br /><span style="color:#1A1917">#C3BCB0</span><br />oklch(.785 .014 85)</div></div>
+        <div style="flex:1 1 150px;border-left:1px solid #D9D4CB"><div style="height:64px;background:#6C6961;border-bottom:1px solid #D9D4CB"></div><div style="padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:#6C6961">--muted-fg<br /><span style="color:#1A1917">#6C6961</span><br />oklch(.505 .008 85)</div></div>
+        <div style="flex:1 1 150px;border-left:1px solid #D9D4CB"><div style="height:64px;background:#1A1917;border-bottom:1px solid #D9D4CB"></div><div style="padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:#6C6961">--foreground<br /><span style="color:#1A1917">#1A1917</span><br />oklch(.215 .004 85)</div></div>
+        <div style="flex:1 1 150px;border-left:1px solid #D9D4CB"><div style="height:64px;background:#1D5A4A;border-bottom:1px solid #D9D4CB"></div><div style="padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:#6C6961">--accent<br /><span style="color:#1D5A4A">#1D5A4A</span><br />oklch(.402 .061 165)</div></div>
+        <div style="flex:1 1 150px;border-left:1px solid #D9D4CB"><div style="height:64px;background:#16483B;border-bottom:1px solid #D9D4CB"></div><div style="padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:#6C6961">--accent-hover<br /><span style="color:#16483B">#16483B</span><br />oklch(.343 .055 165)</div></div>
+        <div style="flex:1 1 150px;border-left:1px solid #D9D4CB"><div style="height:64px;background:#E7EFEA;border-bottom:1px solid #D9D4CB"></div><div style="padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:#6C6961">--accent-soft<br /><span style="color:#1A1917">#E7EFEA</span><br />oklch(.938 .014 165)</div></div>
+        <div style="flex:1 1 150px;border-left:1px solid #D9D4CB"><div style="height:64px;background:#8A5A1E;border-bottom:1px solid #D9D4CB"></div><div style="padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:#6C6961">--warning<br /><span style="color:#1A1917">#8A5A1E</span><br />solo estados</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;background:#D9D4CB;border:1px solid #D9D4CB;border-top:0">
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:12px">Uso del acento — presupuesto estricto</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li>Fondo del CTA primario (el único botón sólido del sitio).</li>
+            <li>Enlaces en línea y subrayado de navegación activa (1px).</li>
+            <li>Numeración de la sección del caso y del flujo técnico.</li>
+            <li>Camino crítico del diagrama y estado <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">EN PRODUCCIÓN</span> de la tabla de trabajo.</li>
+            <li>Nada más. Ni fondos de sección, ni iconos teñidos, ni bordes de tarjeta.</li>
+          </ul>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:12px">Forma, borde y elevación</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--radius: 0.125rem</span> (2px). Derivados: <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">sm/md/lg = 2px</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">xl = 4px</span>. Se borran <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">2xl/3xl/4xl</span>.</li>
+            <li>Bordes: 1px <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--border</span>. <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--border-strong</span> solo para separar bloques mayores.</li>
+            <li>Una sola sombra en todo el sistema, y solo para el panel del menú móvil: <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">0 1px 2px rgba(26,25,23,.08)</span>. Prohibido <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">backdrop-filter</span>.</li>
+            <li>Escala de espaciado base 8px: <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128 · 160</span>.</li>
+            <li>Ritmo de sección (desktop / tablet / móvil): grande <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">160 / 120 / 80</span>, medio <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">112 / 88 / 56</span>, corto <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">72 / 56 / 40</span>.</li>
+          </ul>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:12px">Contraste verificado</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#1A1917</span> sobre <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#FAF8F4</span> ≈ 15.6:1</li>
+            <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#6C6961</span> sobre <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#FAF8F4</span> ≈ 5.4:1 — apto para cuerpo pequeño</li>
+            <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#1D5A4A</span> sobre <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#FAF8F4</span> ≈ 6.6:1</li>
+            <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#FAF8F4</span> sobre <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#1D5A4A</span> ≈ 6.6:1 — texto del CTA</li>
+            <li>Los valores son objetivo de diseño: hay que confirmarlos con herramienta sobre el build real, porque OKLCH redondea.</li>
+          </ul>
+        </div>
+        <sc-if value="{{ showAltAccent }}" hint-placeholder-val="{{ true }}">
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D;margin-bottom:12px">Alternativa comparativa (no implementar)</div>
+          <div style="display:flex;gap:0;border:1px solid #D9D4CB;margin-bottom:12px">
+            <div style="flex:1;height:40px;background:#A8451B"></div>
+            <div style="flex:1;height:40px;background:#8E3714"></div>
+            <div style="flex:1;height:40px;background:#F5EAE3"></div>
+          </div>
+          <p style="margin:0;font-size:13.5px;line-height:1.6;color:#3A362F">Óxido <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#A8451B</span> queda documentado como única alternativa: mismo rol, misma escasez de uso, sustitución de un token. Se conserva para comparar, no para producción. Contraste sobre <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#FAF8F4</span> ≈ 5.3:1, algo menor que el verde.</p>
+        </div>
+        </sc-if>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">02</div>
+    <div style="min-width:0">
+      <h2 style="margin:0 0 8px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Sistema tipográfico</h2>
+      <p style="margin:0 0 28px;max-width:66ch;font-size:15px;line-height:1.6;color:#6C6961">Una sola grotesca (Geist Variable, ya instalada) en 400/500/600. Monoespaciada como segunda voz, exclusivamente para datos, tecnologías, unidades, IDs, fórmulas y metadatos. Nunca en prosa, nunca en titulares.</p>
+      <div style="border:1px solid #D9D4CB;background:#FBFAF8">
+        <div style="display:grid;grid-template-columns:130px 1fr 1.1fr;gap:20px;padding:12px 20px;border-bottom:1px solid #D9D4CB;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D"><div>Token</div><div>Muestra</div><div>Especificación</div></div>
+        <div style="display:grid;grid-template-columns:130px 1fr 1.1fr;gap:20px;padding:18px 20px;border-bottom:1px solid #EDE9E2;align-items:baseline"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#1D5A4A">display</div><div style="font-size:44px;line-height:1.02;font-weight:600;letter-spacing:-0.028em;color:#1A1917">Decisiones industriales</div><div style="font-size:13px;line-height:1.6;color:#4A463F;font-family:'IBM Plex Mono',monospace">clamp(2.25rem, 1.1rem + 3.6vw, 4.5rem)<br />36 → 72px · w600 · lh 1.02 · tracking −.028em<br />solo el H1, una vez por página</div></div>
+        <div style="display:grid;grid-template-columns:130px 1fr 1.1fr;gap:20px;padding:18px 20px;border-bottom:1px solid #EDE9E2;align-items:baseline"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#1D5A4A">h2</div><div style="font-size:34px;line-height:1.1;font-weight:600;letter-spacing:-0.02em;color:#1A1917">Plataforma CPQ industrial</div><div style="font-size:13px;line-height:1.6;color:#4A463F;font-family:'IBM Plex Mono',monospace">clamp(1.625rem, 1.1rem + 1.2vw, 2.5rem)<br />26 → 40px · w600 · lh 1.1 · tracking −.02em</div></div>
+        <div style="display:grid;grid-template-columns:130px 1fr 1.1fr;gap:20px;padding:18px 20px;border-bottom:1px solid #EDE9E2;align-items:baseline"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#1D5A4A">h3</div><div style="font-size:22px;line-height:1.25;font-weight:600;letter-spacing:-0.012em;color:#1A1917">Motor de cálculo y reglas</div><div style="font-size:13px;line-height:1.6;color:#4A463F;font-family:'IBM Plex Mono',monospace">20 → 24px · w600 · lh 1.25 · tracking −.012em</div></div>
+        <div style="display:grid;grid-template-columns:130px 1fr 1.1fr;gap:20px;padding:18px 20px;border-bottom:1px solid #EDE9E2;align-items:baseline"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#1D5A4A">h4 / lead-in</div><div style="font-size:16px;line-height:1.4;font-weight:600;color:#1A1917">Restricciones del dominio</div><div style="font-size:13px;line-height:1.6;color:#4A463F;font-family:'IBM Plex Mono',monospace">16px · w600 · lh 1.4</div></div>
+        <div style="display:grid;grid-template-columns:130px 1fr 1.1fr;gap:20px;padding:18px 20px;border-bottom:1px solid #EDE9E2;align-items:baseline"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#1D5A4A">body-lg</div><div style="font-size:18px;line-height:1.6;color:#3A362F;max-width:40ch">Convierto reglas técnicas en procesos operativos confiables.</div><div style="font-size:13px;line-height:1.6;color:#4A463F;font-family:'IBM Plex Mono',monospace">17 → 18px · w400 · lh 1.6 · máx 62ch<br />solo entradilla de hero y de caso</div></div>
+        <div style="display:grid;grid-template-columns:130px 1fr 1.1fr;gap:20px;padding:18px 20px;border-bottom:1px solid #EDE9E2;align-items:baseline"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#1D5A4A">body</div><div style="font-size:16px;line-height:1.65;color:#3A362F;max-width:44ch">Cuerpo de texto general del sitio: párrafos del caso, capacidades y perfil.</div><div style="font-size:13px;line-height:1.6;color:#4A463F;font-family:'IBM Plex Mono',monospace">16px · w400 · lh 1.65 · máx 68ch<br />mínimo absoluto de prosa</div></div>
+        <div style="display:grid;grid-template-columns:130px 1fr 1.1fr;gap:20px;padding:18px 20px;border-bottom:1px solid #EDE9E2;align-items:baseline"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#1D5A4A">body-sm</div><div style="font-size:14.5px;line-height:1.6;color:#6C6961;max-width:44ch">Notas, pies de figura y texto de apoyo secundario.</div><div style="font-size:13px;line-height:1.6;color:#4A463F;font-family:'IBM Plex Mono',monospace">14.5px · lh 1.6 · color --muted-fg</div></div>
+        <div style="display:grid;grid-template-columns:130px 1fr 1.1fr;gap:20px;padding:18px 20px;border-bottom:1px solid #EDE9E2;align-items:baseline"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#1D5A4A">mono-data</div><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1A1917;font-variant-numeric:tabular-nums">Ø 22 mm · 12 400 kgf · FS 5:1</div><div style="font-size:13px;line-height:1.6;color:#4A463F;font-family:'IBM Plex Mono',monospace">13px · w400/500 · tabular-nums<br />valores, unidades, IDs, fórmulas</div></div>
+        <div style="display:grid;grid-template-columns:130px 1fr 1.1fr;gap:20px;padding:18px 20px;border-bottom:1px solid #EDE9E2;align-items:baseline"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#1D5A4A">mono-label</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:#6C6961">Motor de cálculo · Python</div><div style="font-size:13px;line-height:1.6;color:#4A463F;font-family:'IBM Plex Mono',monospace">11.5px · 0.08em · uppercase<br />etiquetas de campo y tecnologías</div></div>
+        <div style="display:grid;grid-template-columns:130px 1fr 1.1fr;gap:20px;padding:18px 20px;align-items:baseline"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#1D5A4A">mono-meta</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#8A857D">01 / Caso · en producción</div><div style="font-size:13px;line-height:1.6;color:#4A463F;font-family:'IBM Plex Mono',monospace">11px · 0.12em · uppercase<br />numeración, estados, cintillos<br />nunca por debajo de 11px</div></div>
+      </div>
+      <div style="margin-top:20px;border:1px solid #D9D4CB;background:#FBFAF8;padding:22px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D;margin-bottom:12px">Fuentes — única dependencia propuesta, y es opcional</div>
+        <p style="margin:0;font-size:14px;line-height:1.65;color:#3A362F;max-width:80ch">Geist Variable ya está en el proyecto (<span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px">@fontsource-variable/geist</span>) y cubre toda la grotesca. La monoespaciada actual (<span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px">"Consolas"</span>) no se sirve y cae al monospace del sistema, lo que rompe la alineación tabular en macOS y Linux — y en esta dirección la mono es voz estructural, no adorno. Justificación de la única incorporación posible: <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px">@fontsource-variable/geist-mono</span>, del mismo proveedor ya presente, autoalojada, sin runtime, ~1 archivo woff2. <strong>Si prefieres cero dependencias nuevas</strong>, la alternativa aceptable es fijar <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px">--font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace</span> y aplicar <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px">font-variant-numeric: tabular-nums</span> en todos los datos; la spec funciona igual, con menos control tipográfico. Decisión pendiente tuya; por defecto Claude Code debe asumir la alternativa sin dependencia.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">03</div>
+    <div style="min-width:0">
+      <h2 style="margin:0 0 8px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Retícula</h2>
+      <p style="margin:0 0 28px;max-width:66ch;font-size:15px;line-height:1.6;color:#6C6961">Estructural y discreta: gobierna la alineación de todo, pero solo se hace visible en tres lugares y desaparece en móvil.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;background:#D9D4CB;border:1px solid #D9D4CB">
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#1A1917;margin-bottom:4px">Desktop ≥ 1280px</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A857D;margin-bottom:16px">12 columnas</div>
+          <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;height:56px;margin-bottom:16px">
+            <div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#F2EFE9;border:1px solid #DCD7CE"></div><div style="background:#F2EFE9;border:1px solid #DCD7CE"></div><div style="background:#F2EFE9;border:1px solid #DCD7CE"></div><div style="background:#F2EFE9;border:1px solid #DCD7CE"></div><div style="background:#F2EFE9;border:1px solid #DCD7CE"></div>
+          </div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li>Contenido máx. <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">1280px</span>, margen lateral <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">80px</span>, gutter <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">24px</span>.</li>
+            <li>Prosa: columnas 1–7 (máx 68ch). Metadatos y mono: columnas 9–12.</li>
+            <li>Titulares del hero: columnas 1–8, nunca a todo el ancho.</li>
+            <li>Diagrama y tabla de trabajo: 1–12 a sangre de retícula.</li>
+          </ul>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#1A1917;margin-bottom:4px">Tablet 768 – 1279px</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A857D;margin-bottom:16px">8 columnas</div>
+          <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;height:56px;margin-bottom:16px">
+            <div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#E7EFEA;border:1px solid #C9DAD2"></div><div style="background:#F2EFE9;border:1px solid #DCD7CE"></div><div style="background:#F2EFE9;border:1px solid #DCD7CE"></div>
+          </div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li>Margen <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">40px</span>, gutter <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">20px</span>.</li>
+            <li>Prosa: 1–6. Metadatos pasan debajo del bloque, no al margen.</li>
+            <li>Las tres columnas de Configurar/Calcular/Decidir pasan a 2 + 1.</li>
+            <li>Retícula visible solo en el hero, con opacidad reducida.</li>
+          </ul>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#1A1917;margin-bottom:4px">Móvil &lt; 768px</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A857D;margin-bottom:16px">4 columnas · retícula invisible</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;height:56px;margin-bottom:16px">
+            <div style="background:#F2EFE9;border:1px solid #DCD7CE"></div><div style="background:#F2EFE9;border:1px solid #DCD7CE"></div><div style="background:#F2EFE9;border:1px solid #DCD7CE"></div><div style="background:#F2EFE9;border:1px solid #DCD7CE"></div>
+          </div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li>Margen <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">20px</span>, gutter <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">16px</span>, una columna de contenido.</li>
+            <li>Los hairlines de retícula se ocultan por completo (<span style="font-family:'IBM Plex Mono',monospace;font-size:12px">display:none</span>, no opacidad).</li>
+            <li>El orden de lectura es el del DOM: nada se reposiciona con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">order</span>.</li>
+          </ul>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:16px">Dónde se ve la retícula</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li><strong>Hero</strong>: hairlines verticales de <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#DCD7CE</span> al 45% de opacidad, solo en las columnas 8–12 (la zona vacía). Se cortan antes del borde inferior de la sección.</li>
+            <li><strong>Diagrama del flujo</strong>: los nodos se alinean a columnas reales; una línea base horizontal marca el eje.</li>
+            <li><strong>Bloque de especificación del caso</strong>: hairlines horizontales entre filas etiqueta/valor.</li>
+            <li>En ningún otro sitio. No hay fondo de retícula global, ni <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">bg-grid</span>, ni patrón repetido a pantalla completa.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px">
+    <div style="display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px;margin-bottom:28px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">04</div>
+      <div style="min-width:0">
+        <h2 style="margin:0 0 8px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Hero, navegación y bloque de posicionamiento — alta fidelidad</h2>
+        <p style="margin:0;max-width:66ch;font-size:15px;line-height:1.6;color:#6C6961">Maqueta a escala real de desktop (contenido de 1280px con márgenes de 80px). Todo lo que aparece aquí es especificación: tipos, pesos, colores y espacios son los definitivos.</p>
+      </div>
+    </div>
+
+    <div style="border:1px solid #C3BCB0;background:#FAF8F4;overflow:hidden">
+      <div style="border-bottom:1px solid #DCD7CE">
+        <div style="max-width:1280px;margin:0 auto;padding:0 80px;height:64px;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:15px;font-weight:600;letter-spacing:-0.01em;color:#1A1917">Samuel Hernández</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#6C6961;margin-top:2px">Industrial Software &amp; AI Engineer</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:32px">
+            <div style="display:flex;gap:24px;font-size:14.5px;color:#6C6961">
+              <span style="color:#1A1917;border-bottom:1px solid #1D5A4A;padding-bottom:3px">Caso</span>
+              <span>Trabajo</span>
+              <span>Capacidades</span>
+              <span>Contacto</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">ES<span style="color:#DCD7CE"> / </span><span style="color:#6C6961">EN</span></span>
+              <span style="background:#1D5A4A;color:#FAF8F4;font-size:13.5px;font-weight:500;padding:8px 14px;border-radius:2px">Hablemos de tu proceso</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="position:relative">
+        <sc-if value="{{ gridOverlay }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;inset:0;max-width:1280px;margin:0 auto;padding:0 80px;pointer-events:none">
+          <div style="height:100%;display:grid;grid-template-columns:repeat(12,1fr);gap:24px">
+            <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+            <div style="border-left:1px solid rgba(220,215,206,0.75)"></div><div style="border-left:1px solid rgba(220,215,206,0.75)"></div><div style="border-left:1px solid rgba(220,215,206,0.75)"></div><div style="border-left:1px solid rgba(220,215,206,0.75)"></div><div style="border-left:1px solid rgba(220,215,206,0.75)"></div>
+          </div>
+        </div>
+        </sc-if>
+        <div style="position:relative;max-width:1280px;margin:0 auto;padding:112px 80px 96px">
+          <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:24px">
+            <div style="grid-column:1 / span 8">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#1D5A4A;margin-bottom:28px">CPQ · Motores de cálculo · Automatización de ingeniería</div>
+              <h1 style="margin:0;font-size:66px;line-height:1.02;font-weight:600;letter-spacing:-0.028em;color:#1A1917;max-width:19ch">Ingeniería de software para decisiones industriales complejas.</h1>
+            </div>
+            <div style="grid-column:1 / span 6;margin-top:40px">
+              <p style="margin:0;font-size:18px;line-height:1.6;color:#3A362F">Diseño sistemas CPQ, motores de cálculo, automatización de ingeniería y herramientas con IA para convertir reglas técnicas en procesos operativos confiables.</p>
+              <div style="display:flex;align-items:center;gap:24px;margin-top:36px">
+                <span style="background:#1D5A4A;color:#FAF8F4;font-size:15px;font-weight:500;padding:13px 22px;border-radius:2px">Hablemos de tu proceso</span>
+                <span style="font-size:15px;color:#1A1917;border-bottom:1px solid #C3BCB0;padding-bottom:3px">Ver el caso CPQ</span>
+                <span style="font-size:15px;color:#6C6961;border-bottom:1px solid #DCD7CE;padding-bottom:3px">Descargar CV</span>
+              </div>
+            </div>
+            <div style="grid-column:9 / span 4;margin-top:40px;border-top:1px solid #DCD7CE;padding-top:16px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#8A857D;line-height:2.2">
+                <div style="display:flex;justify-content:space-between"><span style="color:#1A1917">Configurar</span><span>reglas válidas</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:#1A1917">Calcular</span><span>motor determinista</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:#1A1917">Decidir</span><span>cotización auditable</span></div>
+              </div>
+              <div style="margin-top:20px;padding-top:14px;border-top:1px solid #DCD7CE;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D;line-height:1.9">Industria de izaje<br />Manufactura y operaciones<br />Golfo de México · remoto</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #DCD7CE;background:#F2EFE9">
+        <div style="max-width:1280px;margin:0 auto;padding:80px 80px 88px">
+          <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:24px;margin-bottom:44px">
+            <div style="grid-column:1 / span 1;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;color:#1D5A4A;padding-top:8px">02</div>
+            <div style="grid-column:2 / span 6">
+              <h2 style="margin:0;font-size:36px;line-height:1.1;font-weight:600;letter-spacing:-0.02em;color:#1A1917">Configurar, calcular, decidir.</h2>
+              <p style="margin:16px 0 0;font-size:17px;line-height:1.6;color:#4A463F;max-width:56ch">Tres verbos que definen un sistema industrial. Cuando alguno vive en una hoja de cálculo, el proceso deja de ser confiable.</p>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid #C3BCB0">
+            <div style="padding:28px 32px 0 0;border-right:1px solid #DCD7CE">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#1D5A4A;margin-bottom:14px">01 / Configurar</div>
+              <h3 style="margin:0 0 12px;font-size:22px;line-height:1.25;font-weight:600;letter-spacing:-0.012em;color:#1A1917">Que solo exista lo que es válido</h3>
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#3A362F">Modelar producto, componente y compatibilidad para que una configuración imposible no llegue nunca a una cotización.</p>
+              <div style="border-top:1px solid #DCD7CE;padding-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A857D;line-height:1.8">Sin esto: catálogos que se contradicen y correcciones a mano</div>
+            </div>
+            <div style="padding:28px 32px 0;border-right:1px solid #DCD7CE">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#1D5A4A;margin-bottom:14px">02 / Calcular</div>
+              <h3 style="margin:0 0 12px;font-size:22px;line-height:1.25;font-weight:600;letter-spacing:-0.012em;color:#1A1917">Un motor, no una hoja de cálculo</h3>
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#3A362F">Reglas técnicas, factores de seguridad y tarifas versionadas en un motor determinista que devuelve siempre el mismo resultado.</p>
+              <div style="border-top:1px solid #DCD7CE;padding-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A857D;line-height:1.8">Sin esto: cada quien calcula con su propio archivo</div>
+            </div>
+            <div style="padding:28px 0 0 32px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#1D5A4A;margin-bottom:14px">03 / Decidir</div>
+              <h3 style="margin:0 0 12px;font-size:22px;line-height:1.25;font-weight:600;letter-spacing:-0.012em;color:#1A1917">Cotizar con trazabilidad</h3>
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#3A362F">Cada precio explica de dónde sale: qué configuración, qué regla y qué versión de tarifa lo produjeron.</p>
+              <div style="border-top:1px solid #DCD7CE;padding-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A857D;line-height:1.8">Sin esto: márgenes que nadie puede auditar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8A857D;margin-top:10px">Maqueta 04 — hero + navegación + bloque de posicionamiento, escala real de desktop. Activa <span style="color:#1D5A4A">gridOverlay</span> en Tweaks para ver los hairlines de las columnas 8–12.</div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px">
+    <div style="display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px;margin-bottom:28px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">05</div>
+      <div style="min-width:0">
+        <h2 style="margin:0 0 8px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Inicio del caso CPQ — alta fidelidad</h2>
+        <p style="margin:0;max-width:70ch;font-size:15px;line-height:1.6;color:#6C6961">Apertura del bloque de mayor peso del sitio: entradilla, especificación en filas etiqueta/valor, tecnologías contextuales y reconstrucción de interfaz con datos ficticios. Ninguna captura de la aplicación real: todo se reconstruye en HTML con valores inventados y nota de confidencialidad visible.</p>
+      </div>
+    </div>
+
+    <div style="border:1px solid #C3BCB0;background:#FAF8F4">
+      <div style="max-width:1280px;margin:0 auto;padding:88px 80px 80px">
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:24px">
+          <div style="grid-column:1 / span 1;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;color:#1D5A4A;padding-top:10px">03</div>
+          <div style="grid-column:2 / span 7">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#8A857D;margin-bottom:18px">Caso principal · en producción</div>
+            <h2 style="margin:0;font-size:40px;line-height:1.1;font-weight:600;letter-spacing:-0.02em;color:#1A1917;max-width:24ch">Plataforma CPQ industrial para componentes de izaje</h2>
+            <p style="margin:22px 0 0;font-size:18px;line-height:1.6;color:#3A362F;max-width:60ch">Configurar, calcular y cotizar eslingas y accesorios de izaje bajo reglas técnicas verificables: un solo motor sustituye al conjunto de hojas de cálculo con el que ingeniería y ventas cotizaban por separado.</p>
+          </div>
+          <div style="grid-column:10 / span 3;padding-top:52px">
+            <div style="border-top:1px solid #C3BCB0;padding-top:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#8A857D;line-height:1.9">Rol<br /><span style="color:#1A1917">Diseño y desarrollo íntegro</span></div>
+            <div style="border-top:1px solid #DCD7CE;margin-top:14px;padding-top:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#8A857D;line-height:1.9">Estado<br /><span style="color:#1D5A4A">En producción</span></div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:24px;margin-top:64px">
+          <div style="grid-column:2 / span 6">
+            <div style="border-top:1px solid #C3BCB0">
+              <div style="display:grid;grid-template-columns:150px 1fr;gap:20px;padding:13px 0;border-bottom:1px solid #DCD7CE"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A857D">Dominio</div><div style="font-size:15.5px;color:#1A1917">Izaje: eslingas, cables, accesorios y ensambles</div></div>
+              <div style="display:grid;grid-template-columns:150px 1fr;gap:20px;padding:13px 0;border-bottom:1px solid #DCD7CE"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A857D">Usuarios</div><div style="font-size:15.5px;color:#1A1917">Ingeniería y ventas técnicas</div></div>
+              <div style="display:grid;grid-template-columns:150px 1fr;gap:20px;padding:13px 0;border-bottom:1px solid #DCD7CE"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A857D">Entradas</div><div style="font-size:15.5px;color:#1A1917">Configuración, catálogo de componentes, reglas técnicas, tarifas</div></div>
+              <div style="display:grid;grid-template-columns:150px 1fr;gap:20px;padding:13px 0;border-bottom:1px solid #DCD7CE"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A857D">Salida</div><div style="font-size:15.5px;color:#1A1917">Cotización auditable con desglose de cálculo</div></div>
+              <div style="display:grid;grid-template-columns:150px 1fr;gap:20px;padding:13px 0;border-bottom:1px solid #DCD7CE"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A857D">Restricción dura</div><div style="font-size:15.5px;color:#1A1917">Ninguna configuración inválida puede llegar a cotizarse</div></div>
+              <div style="display:grid;grid-template-columns:150px 1fr;gap:20px;padding:13px 0;border-bottom:1px solid #C3BCB0"><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A857D">Tecnologías</div><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1A1917;line-height:1.9">React · TypeScript <span style="color:#8A857D">— configurador</span><br />FastAPI · Python <span style="color:#8A857D">— motor de cálculo y reglas</span><br />PostgreSQL <span style="color:#8A857D">— catálogo, tarifas y versionado</span><br />Docker <span style="color:#8A857D">— despliegue reproducible</span></div></div>
+            </div>
+          </div>
+          <div style="grid-column:8 / span 5">
+            <div style="border:1px solid #C3BCB0;background:#FFFFFF">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #DCD7CE;background:#F2EFE9">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6C6961">Configurador — reconstrucción</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.06em;color:#8A5A1E">datos ficticios</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr">
+                <div style="padding:16px;border-right:1px solid #DCD7CE">
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D;margin-bottom:12px">Configuración</div>
+                  <div style="display:grid;gap:10px">
+                    <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8A857D;margin-bottom:4px">TIPO</div><div style="border:1px solid #DCD7CE;padding:7px 9px;font-size:13px;color:#1A1917">Eslinga de cable · 2 ramales</div></div>
+                    <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8A857D;margin-bottom:4px">DIÁMETRO</div><div style="border:1px solid #DCD7CE;padding:7px 9px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1A1917;font-variant-numeric:tabular-nums">22 mm</div></div>
+                    <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8A857D;margin-bottom:4px">LONGITUD</div><div style="border:1px solid #DCD7CE;padding:7px 9px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1A1917;font-variant-numeric:tabular-nums">4.50 m</div></div>
+                    <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8A857D;margin-bottom:4px">TERMINAL</div><div style="border:1px solid #1D5A4A;padding:7px 9px;font-size:13px;color:#1A1917">Gancho con seguro</div></div>
+                    <div><div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8A857D;margin-bottom:4px">FACTOR DE SEGURIDAD</div><div style="border:1px solid #DCD7CE;padding:7px 9px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1A1917;font-variant-numeric:tabular-nums">5 : 1</div></div>
+                  </div>
+                </div>
+                <div style="padding:16px">
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D;margin-bottom:12px">Resultado del motor</div>
+                  <div style="display:grid;gap:0;border-top:1px solid #DCD7CE">
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #EDE9E2"><span style="font-size:12.5px;color:#6C6961">Carga de trabajo</span><span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917;font-variant-numeric:tabular-nums">12 400 kgf</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #EDE9E2"><span style="font-size:12.5px;color:#6C6961">Ángulo efectivo</span><span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917;font-variant-numeric:tabular-nums">60°</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #EDE9E2"><span style="font-size:12.5px;color:#6C6961">Reducción por ángulo</span><span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917;font-variant-numeric:tabular-nums">0.866</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #EDE9E2"><span style="font-size:12.5px;color:#6C6961">Componentes</span><span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917;font-variant-numeric:tabular-nums">7</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #EDE9E2"><span style="font-size:12.5px;color:#6C6961">Tarifa aplicada</span><span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">v2026.03</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:10px 0 8px;border-bottom:1px solid #C3BCB0"><span style="font-size:12.5px;color:#1A1917;font-weight:600">Total estimado</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1D5A4A;font-variant-numeric:tabular-nums;font-weight:500">$ 18 940.00</span></div>
+                  </div>
+                  <div style="margin-top:12px;border:1px solid #C9DAD2;background:#E7EFEA;padding:8px 10px">
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.06em;text-transform:uppercase;color:#1D5A4A;margin-bottom:4px">3 reglas evaluadas · 0 conflictos</div>
+                    <div style="font-size:12px;line-height:1.5;color:#3A362F">Compatibilidad terminal/diámetro · factor mínimo por tipo · límite de longitud por ramal.</div>
+                  </div>
+                </div>
+              </div>
+              <div style="border-top:1px solid #DCD7CE;padding:9px 14px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.6;color:#8A857D">fig. 1 — reconstrucción del configurador con datos ficticios. No se muestran catálogos, tarifas, clientes ni márgenes reales del cliente.</div>
+            </div>
+            <div style="margin-top:14px;border-left:2px solid #8A5A1E;padding:4px 0 4px 14px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A5A1E;margin-bottom:5px">Nota de confidencialidad</div>
+              <p style="margin:0;font-size:13px;line-height:1.6;color:#3A362F">Las interfaces de este caso son reconstrucciones fieles a la estructura del sistema, con datos inventados. Los valores, precios, reglas y nombres no corresponden a información operativa real.</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:24px;margin-top:64px">
+          <div style="grid-column:2 / span 11;border-top:1px solid #C3BCB0;padding-top:20px;display:flex;flex-wrap:wrap;gap:32px;align-items:center">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#8A857D">Sigue en esta sección</span>
+            <span style="font-size:14.5px;color:#1A1917">Modelo de dominio</span>
+            <span style="font-size:14.5px;color:#1A1917">Motor de cálculo y validación</span>
+            <span style="font-size:14.5px;color:#1A1917">Flujo técnico del sistema</span>
+            <span style="font-size:14.5px;color:#1A1917">Decisiones de arquitectura</span>
+            <span style="font-size:14.5px;color:#1A1917">Límites conocidos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8A857D;margin-top:10px">Maqueta 05 — apertura del caso CPQ. El resto de la sección (dominio, motor, flujo, arquitectura, límites) se especifica en F3, fuera del alcance de este documento.</div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">06</div>
+    <div style="min-width:0">
+      <h2 style="margin:0 0 8px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Navegación y jerarquía de acciones</h2>
+      <p style="margin:0 0 28px;max-width:66ch;font-size:15px;line-height:1.6;color:#6C6961">Un CTA comercial primario en todo el sitio. Todo lo demás es acción secundaria o terciaria, y se distingue por forma, no por color.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;background:#D9D4CB;border:1px solid #D9D4CB">
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:12px">Cabecera</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li>Altura 64px desktop / 56px móvil. Fija, borde inferior de 1px, fondo <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--background</span> sólido. Sin blur, sin cambio de altura al hacer scroll.</li>
+            <li>Izquierda: nombre (15px, w600) + rol en mono 11px. El rol se oculta por debajo de 480px.</li>
+            <li>Derecha: 4 enlaces de texto — <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">Caso · Trabajo · Capacidades · Contacto</span>. Sin píldoras ni fondos.</li>
+            <li>Activo: subrayado de 1px en acento a 3px de la línea base, más <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">aria-current="true"</span>. Se conserva el <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">IntersectionObserver</span> actual, con las anclas nuevas.</li>
+            <li>Selector ES/EN en mono 11px, no un botón.</li>
+          </ul>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:12px">Jerarquía de acciones</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li><strong>Primaria (única):</strong> "Hablemos de tu proceso" — fondo <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--accent</span>, texto <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--background</span>, radio 2px, 15px w500, alto 44px. Aparece en cabecera, hero, cierre del caso y contacto: siempre la misma etiqueta y siempre apuntando a <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#contacto</span>.</li>
+            <li><strong>Secundarias:</strong> "Ver el caso", "Descargar CV" — texto con subrayado de 1px en <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--border-strong</span>. Sin fondo, sin borde de caja.</li>
+            <li><strong>Terciarias:</strong> GitHub y LinkedIn — solo en el pie y en el perfil, como texto con etiqueta visible ("GitHub ↗"), no como iconos sueltos. Cada uno con su propio <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">aria-label</span> correcto.</li>
+            <li>Ningún botón sólido más en todo el sitio, salvo <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">submit</span> del formulario, que usa el mismo estilo primario.</li>
+          </ul>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:12px">Anclas y compatibilidad</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li>Nuevas: <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#caso · #trabajo · #capacidades · #contacto</span>. Se conserva <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#top</span>.</li>
+            <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#contacto</span> ya existe y no cambia: los enlaces externos siguen funcionando.</li>
+            <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#servicios</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#skills</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#proyectos</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#curriculum</span> y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#availability</span> se mantienen como <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">id</span> alias en la sección más cercana, para no romper enlaces antiguos.</li>
+            <li>Menú móvil: se conserva tal cual el comportamiento actual (<span style="font-family:'IBM Plex Mono',monospace;font-size:12px">inert</span>, focus trap, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">Escape</span>, bloqueo de scroll). Solo cambia el estilo: sin blur, borde de 1px, la única sombra permitida.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">07</div>
+    <div style="min-width:0">
+      <h2 style="margin:0 0 28px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Comportamiento responsive</h2>
+      <div style="border:1px solid #D9D4CB;background:#FBFAF8">
+        <div style="display:grid;grid-template-columns:150px 1fr 1fr 1fr;gap:20px;padding:12px 20px;border-bottom:1px solid #D9D4CB;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D"><div>Bloque</div><div>Desktop ≥1280</div><div>Tablet 768–1279</div><div>Móvil &lt;768</div></div>
+        <div style="display:grid;grid-template-columns:150px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Cabecera</div><div>Nombre + rol, 4 enlaces, ES/EN, CTA</div><div>Igual, gaps a 20px; CTA se mantiene</div><div>56px: nombre + hamburguesa; rol oculto &lt;480px; CTA dentro del panel, a ancho completo</div></div>
+        <div style="display:grid;grid-template-columns:150px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Hero</div><div>H1 en col. 1–8; entradilla 1–6; metadatos 9–12; hairlines visibles</div><div>H1 1–6; metadatos pasan debajo de la entradilla, en fila de 3; hairlines al 30%</div><div>Una columna; H1 a 36–40px; metadatos como lista de 3 filas etiqueta/valor; sin hairlines</div></div>
+        <div style="display:grid;grid-template-columns:150px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Acciones del hero</div><div>CTA + 2 secundarias en línea</div><div>Igual, con salto de línea permitido</div><div>CTA a ancho completo (44px de alto); secundarias apiladas debajo, separadas 16px</div></div>
+        <div style="display:grid;grid-template-columns:150px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Configurar / Calcular / Decidir</div><div>3 columnas con separadores verticales de 1px</div><div>2 + 1; los separadores verticales pasan a horizontales</div><div>3 bloques apilados, separados por hairline horizontal; sin separador vertical</div></div>
+        <div style="display:grid;grid-template-columns:150px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Especificación del caso</div><div>Filas etiqueta 150px / valor</div><div>Igual, etiqueta a 130px</div><div>Etiqueta encima del valor, ambas a ancho completo; sin scroll lateral</div></div>
+        <div style="display:grid;grid-template-columns:150px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Reconstrucción de interfaz</div><div>2 paneles lado a lado, col. 8–12</div><div>2 paneles a ancho completo debajo de la especificación</div><div>Paneles apilados; los datos siguen legibles a 12px mínimo; nunca se escala la maqueta a tamaño ilegible</div></div>
+        <div style="display:grid;grid-template-columns:150px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Diagrama del flujo (F3)</div><div>Horizontal, alineado a columnas</div><div>Horizontal con 2 filas</div><div>Vertical: etapas apiladas con conectores verticales; nunca reducción a escala</div></div>
+        <div style="display:grid;grid-template-columns:150px 1fr 1fr 1fr;gap:20px;padding:14px 20px;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Tabla de trabajo (F4)</div><div>Filas: nº · proyecto · mecanismo · stack · estado</div><div>Se oculta la columna de mecanismo, visible al expandir</div><div>Cada proyecto es un bloque de pares etiqueta/valor; el estado va arriba</div></div>
+      </div>
+      <div style="margin-top:20px;border:1px solid #D9D4CB;background:#FBFAF8;padding:22px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:12px">Reglas transversales</div>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F;columns:2;column-gap:40px">
+          <li>Verificación obligatoria en 360, 390, 768, 1024, 1440 y 1920px.</li>
+          <li>Cero scroll horizontal en cualquier ancho.</li>
+          <li>Objetivos táctiles ≥ 44×44px, incluidos los enlaces de pie.</li>
+          <li>Prosa nunca por debajo de 16px; mono nunca por debajo de 11px.</li>
+          <li>Los bloques con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">grid</span> usan <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">minmax(0,1fr)</span> para no desbordar por contenido mono.</li>
+          <li>Ningún <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">order</span> que altere el orden de lectura respecto al DOM.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">08</div>
+    <div style="min-width:0">
+      <h2 style="margin:0 0 28px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Estados: hover, focus, active, disabled</h2>
+      <div style="border:1px solid #D9D4CB;background:#FBFAF8">
+        <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;gap:20px;padding:12px 20px;border-bottom:1px solid #D9D4CB;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D"><div>Elemento</div><div>Hover</div><div>Focus-visible</div><div>Active</div></div>
+        <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">CTA primario</div><div>Fondo → <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">#16483B</span>. Sin desplazamiento, sin sombra, sin escala.</div><div>Anillo de 2px <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--accent</span> con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">outline-offset: 2px</span>.</div><div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">translateY(1px)</span>, sin cambio de color.</div></div>
+        <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Acción secundaria</div><div>Subrayado → <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--accent</span>; texto → <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--foreground</span>.</div><div>Mismo anillo de 2px; el subrayado se mantiene.</div><div>Texto → <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--accent-hover</span>.</div></div>
+        <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Enlace de navegación</div><div>Color → <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--foreground</span> + subrayado de 1px <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--border-strong</span>, transición 120ms.</div><div>Anillo de 2px, sin desplazar el texto.</div><div>Sin efecto propio: al llegar, gana el estado activo (subrayado en acento).</div></div>
+        <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Fila de proyecto</div><div>Fondo → <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--surface</span>; la metadata pasa de <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--muted-fg</span> a <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--foreground</span>. Nada aparece de la nada: la metadata siempre está en el DOM y visible.</div><div>Anillo de 2px sobre toda la fila.</div><div>Fondo → <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--surface-2</span>.</div></div>
+        <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Campo de formulario</div><div>Borde → <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--border-strong</span>.</div><div>Borde → <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--accent</span> + anillo de 2px; nunca solo color de borde.</div><div>—</div></div>
+        <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;gap:20px;padding:14px 20px;border-bottom:1px solid #EDE9E2;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Etapa del diagrama</div><div>Borde → <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--accent</span> y etiqueta en <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--foreground</span>; el resto no se atenúa.</div><div>Anillo de 2px; si es interactiva, debe ser <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">&lt;button&gt;</span>, no un <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">&lt;g&gt;</span> con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">onclick</span>.</div><div>Fondo <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--accent-soft</span>.</div></div>
+        <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;gap:20px;padding:14px 20px;font-size:13.5px;line-height:1.55;color:#3A362F"><div style="font-weight:600;color:#1A1917">Disabled / enviando</div><div colspan="3">Opacidad 0.5, cursor por defecto, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">aria-disabled</span>, y texto que dice el estado ("Enviando…"). No se usa spinner.</div><div></div><div></div></div>
+      </div>
+      <p style="margin:16px 0 0;font-size:13.5px;line-height:1.6;color:#6C6961;max-width:76ch">Regla general: <strong>ningún estado introduce sombra, escala, blur ni desplazamiento superior a 1px</strong>. El foco visible es el mismo anillo en todo el sitio y nunca se elimina — se sustituye el <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px">focus-visible:ring-3</span> actual de shadcn por el anillo de 2px de esta spec.</p>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">09</div>
+    <div style="min-width:0">
+      <h2 style="margin:0 0 28px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Reglas de movimiento</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;background:#D9D4CB;border:1px solid #D9D4CB">
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:12px">Un solo gesto de entrada</div>
+          <p style="margin:0 0 10px;font-size:13.5px;line-height:1.65;color:#3A362F"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">translateY(8px) → 0</span> + <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">opacity 0 → 1</span>, 240ms, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">cubic-bezier(.16,1,.3,1)</span>. Una vez por bloque, nunca por tarjeta ni por fila.</p>
+          <p style="margin:0;font-size:13.5px;line-height:1.65;color:#3A362F">Se conserva el <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">IntersectionObserver</span> de <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">BaseLayout</span> y el patrón <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">html.js</span>. Se borran <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">reveal-left</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">reveal-right</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">reveal-scale</span> y los cuatro <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">reveal-delay-*</span>: no hay escalonados.</p>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:12px">Movimiento informativo (única excepción)</div>
+          <p style="margin:0;font-size:13.5px;line-height:1.65;color:#3A362F">El diagrama del flujo traza sus aristas en el orden real del proceso al entrar en pantalla: <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">stroke-dashoffset</span>, 600ms totales, una sola vez. La animación comunica la secuencia; no es decorativa. Con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">prefers-reduced-motion</span> o sin JS, el diagrama aparece completo desde el primer frame.</p>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:12px">Transiciones de estado</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li>120ms <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">ease-out</span> para color, borde y subrayado.</li>
+            <li>Propiedades animables permitidas: <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">opacity</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">transform</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">color</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">border-color</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">background-color</span>. Nada más.</li>
+            <li>Cero animaciones infinitas: fuera el <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">animate-ping</span> del badge.</li>
+            <li>View Transitions: se mantiene <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">ClientRouter</span> con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">fallback="animate"</span> para el cambio ES/EN, y todo script nuevo se re-inicializa en <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">astro:page-load</span>.</li>
+          </ul>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:12px">Reduced motion</div>
+          <p style="margin:0;font-size:13.5px;line-height:1.65;color:#3A362F">Se conserva el bloque <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">@media (prefers-reduced-motion: reduce)</span> ya existente, adaptado a los nombres nuevos: todo contenido visible, sin transformaciones, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">scroll-behavior: auto</span>. Criterio de aceptación: con la preferencia activada, la página debe ser indistinguible de una página estática.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">10</div>
+    <div style="min-width:0">
+      <h2 style="margin:0 0 8px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Especificación exacta de F1 y F2</h2>
+      <p style="margin:0 0 28px;max-width:66ch;font-size:15px;line-height:1.6;color:#6C6961">Dos fases entregables por separado, cada una con su propio criterio de "hecho". F3 en adelante queda fuera de este documento.</p>
+
+      <div style="border:1px solid #C3BCB0;background:#FBFAF8;margin-bottom:24px">
+        <div style="padding:20px 24px;border-bottom:1px solid #DCD7CE;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1D5A4A">F1</span>
+          <span style="font-size:20px;font-weight:600;letter-spacing:-0.01em">Tema y fundamentos</span>
+          <span style="font-size:13.5px;color:#6C6961">La página sigue teniendo las secciones antiguas al terminar: solo se valida el sistema visual.</span>
+        </div>
+        <div style="padding:22px 24px;display:grid;gap:18px">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D;margin-bottom:10px">F1.1 — Tokens en src/styles/global.css</div>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+              <li>Sustituir el bloque <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">:root</span> por los 11 tokens de la sección 01, en OKLCH, conservando los nombres que shadcn necesita: <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--background · --foreground · --card · --popover · --primary · --secondary · --muted · --accent · --destructive · --border · --input · --ring</span>. <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--primary</span> pasa a ser el verde industrial.</li>
+              <li>Atención al detalle crítico: hoy <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--border: oklch(1 0 0 / 8%)</span> es blanco translúcido y desaparece sobre fondo claro. Debe pasar a un valor opaco.</li>
+              <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--radius: 0.125rem</span> y eliminar los derivados <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--radius-2xl/3xl/4xl</span> del bloque <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">@theme inline</span>.</li>
+              <li>Retirar del tema los tokens que ya no existen en esta dirección: <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--brand-glow · --gradient-brand · --gradient-surface · --shadow-glow · --shadow-card</span> y las 5 variables <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--chart-*</span> si no tienen uso.</li>
+              <li>Escala tipográfica y de espaciado de las secciones 02 y 01 como variables de tema, para que las secciones no repitan números mágicos.</li>
+            </ul>
+          </div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D;margin-bottom:10px">F1.2 — Utilidades: qué se va, y cómo comprobar antes de borrar</div>
+            <p style="margin:0 0 10px;font-size:13.5px;line-height:1.65;color:#3A362F">Ninguna eliminación se hace de memoria. Para cada candidato, ejecutar la búsqueda y actuar solo si devuelve cero coincidencias fuera de su propia definición:</p>
+            <div style="background:#1A1917;color:#EFEBE3;padding:16px 18px;overflow-x:auto;min-width:0"><pre style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;white-space:pre">rg -n "bg-radial-glow|bg-grid|surface-card"        src public
+rg -n "shadow-glow|shadow-card|gradient-brand"     src
+rg -n "reveal-left|reveal-right|reveal-scale"      src
+rg -n "reveal-delay-"                              src
+rg -n "brand-glow|--chart-"                        src
+rg -n "hero-bg|nosotros-1|nosotros-2|tulipanes"    src public
+rg -n "from ['\"].*data/(projects|services|skills)" src
+rg -n "tw-animate-css|lucide-react|astro-icon"     src astro.config.* package.json
+npm run build   # y comparar el CSS emitido antes/después</pre></div>
+            <p style="margin:10px 0 0;font-size:13.5px;line-height:1.65;color:#3A362F">Regla de seguridad: si una búsqueda devuelve coincidencias, <strong>no se borra</strong>; se documenta el uso y se decide después. Las eliminaciones van en un commit propio, separado del rediseño, para poder revertirlas sin perder trabajo visual. <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">astro-icon</span> y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">lucide-react</span> se mantienen hasta que F4/F5 confirmen que ningún componente los usa.</p>
+          </div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D;margin-bottom:10px">F1.3 — Primitivos y retícula</div>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+              <li>Auditar <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">ui/button.tsx</span> sobre fondo claro: la variante <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">default</span> pasa a ser el CTA primario; <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">secondary</span> se convierte en enlace subrayado; <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">size lg</span> debe dar 44px de alto real (hoy da 36px con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">h-9</span>). Sustituir <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">focus-visible:ring-3</span> por el anillo de 2px.</li>
+              <li>Revisar <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">ui/field.tsx</span> y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">label.tsx</span>: contraste de placeholder y borde de campo sobre <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--background</span>.</li>
+              <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">Section.astro</span>: recibe <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">number</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">spacing</span> (<span style="font-family:'IBM Plex Mono',monospace;font-size:12px">lg|md|sm</span>) y usa la retícula de 12 columnas; el eyebrow-píldora pasa a numeración mono + hairline.</li>
+              <li>Añadir el skip-link en <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">BaseLayout.astro</span> (visible solo con foco) y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">id="main"</span> en el <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">&lt;main&gt;</span> de <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">HomePage.astro</span>.</li>
+            </ul>
+          </div>
+          <div style="border-top:1px solid #DCD7CE;padding-top:16px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:10px">F1 está hecha cuando</div>
+            <p style="margin:0;font-size:13.5px;line-height:1.65;color:#3A362F"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">npm run build</span> pasa; el sitio antiguo se ve en claro sin texto ilegible ni bordes invisibles; no queda ningún gradiente, glow ni <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">backdrop-filter</span> en el CSS emitido; el foco es visible en todos los controles; y ninguna eliminación se hizo sin su búsqueda previa registrada.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="border:1px solid #C3BCB0;background:#FBFAF8">
+        <div style="padding:20px 24px;border-bottom:1px solid #DCD7CE;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1D5A4A">F2</span>
+          <span style="font-size:20px;font-weight:600;letter-spacing:-0.01em">Posicionamiento</span>
+          <span style="font-size:13.5px;color:#6C6961">Al terminar, el sitio ya no se describe como "full stack" en ningún sitio, incluido el <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">&lt;head&gt;</span>.</span>
+        </div>
+        <div style="padding:22px 24px;display:grid;gap:18px">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D;margin-bottom:10px">F2.1 — Contenido en src/i18n/pages.ts (copy exacto)</div>
+            <div style="background:#FFFFFF;border:1px solid #DCD7CE;padding:16px 18px;font-size:13.5px;line-height:1.75;color:#3A362F">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#1D5A4A;margin-bottom:8px">ES</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">meta.title</span> — Industrial Software &amp; AI Engineer</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">meta.description</span> — Diseño sistemas CPQ, motores de cálculo, automatización de ingeniería y herramientas con IA para convertir reglas técnicas en procesos operativos confiables.</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">hero.eyebrow</span> — CPQ · Motores de cálculo · Automatización de ingeniería</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">hero.title</span> — Ingeniería de software para decisiones industriales complejas.</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">hero.description</span> — igual que <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">meta.description</span></div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">hero.primaryCta</span> — Hablemos de tu proceso · <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">secondary</span> — Ver el caso CPQ · <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">tertiary</span> — Descargar CV</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">hero.pillars</span> — Configurar / reglas válidas · Calcular / motor determinista · Decidir / cotización auditable</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">hero.context</span> — Industria de izaje · Manufactura y operaciones · Golfo de México, remoto</div>
+              <div style="margin-top:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">positioning.title</span> — Configurar, calcular, decidir.</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">positioning.description</span> — Tres verbos que definen un sistema industrial. Cuando alguno vive en una hoja de cálculo, el proceso deja de ser confiable.</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">positioning.items[]</span> — cada uno con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">label · title · body · without</span>, según el texto de la maqueta 04.</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#1D5A4A;margin:14px 0 8px">EN</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">meta.title</span> — Industrial Software &amp; AI Engineer</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">hero.title</span> — Software engineering for complex industrial decisions.</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">hero.description</span> — I design CPQ systems, calculation engines, engineering automation and AI tooling that turn technical rules into reliable operational processes.</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">hero.primaryCta</span> — Let's talk about your process · <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">secondary</span> — See the CPQ case · <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">tertiary</span> — Download CV</div>
+              <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A857D">positioning.title</span> — Configure, calculate, decide.</div>
+              <div style="margin-top:10px;color:#6C6961">Paridad obligatoria: <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">PageContent</span> es un tipo compartido; cualquier clave nueva debe existir en ambos idiomas o el build falla. Eliminar del tipo <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">hero.badge</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">hero.stackLabel</span> y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">hero.stack</span>.</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D;margin-bottom:10px">F2.2 — Hero.astro</div>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+              <li>Retícula de 12 columnas según la maqueta 04: eyebrow y H1 en 1–8, entradilla y acciones en 1–6, metadatos en 9–12.</li>
+              <li>Eliminar: <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">heroBg</span> y su <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">mask-image</span>, las capas <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">bg-grid</span> y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">bg-radial-glow</span>, el badge con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">animate-ping</span>, el <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">span</span> con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">bg-clip-text</span> del titular y los chips de <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">stack</span>.</li>
+              <li>Hairlines de retícula solo en columnas 8–12, con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">aria-hidden="true"</span> y ocultos por debajo de 768px.</li>
+              <li>Conservar <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">id="top"</span> y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">aria-labelledby="hero-heading"</span>. Un solo <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">h1</span> en la página.</li>
+            </ul>
+          </div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D;margin-bottom:10px">F2.3 — Positioning.astro (nuevo) · Header.tsx · BaseLayout.astro</div>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+              <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">Positioning.astro</span>: 3 columnas con separadores de 1px, fondo <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">--surface</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">id="posicionamiento"</span>, sin iconos y sin tarjetas. Se inserta en <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">HomePage.astro</span> justo después del hero.</li>
+              <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">Header.tsx</span>: nav a 4 entradas con las anclas nuevas, marca con rol, sin <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">backdrop-blur</span> ni cambio de borde al hacer scroll (el <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">useState scrolled</span> puede desaparecer), subrayado activo en acento. <strong>Conservar intactos</strong> el focus trap, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">inert</span>, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">Escape</span>, el bloqueo de scroll y el <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">IntersectionObserver</span> de sección activa.</li>
+              <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">BaseLayout.astro</span>: nuevos <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">title/description</span>, imagen OG regenerada con el titular nuevo, y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">JSON-LD</span> de <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">Person</span> con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">jobTitle: "Industrial Software &amp; AI Engineer"</span> y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">knowsAbout</span> (CPQ, motores de cálculo, automatización de ingeniería, IA aplicada). Se mantienen hreflang, x-default, canonical y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">ClientRouter</span>.</li>
+              <li>Corregir en <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">Footer.astro</span> el <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">aria-label="GitHub"</span> del enlace de LinkedIn y actualizar el rol del pie.</li>
+            </ul>
+          </div>
+          <div style="border-top:1px solid #DCD7CE;padding-top:16px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:10px">F2 está hecha cuando</div>
+            <p style="margin:0;font-size:13.5px;line-height:1.65;color:#3A362F">La búsqueda <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">rg -ni "full stack" src</span> devuelve cero; hero y bloque de posicionamiento coinciden con las maquetas 04 en desktop, tablet y móvil; ES y EN tienen paridad total; el <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">&lt;head&gt;</span> valida OG/JSON-LD; y el menú móvil conserva su comportamiento accesible.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">11</div>
+    <div style="min-width:0">
+      <h2 style="margin:0 0 8px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Archivos que Claude Code deberá modificar (F1 + F2)</h2>
+      <p style="margin:0 0 28px;max-width:66ch;font-size:15px;line-height:1.6;color:#6C6961">Ningún archivo se borra en estas dos fases. Lo que sobra se marca como candidato y se verifica primero.</p>
+      <div style="border:1px solid #D9D4CB;background:#FBFAF8">
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:12px 20px;border-bottom:1px solid #D9D4CB;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A857D"><div>Archivo</div><div>Fase</div><div>Qué se hace</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/styles/global.css</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F1</div><div style="color:#4A463F">Tokens nuevos, radios, escala tipográfica y de espaciado, un solo <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">reveal</span>, retirada de utilidades verificadas.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/components/ui/button.tsx</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F1</div><div style="color:#4A463F">Variantes primaria/secundaria, alto real de 44px en <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">lg</span>, anillo de foco de 2px.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/components/ui/field.tsx · label.tsx · separator.tsx</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F1</div><div style="color:#4A463F">Revisión de contraste y borde sobre fondo claro. Cambios mínimos.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/components/layout/Section.astro</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F1</div><div style="color:#4A463F">Retícula de 12 columnas, props <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">number</span> y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">spacing</span>, numeración mono en lugar de píldora.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/layouts/BaseLayout.astro</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F1 + F2</div><div style="color:#4A463F">F1: skip-link. F2: meta, OG, JSON-LD. Se conservan hreflang, canonical y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">ClientRouter</span>.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/i18n/pages.ts</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F2</div><div style="color:#4A463F">Copy de hero y posicionamiento en ES y EN; retirada de <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">badge/stack</span>; el resto de secciones se deja intacto hasta F3–F5.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/components/sections/Hero.astro</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F2</div><div style="color:#4A463F">Reescritura completa según maqueta 04.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/components/sections/Positioning.astro</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A5A1E">F2 · nuevo</div><div style="color:#4A463F">Bloque Configurar / Calcular / Decidir.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/components/pages/HomePage.astro</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F2</div><div style="color:#4A463F">Insertar <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">Positioning</span>, añadir <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">id="main"</span>. No se quitan secciones todavía.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/components/layout/Header.tsx</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F2</div><div style="color:#4A463F">Nav de 4 entradas, marca con rol, sin blur; se conserva toda la lógica de accesibilidad.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/components/layout/Footer.astro</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F2</div><div style="color:#4A463F">Corrección del <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">aria-label</span>, rol nuevo, enlaces con etiqueta visible.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">src/components/layout/LanguageSwitch.tsx</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F2</div><div style="color:#4A463F">Solo estilo: mono 11px, sin píldora. Lógica intacta.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;border-bottom:1px solid #EFEBE4;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">public/og-default.png</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F2</div><div style="color:#4A463F">Regenerar con el titular y la paleta nuevos (1200×630).</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 90px 1.6fr;gap:20px;padding:13px 20px;font-size:13.5px;line-height:1.55"><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1A1917">CLAUDE.md</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1D5A4A">F1 + F2</div><div style="color:#4A463F">Actualizar la documentación interna: nuevo posicionamiento, tokens, retícula y reglas de estilo.</div></div>
+      </div>
+      <div style="margin-top:20px;border-left:2px solid #8A5A1E;padding:4px 0 4px 16px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;color:#8A5A1E;margin-bottom:6px">Intocable en F1 y F2</div>
+        <p style="margin:0;font-size:13.5px;line-height:1.65;color:#3A362F;max-width:78ch"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">Contact.astro</span> y su <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">form hidden</span> de Netlify (nombres <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">name/email/description/bot-field</span>), <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">ContactForm.tsx</span>, los PDF de <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">public/</span> y sus nombres exactos, <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">src/data/*</span>, y las secciones Services / Skills / Projects / Resume / Availability, que se abordan en F3–F5. Nada de <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">git rm</span>, commits automáticos ni PRs.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">12</div>
+    <div style="min-width:0">
+      <h2 style="margin:0 0 28px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Criterios de aceptación de la implementación</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1px;background:#D9D4CB;border:1px solid #D9D4CB">
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:14px">Visuales</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li>Un único color de acento en el CSS emitido; cero gradientes, glow y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">backdrop-filter</span>.</li>
+            <li>Radio máximo 4px; una sola sombra en todo el sistema.</li>
+            <li>Un solo botón sólido visible por pantalla (más el <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">submit</span>).</li>
+            <li>Mono ausente de toda la prosa y de todos los titulares.</li>
+            <li>La retícula solo se ve en hero, diagrama y especificación del caso; nunca en móvil.</li>
+            <li>Hero y posicionamiento indistinguibles de las maquetas 04 en 1440px (tolerancia ±2px en espaciados).</li>
+          </ul>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:14px">Técnicos</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">npm run build</span> limpio; <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">package.json</span> sin dependencias nuevas (o solo la mono, si la apruebas).</li>
+            <li><span style="font-family:'IBM Plex Mono',monospace;font-size:12px">rg -ni "full stack" src</span> devuelve cero.</li>
+            <li>Paridad ES/EN completa; <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">/</span> y <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">/en</span> revisadas a mano.</li>
+            <li>Con JS deshabilitado, todo el contenido es visible.</li>
+            <li>Navegación por teclado completa: skip-link, foco visible, menú móvil con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">Escape</span> y focus trap.</li>
+            <li>Contraste ≥ 4.5:1 en texto normal, ≥ 3:1 en ≥24px, verificado con herramienta.</li>
+            <li>Ninguna eliminación sin su búsqueda previa documentada en el commit.</li>
+            <li>Netlify Forms recibe un envío de prueba después de cada fase que toque el formulario.</li>
+          </ul>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:14px">Responsive y rendimiento</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li>Verificado en 360, 390, 768, 1024, 1440 y 1920px; cero scroll horizontal.</li>
+            <li>H1 fluido con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">clamp()</span>, sin saltos entre breakpoints.</li>
+            <li>Objetivos táctiles ≥ 44×44px en cabecera, hero, proyectos y pie.</li>
+            <li>Ninguna imagen servida por encima de 300 KB.</li>
+            <li>LCP &lt; 2.0s y CLS &lt; 0.05 en móvil con 4G simulado.</li>
+            <li>Con <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">prefers-reduced-motion</span>, la página es indistinguible de una estática.</li>
+          </ul>
+        </div>
+        <div style="background:#FBFAF8;padding:22px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#1D5A4A;margin-bottom:14px">Narrativos</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#3A362F">
+            <li>El caso CPQ es el bloque más extenso y detallado de la página (sin porcentaje fijo: criterio de juicio, no de medida).</li>
+            <li>Ninguna tecnología aparece sin decir para qué se usó.</li>
+            <li>Todo proyecto no implementado lleva su estado visible: <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">PROTOTIPO · INVESTIGACIÓN · CONCEPTO · EN DESARROLLO · EN PRODUCCIÓN · ENTREGADO</span>, en mono, junto al título y también en el texto accesible.</li>
+            <li>Toda interfaz mostrada del caso es reconstrucción con datos ficticios y lleva su nota de confidencialidad.</li>
+            <li>Un solo CTA comercial en toda la página, con la misma etiqueta en todas sus apariciones.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid #D9D4CB;padding:52px 0 8px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:40px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#8A857D">13</div>
+    <div style="min-width:0">
+      <h2 style="margin:0 0 8px;font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.14em;text-transform:uppercase">Documento de handoff para Claude Code</h2>
+      <p style="margin:0 0 24px;max-width:66ch;font-size:15px;line-height:1.6;color:#6C6961">Texto listo para pegar como instrucción inicial. Todo lo que necesita saber antes de tocar el repositorio.</p>
+      <div style="border:1px solid #C3BCB0;background:#1A1917;color:#EFEBE3;padding:28px;overflow-x:auto;min-width:0">
+        <pre style="margin:0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;line-height:1.8;white-space:pre-wrap">HANDOFF — samhernandezc.com · Rediseño de posicionamiento · Fases F1 y F2
+
+CONTEXTO
+El sitio es un portafolio Astro 5 estático bilingüe. Hoy se presenta como
+"Desarrollador de Software Full Stack" con estética de plantilla oscura.
+Se reposiciona como Industrial Software & AI Engineer, con la plataforma
+CPQ industrial de izaje como caso central. Dirección visual aprobada:
+modernismo suizo (retícula estricta, una grotesca, mono solo para datos,
+un acento) con tratamiento técnico de datos en el interior del caso.
+
+PROPUESTA DE VALOR (literal, no reformular)
+ES  Ingeniería de software para decisiones industriales complejas.
+EN  Software engineering for complex industrial decisions.
+ES  Diseño sistemas CPQ, motores de cálculo, automatización de ingeniería
+    y herramientas con IA para convertir reglas técnicas en procesos
+    operativos confiables.
+
+ALCANCE DE ESTE TRABAJO
+F1  Tema y fundamentos: tokens, radios, tipografía, retícula, primitivos.
+F2  Posicionamiento: hero, bloque Configurar/Calcular/Decidir, header,
+    footer, meta/SEO/JSON-LD, copy ES+EN.
+F3-F6 (caso CPQ, diagrama, poda de secciones, capacidades, contacto)
+    NO entran aquí. No adelantar trabajo de esas fases.
+
+INVARIANTES — romper cualquiera de estos es un fallo
+1  No borrar archivos. Lo que sobra se marca como candidato y se verifica
+   con ripgrep antes de proponer su eliminación, en un commit aparte.
+2  No tocar el <form hidden data-netlify="true"> de Contact.astro ni los
+   name= (name/email/description/bot-field). Netlify Forms depende de ellos.
+3  PageContent es un tipo compartido ES/EN: toda clave nueva existe en los
+   dos idiomas o el build falla.
+4  Conservar ClientRouter (View Transitions) y re-inicializar cualquier
+   script nuevo en el evento astro:page-load.
+5  Conservar del Header: focus trap, inert, cierre con Escape, bloqueo de
+   scroll y el IntersectionObserver de sección activa.
+6  Conservar SEO: hreflang, x-default, canonical, OG, Twitter.
+7  Conservar el patrón html.js del reveal: sin JS, todo el contenido visible.
+8  Cero dependencias nuevas. Única excepción admisible, y solo si el usuario
+   la aprueba: @fontsource-variable/geist-mono. Por defecto, usar el stack
+   de mono del sistema con font-variant-numeric: tabular-nums.
+9  Mantener los nombres exactos de los PDF de CV en public/.
+10 No hacer commits automáticos, no abrir PRs, no ejecutar git rm.
+
+SISTEMA VISUAL
+Color      background #FAF8F4 · surface #F2EFE9 · surface-2 #E9E5DD
+           border #DCD7CE · border-strong #C3BCB0 · muted-fg #6C6961
+           foreground #1A1917 · accent #1D5A4A · accent-hover #16483B
+           accent-soft #E7EFEA · warning #8A5A1E
+           Declarar en OKLCH. Un solo acento, con uso escaso.
+Forma      --radius 0.125rem. Bordes de 1px. Una sola sombra (menú móvil).
+           Prohibido backdrop-filter, gradientes y glow.
+Tipografía Geist Variable 400/500/600. Mono solo en datos, tecnologías,
+           unidades, IDs, fórmulas y metadatos; nunca en prosa ni titulares.
+           H1 clamp(2.25rem, 1.1rem + 3.6vw, 4.5rem), tracking −.028em.
+           Prosa mínima 16px; mono mínima 11px.
+Retícula   12 col / 1280 máx / margen 80 / gutter 24 (desktop)
+           8 col / margen 40 / gutter 20 (tablet)
+           4 col / margen 20 / gutter 16, retícula oculta (móvil)
+           Visible solo en hero (col 8-12), diagrama y especificación.
+Acciones   Un CTA primario en todo el sitio: "Hablemos de tu proceso",
+           sólido en acento, 44px de alto, siempre a #contacto.
+           Secundarias: texto con subrayado de 1px (Ver el caso, CV).
+           Terciarias: GitHub y LinkedIn con etiqueta visible, no iconos solos.
+Estados    Hover: color/borde a 120ms. Focus: anillo de 2px en acento con
+           offset de 2px, nunca eliminado. Active: translateY(1px).
+           Ningún estado añade sombra, escala ni blur.
+Movimiento Un gesto: translateY(8px)+opacity, 240ms, cubic-bezier(.16,1,.3,1),
+           una vez por bloque. Sin escalonados. Sin animaciones infinitas.
+           Excepción informativa (F3): el diagrama traza sus aristas.
+           prefers-reduced-motion: la página queda estática.
+
+CONTENIDO — REGLAS
+· Tecnologías siempre contextuales: junto al problema que resolvieron.
+  Nunca una nube de skills ni logos sueltos.
+· Todo proyecto no implementado lleva estado visible en mono:
+  PROTOTIPO / INVESTIGACIÓN / CONCEPTO / EN DESARROLLO.
+· Prohibido usar capturas con información interna. Las interfaces del caso
+  CPQ se reconstruyen en HTML con datos ficticios y nota de confidencialidad.
+· El formulario debe admitir: consulta industrial, automatización,
+  integraciones, oportunidad profesional y otros proyectos.
+· Sin métricas de vanidad. Solo cifras verificables y atribuibles.
+
+ORDEN DE TRABAJO
+F1.1 tokens → F1.2 verificación y candidatos → F1.3 primitivos, Section,
+skip-link → validar el sitio antiguo en claro → F2.1 copy ES+EN →
+F2.2 Hero → F2.3 Positioning + Header + Footer + BaseLayout/SEO →
+revisar / y /en → npm run build.
+
+HECHO CUANDO
+F1: build limpio, sitio antiguo legible en claro, sin gradientes/glow/blur
+    en el CSS emitido, foco visible en todo control, ninguna eliminación
+    sin búsqueda previa registrada.
+F2: rg -ni "full stack" src = 0; hero y posicionamiento fieles a la spec en
+    1440/1024/390; paridad ES/EN; head con OG y JSON-LD válidos; menú móvil
+    conserva accesibilidad; cero scroll horizontal en los seis anchos.
+
+PENDIENTE DE DECISIÓN DEL USUARIO
+· Mono: dependencia geist-mono o stack del sistema (por defecto, sistema).
+· Imagen OG nueva: quién la genera.
+· Textos definitivos del caso CPQ y sus datos ficticios (entran en F3).</pre>
+      </div>
+      <p style="margin:24px 0 0;font-size:15px;line-height:1.65;color:#4A463F;max-width:72ch;border-top:1px solid #D9D4CB;padding-top:24px">El repositorio sigue sin tocarse: no hay código de producción, commits, PRs ni archivos eliminados. Para arrancar, solo faltan dos decisiones tuyas —la monoespaciada y quién genera la imagen OG— y después F3 necesitará el texto del caso CPQ con sus datos ficticios.</p>
+    </div>
+  </section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;gridOverlay&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Maquetas&quot;},&quot;showAltAccent&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Documento&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      showAltAccent: this.props.showAltAccent ?? true,
+      gridOverlay: this.props.gridOverlay ?? true
+    };
+  }
+}
+</script>
+</body>
+</html>

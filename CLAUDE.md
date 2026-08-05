@@ -1,7 +1,120 @@
 # CLAUDE.md
 
 ## Propósito del proyecto
-Portafolio personal de Samuel Hernández (samhernandezc.com): sitio estático bilingüe (ES/EN) que presenta su perfil profesional, servicios, skills, proyectos, CV y contacto.
+Portafolio personal de Samuel Hernández (samhernandezc.com): sitio estático bilingüe (ES/EN) que presenta su perfil como Industrial Software & AI Engineer, su caso principal de software CPQ industrial, trabajo complementario, capacidades técnicas, CV y contacto.
+
+## Rediseño aprobado del portafolio
+
+El portafolio está en proceso de reposicionamiento desde un perfil genérico de desarrollo full stack hacia:
+
+**Industrial Software & AI Engineer**
+
+La dirección visual aprobada es modernismo suizo con una capa técnica para datos, reglas, cálculos y casos de ingeniería.
+
+Antes de modificar componentes visuales, estilos, contenido, navegación, SEO o estructura de la página principal, leer completamente:
+
+- docs/redesign/DESIGN_HANDOFF.md
+- docs/redesign/Handoff-Direccion-C.dc.html
+
+### Prioridad de las fuentes
+- DESIGN_HANDOFF.md es la fuente de verdad para alcance, restricciones, invariantes y criterios de aceptación.
+- `docs/redesign/Handoff-Direccion-C.dc.html` es únicamente una referencia visual.
+- El código actual es la fuente de verdad para comportamiento existente, rutas, integraciones y dependencias.
+- Ante una contradicción entre documentación y código, no asumir una solución: reportar la discrepancia antes de modificar archivos.
+- No copiar directamente sus estilos inline ni sus componentes personalizados.
+- Traducir la especificación visual al sistema existente de Astro, Tailwind CSS 4 y tokens de `global.css`.
+
+### Fases autorizadas
+
+El rediseño está dividido en fases:
+
+- **F1:** tema y fundamentos.
+- **F2:** posicionamiento, hero, navegación, bloque Configurar/Calcular/Decidir y SEO.
+- **F3:** caso CPQ y flujo técnico.
+- **F4:** reorganización y poda de proyectos y secciones.
+- **F5:** capacidades, perfil y contacto.
+- **F6:** paridad bilingüe, accesibilidad, responsive y QA final.
+
+Implementar únicamente la fase solicitada explícitamente por el usuario.
+
+No adelantar trabajo de fases posteriores aunque aparezca documentado o diseñado en los archivos de handoff.
+
+### Restricciones del rediseño
+- No eliminar archivos sin verificar primero todas sus referencias con ripgrep.
+- No ejecutar git rm.
+- No hacer commits ni abrir pull requests salvo instrucción explícita.
+- No instalar dependencias nuevas sin aprobación explícita.
+- Por defecto, usar el stack monoespaciado del sistema; no instalar @fontsource-variable/geist-mono.
+- No modificar los nombres de los PDF de CV.
+- No tocar el `<form hidden data-netlify="true">` de `Contact.astro`.
+- No modificar los atributos `name`, `email`, `description` y `bot-field`.
+- No usar capturas con información interna o confidencial.
+- Las interfaces del caso CPQ deben reconstruirse con datos ficticios y una nota de confidencialidad.
+- No presentar proyectos conceptuales como proyectos terminados; mostrar siempre su estado real.
+- No introducir gradientes, glow, glassmorphism, backdrop-filter, partículas o animaciones decorativas.
+- No crear una sección tradicional de skills con nubes de tecnologías o logos sin contexto.
+- Las tecnologías deben aparecer junto al problema o componente para el que fueron utilizadas.
+
+### Posicionamiento aprobado
+
+Propuesta de valor en español:
+
+Ingeniería de software para decisiones industriales complejas.
+
+Descripción en español:
+
+Diseño sistemas CPQ, motores de cálculo, automatización de ingeniería y herramientas con IA para convertir reglas técnicas en procesos operativos confiables.
+
+Propuesta de valor en inglés:
+
+Software engineering for complex industrial decisions.
+
+No reformular estos textos salvo instrucción explícita del usuario.
+
+### CTA comercial
+
+Existe una única intención comercial primaria:
+
+Hablemos de tu proceso
+
+Puede repetirse en cabecera, hero, cierre del caso y contacto, siempre con:
+
+la misma etiqueta;
+el mismo estilo;
+el mismo destino #contacto.
+
+Las acciones como ver el caso, descargar el CV, GitHub y LinkedIn son secundarias o terciarias.
+
+### Reglas visuales obligatorias
+
+- Fondo principal claro y cálido.
+- Acento primario: `#1D5A4A`.
+- Texto principal: `#1A1917`.
+- Radio máximo general: `4px`.
+- Bordes de `1px`.
+- Respetar `prefers-reduced-motion`.
+- Mantener objetivos táctiles de al menos `44×44px`.
+- Una única sombra, reservada para el menú móvil.
+- Geist Variable para prosa y titulares.
+- Monoespaciada solo para datos, unidades, tecnologías, fórmulas, estados e identificadores.
+- Retícula visible únicamente donde lo indique el handoff.
+- Movimiento limitado a transiciones funcionales y un único patrón de reveal.
+
+### Archivos fuera de alcance durante F1 y F2
+
+No modificar durante F1 o F2, salvo instrucción explícita:
+
+- `src/components/sections/Contact.astro`
+- `src/components/features/ContactForm.tsx`
+- `src/components/sections/Services.astro`
+- `src/components/sections/Skills.astro`
+- `src/components/sections/Projects.astro`
+- `src/components/sections/Resume.astro`
+- `src/components/sections/Availability.astro`
+- `src/data/*.ts`
+- Los PDF de `public/`
+
+No implementar `CaseCPQ.astro`, el flujo técnico ni la reconstrucción del configurador antes de autorizar F3.
 
 ## Stack y arquitectura
 - Astro 5 (estático, `astro build` sin adaptador SSR) + React 19 (islas `client:*` solo donde hay interactividad real) + Tailwind CSS 4 (config CSS-first, sin `tailwind.config.js`) + shadcn/ui (estilo `radix-nova`) + lucide (iconos).
@@ -24,8 +137,9 @@ Portafolio personal de Samuel Hernández (samhernandezc.com): sitio estático bi
 - `public/` — estáticos servidos directo (favicon, PDFs de CV; ver `public/README.md` para nombres exactos requeridos).
 
 **Notas importantes:**
-- `src/data/{projects,services,skills}.ts` existe pero **no se importa en ningún lado** — es código desconectado del build. La fuente real de contenido es siempre `src/i18n/pages.ts`. No lo uses como referencia ni asumas que alimenta el sitio.
-- `docs/` (`docs/index.corashonita.astro`, `docs/style.corashonita.css`) es contenido personal no relacionado con el portafolio, no enrutado por Astro. No lo trates como documentación del proyecto ni lo modifiques salvo pedido explícito del usuario.
+- `src/data/{projects,services,skills}.ts` existe pero **no se importa en ningún lado**. Es código desconectado del build. La fuente real de contenido es siempre `src/i18n/pages.ts`.
+- `docs/redesign/` contiene la especificación oficial del rediseño y debe leerse antes de modificar la interfaz.
+- `docs/index.corashonita.astro` y `docs/style.corashonita.css` son contenido personal no relacionado con el portafolio. No modificarlos salvo pedido explícito.
 
 ## Comandos verificados
 - `npm run dev` — servidor local de desarrollo (`astro dev`).
