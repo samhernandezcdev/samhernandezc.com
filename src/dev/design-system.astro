@@ -1,0 +1,266 @@
+---
+// Dev-only design-system preview at /dev/design-system. The route is injected
+// by the `dev-pages` integration in astro.config.mjs only when running
+// `astro dev`, so production builds never see this file.
+import DataTable from "@/components/system/DataTable.astro";
+import ThemeSwitch from "@/components/system/ThemeSwitch.astro";
+import ProseSpecimen from "@/dev/prose-specimen.mdx";
+import SystemLayout from "@/layouts/SystemLayout.astro";
+
+const colors = [
+  ["bg", "Page background"],
+  ["surface", "Quiet containers, code"],
+  ["surface-raised", "Dialogs, diagram nodes"],
+  ["text", "Primary text"],
+  ["text-muted", "Secondary text, labels"],
+  ["border", "Hairlines"],
+  ["border-strong", "Emphasis, controls"],
+  ["accent", "Links, focus, building"],
+] as const;
+
+const typeScale = [
+  ["display", "System boundaries and state"],
+  ["h1", "Reliable background jobs"],
+  ["h2", "Where retries go wrong"],
+  ["h3", "Choosing an idempotency key"],
+  ["lead", "A short introduction that sets up the problem in one or two sentences."],
+  ["body", "Body text carries long technical explanations at a comfortable measure."],
+  ["small", "Supporting text, captions and labels."],
+] as const;
+
+const spacing = [1, 2, 3, 4, 6, 8, 12, 16, 24];
+
+const accents = [
+  { name: "drafting green (chosen)", light: "oklch(0.47 0.075 170)", dark: "oklch(0.78 0.08 170)" },
+  { name: "signal amber", light: "oklch(0.53 0.13 55)", dark: "oklch(0.77 0.12 65)" },
+  { name: "blueprint blue", light: "oklch(0.47 0.12 255)", dark: "oklch(0.74 0.1 250)" },
+];
+---
+
+<SystemLayout title="Design system · dev" noindex>
+  <main class="page py-section">
+    <header class="flex flex-wrap items-end justify-between gap-6 border-b border-border pb-8">
+      <div>
+        <p class="meta">dev only · not built in production</p>
+        <h1 class="mt-2">Design system</h1>
+      </div>
+      <ThemeSwitch />
+    </header>
+
+    <section class="section mt-12" aria-labelledby="color">
+      <h2 id="color">Color</h2>
+      <p class="label mt-2 measure">Semantic roles only. Each value switches with color-scheme.</p>
+      <ul class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {
+          colors.map(([name, use]) => (
+            <li>
+              <div
+                class="h-16 rounded-md border border-border"
+                style={`background: var(--color-${name})`}
+              />
+              <p class="meta mt-2 text-text">{name}</p>
+              <p class="label">{use}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="section" aria-labelledby="accent">
+      <h2 id="accent">Accent study</h2>
+      <p class="label mt-2 measure">
+        The same link, focus ring and building status with each candidate accent.
+      </p>
+      <div class="mt-6 grid gap-6 md:grid-cols-3">
+        {
+          accents.map((accent) => (
+            <div
+              class="rounded-md border border-border p-6"
+              style={`--color-accent: light-dark(${accent.light}, ${accent.dark}); --color-focus: var(--color-accent)`}
+            >
+              <p class="meta">{accent.name}</p>
+              <p class="mt-3">
+                Retries need an <a class="link" href="#accent">idempotency key</a> to be safe.
+              </p>
+              <div class="mt-4 flex flex-wrap items-center gap-3">
+                <span class="status" data-status="building">building</span>
+                <span class="button" style="outline: 2px solid var(--color-focus); outline-offset: 2px">
+                  Focused
+                </span>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="type">
+      <h2 id="type">Typography</h2>
+      <p class="label mt-2 measure">Geist for reading, Geist Mono for metadata and code.</p>
+      <div class="mt-6 border-t border-border">
+        {
+          typeScale.map(([step, sample]) => (
+            <div class="grid gap-2 border-b border-border py-4 md:grid-cols-[8rem_1fr] md:gap-6">
+              <p class="meta">{step}</p>
+              <p
+                class="max-w-prose"
+                style={`font-size: var(--text-${step}); line-height: var(--text-${step}--line-height); ${["display", "h1", "h2", "h3"].includes(step) ? "font-weight: 600; letter-spacing: -0.015em" : ""}`}
+              >
+                {sample}
+              </p>
+            </div>
+          ))
+        }
+        <div class="grid gap-2 border-b border-border py-4 md:grid-cols-[8rem_1fr] md:gap-6">
+          <p class="meta">meta</p>
+          <p class="meta">2026-10-05 · python, fastapi, postgresql · build a1b2c3d</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="spacing">
+      <h2 id="spacing">Spacing</h2>
+      <p class="label mt-2 measure">4px base. Only these steps, plus section, gutter and component tokens.</p>
+      <ul class="mt-6 grid gap-2">
+        {
+          spacing.map((step) => (
+            <li class="grid grid-cols-[3rem_1fr] items-center gap-4">
+              <span class="meta">{step * 4}px</span>
+              <span class="h-3 rounded-sm bg-border-strong" style={`width: calc(var(--spacing) * ${step})`} />
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="section" aria-labelledby="surfaces">
+      <h2 id="surfaces">Surfaces and borders</h2>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-md border border-border bg-bg p-6"><p class="meta">bg</p></div>
+        <div class="rounded-md border border-border bg-surface p-6"><p class="meta">surface</p></div>
+        <div class="rounded-md border border-border-strong bg-surface-raised p-6">
+          <p class="meta">surface-raised</p>
+        </div>
+        <div class="planned rounded-md p-6"><p class="meta">planned / not built</p></div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="interaction">
+      <h2 id="interaction">Interaction</h2>
+      <div class="mt-6 flex flex-wrap items-center gap-4">
+        <a class="link" href="#interaction">Inline link</a>
+        <a class="link-quiet" href="#interaction">Quiet link</a>
+        <a class="link-quiet" href="#interaction" aria-current="page">Current page</a>
+        <button type="button" class="button" data-variant="primary">Download CV</button>
+        <button type="button" class="button">View source</button>
+        <button type="button" class="button" aria-pressed="true">Selected</button>
+        <button type="button" class="button demo-focus">Focused</button>
+        <button type="button" class="button demo-focus" aria-pressed="true">Selected + focused</button>
+        <button type="button" class="button" disabled>Disabled</button>
+        <button type="button" class="icon-button" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-3.5-3.5"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="mt-8">
+        <a class="row-link" href="#interaction">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="status" data-status="production">production</span>
+            <span class="source">private</span>
+          </div>
+          <p class="row-title mt-3 text-h3 font-semibold">Interactive row title</p>
+          <p class="mt-1 max-w-prose text-text-muted">
+            One sentence that states the problem the work addressed.
+          </p>
+          <p class="meta mt-3">python, fastapi, postgresql, docker</p>
+        </a>
+        <a class="row-link border-b border-border" href="#interaction">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="status" data-status="archived">archived</span>
+            <span class="source">open source</span>
+          </div>
+          <p class="row-title mt-3 text-h3 font-semibold">Second row</p>
+          <p class="meta mt-3">astro, typescript</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="metadata">
+      <h2 id="metadata">Status and metadata</h2>
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        <span class="status" data-status="production">production</span>
+        <span class="status" data-status="building">building</span>
+        <span class="status" data-status="archived">archived</span>
+        <span class="source">open source</span>
+        <span class="source">private</span>
+      </div>
+      <dl class="spec mt-8 max-w-prose">
+        <dt>Role</dt>
+        <dd>Backend and calculation engine</dd>
+        <dt>Timeline</dt>
+        <dd class="meta text-text">2025-11 – present</dd>
+        <dt>Stack</dt>
+        <dd class="meta text-text">python, fastapi, postgresql, react</dd>
+        <dt>Source</dt>
+        <dd>Private</dd>
+      </dl>
+    </section>
+
+    <section class="section" aria-labelledby="prose-title">
+      <h2 id="prose-title">Prose and code</h2>
+      <p class="label mt-2 measure">Rendered from an MDX fixture through the site's Markdown pipeline.</p>
+      <article class="prose mt-8">
+        <ProseSpecimen components={{ table: DataTable }} />
+      </article>
+    </section>
+
+    <section class="section" aria-labelledby="diagram-title">
+      <h2 id="diagram-title">Diagram language</h2>
+      <p class="label mt-2 measure">
+        Specimen of node kinds and edge types. Not a real system.
+      </p>
+      <figure class="diagram mt-6 max-w-prose">
+        <ol class="diagram-layers">
+          <li class="diagram-layer">
+            <span class="diagram-label">client</span>
+            <ul class="diagram-nodes">
+              <li class="diagram-node" data-kind="external"><span class="diagram-kind">external</span>Browser</li>
+            </ul>
+          </li>
+          <li class="diagram-layer" data-edge="sync">
+            <span class="diagram-label">api · sync</span>
+            <ul class="diagram-nodes">
+              <li class="diagram-node" data-kind="service"><span class="diagram-kind">service</span>HTTP API</li>
+            </ul>
+          </li>
+          <li class="diagram-layer" data-edge="async">
+            <span class="diagram-label">work · async</span>
+            <ul class="diagram-nodes">
+              <li class="diagram-node" data-kind="queue"><span class="diagram-kind">queue</span>Job queue</li>
+              <li class="diagram-node" data-kind="service"><span class="diagram-kind">service</span>Worker</li>
+              <li class="diagram-node planned" data-kind="service"><span class="diagram-kind">planned</span>Evaluator</li>
+            </ul>
+          </li>
+          <li class="diagram-layer" data-edge="sync">
+            <span class="diagram-label">data</span>
+            <ul class="diagram-nodes">
+              <li class="diagram-node" data-kind="store"><span class="diagram-kind">store</span>PostgreSQL</li>
+            </ul>
+          </li>
+        </ol>
+        <figcaption>Solid connector: synchronous call. Dotted: asynchronous. Dashed node: planned.</figcaption>
+      </figure>
+    </section>
+  </main>
+</SystemLayout>
+
+<style>
+  /* Specimen only: shows the keyboard focus ring without needing keyboard input. */
+  .demo-focus {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+</style>

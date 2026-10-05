@@ -3,10 +3,11 @@
 // every built route at desktop and mobile widths in light and dark color schemes.
 //
 // Usage: npm run build && node scripts/screenshot.mjs [--routes /,/en] [--out dir]
+//        node scripts/screenshot.mjs --dev --routes /dev/design-system   (dev-only pages)
 import { readdir, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { preview } from "astro";
+import { dev, preview } from "astro";
 import { chromium } from "@playwright/test";
 
 const VIEWPORTS = {
@@ -15,6 +16,8 @@ const VIEWPORTS = {
 };
 const SCHEMES = ["light", "dark"];
 const PORT = 4329;
+
+const useDev = process.argv.includes("--dev");
 
 function arg(name) {
   const i = process.argv.indexOf(`--${name}`);
@@ -37,7 +40,12 @@ function slug(route) {
   return route === "/" ? "home" : route.replace(/^\//, "").replaceAll("/", "__");
 }
 
-if (!existsSync("dist")) {
+if (useDev && !arg("routes")) {
+  console.error("--dev requires --routes (dev-only pages are not in dist/).");
+  process.exit(1);
+}
+
+if (!useDev && !existsSync("dist")) {
   console.error("dist/ not found. Run `npm run build` first.");
   process.exit(1);
 }
@@ -47,7 +55,12 @@ const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 const outDir = arg("out") ?? path.join(".claude", "review", stamp);
 await mkdir(outDir, { recursive: true });
 
-const server = await preview({ server: { port: PORT, host: "127.0.0.1" }, logLevel: "error" });
+const serverConfig = {
+  server: { port: PORT, host: "127.0.0.1" },
+  logLevel: "error",
+  devToolbar: { enabled: false },
+};
+const server = useDev ? await dev(serverConfig) : await preview(serverConfig);
 const browser = await chromium.launch();
 const files = [];
 

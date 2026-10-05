@@ -30,7 +30,8 @@ Do not rely on memory for Astro APIs. Check the current official docs listed in 
 
 ## Repo constraints
 - Verify with `npm run build` (and `npm run check` once it exists) before calling work done.
-- No `tailwind.config.js`; Tailwind v4 is configured CSS-first in `src/styles/global.css`.
+- No `tailwind.config.js`; Tailwind v4 is configured CSS-first (`src/styles/system.css` for the new design system; `global.css` only for the legacy pages until Phase 3).
+- Dev-only pages live in `src/dev/` and are injected by the `dev-pages` integration only for `astro dev`; never put them in `src/pages/`.
 - Nothing under `docs/` (unrelated, off-limits). Nothing in `src/` may import from `.claude/`, `scripts/` or Playwright.
 
 ## References

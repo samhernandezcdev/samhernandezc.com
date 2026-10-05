@@ -17,6 +17,9 @@ Discovered automatically from `dist/**/index.html` (so new routes are covered wi
 Expected after the redesign: `/`, `/work`, `/work/<slug>`, `/notes`, `/notes/<slug>`, `/about`, `/es`, `/es/work`, `/es/about`, `/404`.
 Current (legacy) site: `/`, `/en`.
 
+Dev-only pages (not in `dist/`) are captured through the dev server:
+`MSYS_NO_PATHCONV=1 node scripts/screenshot.mjs --dev --routes /dev/design-system` (the env var stops Git Bash on Windows rewriting `/dev/...` into a filesystem path). The dev toolbar is disabled for captures.
+
 ## Extra manual checks when relevant
 - 320 px width for overflow (pass `--routes` and temporarily adjust, or use the browser).
 - Keyboard-only pass: skip link, focus order, palette open/close with Escape.

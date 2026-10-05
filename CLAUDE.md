@@ -32,7 +32,9 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 - `src/layouts/BaseLayout.astro` — `<html>`, meta SEO/OG/Twitter, hreflang, `ClientRouter`, reveal-on-scroll.
 - `src/components/` — `pages/HomePage.astro`, `layout/` (Header.tsx, LanguageSwitch.tsx, Footer, Section), `sections/` (Hero, Services, Skills, Projects, Resume, Availability, Contact), `features/ContactForm.tsx`, `ui/` (shadcn: button, separator).
 - `src/i18n/pages.ts` — fuente actual del contenido bilingüe (se reemplaza por Content Collections + `src/i18n/ui.ts` en la Fase 1).
-- `src/styles/global.css` — tema Tailwind v4 (`@theme inline`, OKLCH).
+- `src/styles/global.css` — tema legado de las páginas actuales (no extender).
+- `src/styles/system.css` + `src/styles/system/` — nuevo design system (tokens light/dark con `light-dark()`, primitivas, prose, código, diagramas). Reglas en el skill `portfolio-design`.
+- `src/dev/` — páginas solo de desarrollo (`/dev/design-system`), inyectadas por la integración `dev-pages` únicamente en `astro dev`.
 - `src/assets/` — imágenes importadas (optimizadas por Astro). `public/` — favicon y PDFs de CV (nombres exactos en `public/README.md`).
 - `scripts/screenshot.mjs` — herramienta dev de `visual-review` (Playwright). No es parte del sitio.
 - `docs/` — contenido personal no relacionado, no enrutado. **Off-limits.**
@@ -41,7 +43,8 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 - `npm run dev` — servidor de desarrollo.
 - `npm run build` — build de producción.
 - `npm run preview` — sirve el build.
-- `node scripts/screenshot.mjs` — capturas desktop/mobile × light/dark de todas las rutas de `dist/` en `.claude/review/` (requiere build previo).
+- `node scripts/screenshot.mjs` — capturas desktop/mobile × light/dark de todas las rutas de `dist/` en `.claude/review/` (requiere build previo). Con `--dev --routes /dev/design-system` captura páginas solo-dev (en Git Bash anteponer `MSYS_NO_PATHCONV=1`).
+- `npm run test:content` — pruebas del esquema de contenido (`node --test`).
 - `npm run check` — `astro check` (tipos en `.astro`/`.ts`/`.tsx`).
 - No existen `lint`, `test` ni `format`. No inventes comandos que no estén en `package.json`.
 

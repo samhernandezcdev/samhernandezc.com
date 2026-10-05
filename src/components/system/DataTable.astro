@@ -1,0 +1,15 @@
+---
+// Contained scroll region for true tabular data. MDX tables render through this
+// component (`<Content components={{ table: DataTable }} />`), so a wide table
+// scrolls inside a focusable, labelled region instead of cramping its columns.
+// Metadata/specification tables use the `.spec` key/value primitive instead.
+import type { HTMLAttributes } from "astro/types";
+
+type Props = HTMLAttributes<"table"> & { label?: string };
+
+const { label = "Table, scrolls horizontally", ...attrs } = Astro.props;
+---
+
+<div class="table-region" role="region" aria-label={label} tabindex="0">
+  <table {...attrs}><slot /></table>
+</div>

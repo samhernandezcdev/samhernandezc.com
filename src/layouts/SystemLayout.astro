@@ -1,0 +1,28 @@
+---
+// Minimal document shell on the new design system. Used by the dev-only design
+// preview now; BaseLayout adopts the same pieces when the site shell is rebuilt.
+import ThemeScript from "@/components/system/ThemeScript.astro";
+import "@/styles/system.css";
+
+interface Props {
+  title: string;
+  noindex?: boolean;
+}
+
+const { title, noindex = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ThemeScript />
+    <title>{title}</title>
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

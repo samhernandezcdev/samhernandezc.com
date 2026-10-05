@@ -1,0 +1,14 @@
+/*
+  Design system entry for the redesigned site. Not used by the current pages
+  (they still load ./global.css) until the shell is rebuilt.
+*/
+@import "tailwindcss";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+
+@import "./system/tokens.css";
+@import "./system/base.css";
+@import "./system/primitives.css";
+@import "./system/prose.css";
+@import "./system/code.css";
+@import "./system/diagram.css";

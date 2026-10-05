@@ -1,6 +1,6 @@
 ---
 name: portfolio-design
-description: Visual design system and rules for Samuel Hernández's engineering portfolio (samhernandezc.com). Use this skill whenever creating or changing anything visual in this repo — layouts, pages, Astro components, Tailwind classes, global.css tokens, typography, spacing, color, light/dark themes, responsive behavior, hover/focus states, motion, the command palette's look, or the BKODE banner — even if the request only says "make it look better", "fix the hero" or "style this section".
+description: Visual design system and rules for Samuel Hernández's engineering portfolio (samhernandezc.com). Use this skill whenever creating or changing anything visual in this repo — layouts, pages, Astro components, Tailwind classes, design tokens (src/styles/system), typography, spacing, color, light/dark themes, responsive behavior, hover/focus states, motion, the command palette's look, or the BKODE banner — even if the request only says "make it look better", "fix the hero" or "style this section".
 ---
 
 # Portfolio design
@@ -17,7 +17,7 @@ It does **not** own copy, claims or project status — use `engineering-case-stu
 
 ## Workflow
 1. Identify the page's reading order: what must be understood first, second, third. One primary action per view.
-2. Build from tokens in `src/styles/global.css`. No arbitrary values (`text-[13px]`, `py-[72px]`, raw hex/oklch in components). If a token is missing, add it to the token layer and to `references/tokens.md`.
+2. Build from the design system in `src/styles/system/` (entry `src/styles/system.css`; preview at `/dev/design-system` in `npm run dev`). The legacy `global.css` is not extended. No arbitrary values (`text-[13px]`, `py-[72px]`, raw hex/oklch in components). If a token is missing, add it to the token layer and to `references/tokens.md`.
 3. Compose with hairlines and whitespace before reaching for surfaces; reach for color last.
 4. Design mobile as its own layout, not desktop stacked. Check 390 px width early.
 5. Add interaction states (hover, focus-visible, active) and verify `prefers-reduced-motion`.

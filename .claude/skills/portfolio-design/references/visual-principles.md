@@ -37,9 +37,9 @@ Never trade credibility for a two-second "wow".
 - Dashed border = "not built / planned" — use nowhere else.
 
 ## Color
-- Near-neutral warm-gray paper (light) and graphite (dark).
-- One accent (muted signal orange/amber) for links, focus rings and the `building` state.
-- Semantic status colors are muted and always accompanied by a text label.
+- Near-neutral warm paper (light, deliberately not cream) and graphite (dark, deliberately not near-black).
+- One accent, drafting green (the color of engineering computation pads), limited to link underlines, focus rings and the `building` marker. Primary buttons are monochrome. Rationale and budget: `tokens.md`.
+- Status is carried by a word and a marker shape (filled / half / hollow square); only `building` uses the accent. No traffic-light colors.
 - Contrast: body and muted text ≥ 4.5:1 in both themes; focus ring ≥ 3:1.
 
 ## Motion
@@ -58,6 +58,7 @@ Never trade credibility for a two-second "wow".
 - Badge walls of technologies; icons inside every card.
 - Gamified status widgets (e.g. "coffee: degraded").
 - Terminal cosplay. The command palette is a navigation tool, not a fake shell.
+- Generated-design defaults (from the frontend-design calibration list): cream background with a terracotta/clay accent; tinted near-black with one acid accent; identical rounded cards with soft grey shadows; `A · B · C` metadata chains; `→` appended to link text; mono for small *labels* (mono is for values only).
 
 ## Responsive behavior
 - Mobile is designed, not derived: reconsider order, density and what collapses.
