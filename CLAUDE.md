@@ -63,6 +63,15 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 - No asumir plataforma de despliegue.
 - No publicar proyectos sin evidencia ni métricas sin verificar.
 
+## Git authorship
+
+- Never add `Co-Authored-By` trailers for Claude, Anthropic, AI assistants, agents, or tools.
+- Never add `Generated-By`, `Assisted-By`, or equivalent AI attribution.
+- Commits must use the user's configured Git author identity only.
+- Do not mention Claude, Anthropic, AI generation, or agent assistance in commit messages.
+- This applies to every commit in this repository.
+- Do not push unless explicitly requested.
+
 ## Supuestos señalados
 - No hay referencias a `import.meta.env` todavía; documentar variables de entorno aquí cuando existan.
 - Hosting no confirmado; Netlify es solo una inferencia por Netlify Forms.
