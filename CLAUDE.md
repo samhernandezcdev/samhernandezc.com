@@ -21,8 +21,8 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 
 **Precedencia:** skills del proyecto > plugin `frontend-design` (instalado a nivel proyecto) > defaults genéricos de Claude. `frontend-design` aporta criterio, pero no redefine la identidad visual aprobada.
 
-## Stack y arquitectura (estado actual, antes de la Fase 0)
-- Astro 5 estático (sin adaptador SSR) + React 19 (islas en `Header.tsx` y `ContactForm.tsx`) + Tailwind CSS 4 CSS-first + shadcn/ui + lucide. El rediseño elimina React/shadcn (Fase 3) y sube a Astro 7 (Fase 0, requiere Node ≥ 22.12).
+## Stack y arquitectura (estado actual, tras la Fase 0)
+- Astro 7 estático (sin adaptador SSR; Node ≥ 22.12, declarado en `engines`) + React 19 (islas en `Header.tsx` y `ContactForm.tsx`) + Tailwind CSS 4 CSS-first + shadcn/ui + lucide. El rediseño elimina React/shadcn en la Fase 3.
 - TypeScript estricto (`astro/tsconfigs/strict`), alias `@/*` → `./src/*`.
 - Sin backend propio. `ContactForm.tsx` envía a Netlify Forms (se elimina en la Fase 3). No hay `netlify.toml`/`vercel.json`: el hosting no está confirmado.
 - i18n manual actual: `/` (ES) y `/en` (EN) comparten `HomePage.astro` con el diccionario de `src/i18n/pages.ts`.
@@ -30,7 +30,7 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 ## Estructura principal
 - `src/pages/` — `index.astro` (ES), `en.astro` (EN).
 - `src/layouts/BaseLayout.astro` — `<html>`, meta SEO/OG/Twitter, hreflang, `ClientRouter`, reveal-on-scroll.
-- `src/components/` — `pages/HomePage.astro`, `layout/` (Header.tsx, LanguageSwitch.tsx, Footer, Section), `sections/` (Hero, Services, Skills, Projects, Resume, Availability, Contact), `features/ContactForm.tsx`, `ui/` (shadcn).
+- `src/components/` — `pages/HomePage.astro`, `layout/` (Header.tsx, LanguageSwitch.tsx, Footer, Section), `sections/` (Hero, Services, Skills, Projects, Resume, Availability, Contact), `features/ContactForm.tsx`, `ui/` (shadcn: button, separator).
 - `src/i18n/pages.ts` — fuente actual del contenido bilingüe (se reemplaza por Content Collections + `src/i18n/ui.ts` en la Fase 1).
 - `src/styles/global.css` — tema Tailwind v4 (`@theme inline`, OKLCH).
 - `src/assets/` — imágenes importadas (optimizadas por Astro). `public/` — favicon y PDFs de CV (nombres exactos en `public/README.md`).
@@ -42,7 +42,8 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 - `npm run build` — build de producción.
 - `npm run preview` — sirve el build.
 - `node scripts/screenshot.mjs` — capturas desktop/mobile × light/dark de todas las rutas de `dist/` en `.claude/review/` (requiere build previo).
-- No existen `lint`, `test`, `format` ni `check` todavía (`check` llega en la Fase 0). No inventes comandos que no estén en `package.json`.
+- `npm run check` — `astro check` (tipos en `.astro`/`.ts`/`.tsx`).
+- No existen `lint`, `test` ni `format`. No inventes comandos que no estén en `package.json`.
 
 ## Convenciones de código
 - Componentes en PascalCase; utilidades/hooks en kebab-case o minúsculas.
@@ -52,7 +53,7 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 - No agregar nuevos primitivos shadcn ni islas React: el rediseño los elimina. Interactividad nueva = Astro + TS vanilla, justificada según `astro-architecture`.
 
 ## Verificaciones obligatorias
-- Antes de terminar un cambio: `npm run build`.
+- Antes de terminar un cambio: `npm run check` y `npm run build`.
 - Cambios visuales: revisar todas las rutas existentes (hoy `/` y `/en`) en desktop y mobile; tras fases de UI, usar `visual-review`.
 - Contenido nuevo: debe existir en ambos idiomas donde la página tenga versión ES.
 
