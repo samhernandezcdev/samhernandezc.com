@@ -1,0 +1,23 @@
+---
+# Source: CV (EN: "Open Source / Personal"; ES describes it as in progress).
+# No public repository found on github.com/samhernandezcdev (checked 2026-10-05), so this stays a draft.
+# TODO(sam): repository URL, real status and whether the code is (or will be) open source.
+# TODO(sam): problem/motivation, your exact responsibilities, any verified evaluation results with their method.
+title: AI schema and ETL validation harness
+slug: ai-schema-etl-eval-harness
+summary: >-
+  TypeScript/Node.js harness that evaluates AI-generated PostgreSQL schemas and
+  ETL pipeline designs against expert-defined reference outputs.
+status: building
+source: private
+visibility: draft
+stack: [TypeScript, Node.js, PostgreSQL, Docker]
+---
+
+## System
+
+- Checks generated designs for normalization errors, missing indexes, data
+  transformation issues and weak DevOps pipeline configurations.
+- Runs in Docker so evaluations are reproducible across model outputs and
+  prompt variations.
+- Produces structured gap reports.

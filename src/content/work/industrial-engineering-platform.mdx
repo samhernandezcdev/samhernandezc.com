@@ -1,0 +1,52 @@
+---
+# Anonymized case study: no company name, production URL, formulas, schema,
+# proprietary rules, screenshots or confidential data (see engineering-case-study).
+# Sources: CV (EN/ES) and the project description previously published in src/i18n/pages.ts.
+title: Industrial lifting-system configuration platform
+slug: industrial-engineering-platform
+summary: >-
+  Production platform for configuring industrial lifting assemblies. A Python
+  calculation engine applies published lifting-equipment standards to each
+  configuration, and the app produces technical configurations, costs and
+  quoting summaries.
+status: production
+source: private
+visibility: draft
+featured: false
+order: 1
+role: Software Developer
+timeline:
+  start: "2025-11"
+stack: [Python, FastAPI, React, TypeScript, PostgreSQL, Docker, Tailwind CSS]
+responsibility: >-
+  Requirements gathering and technology selection, the Python calculation
+  engine, the React/TypeScript frontend and the Docker-based setup for
+  development and production.
+constraints:
+  - Calculations must follow published safety standards for lifting equipment.
+  - Every result must be reproducible and auditable from its inputs.
+# TODO(sam): problem — how were configurations and quotes prepared before this system?
+# TODO(sam): context — who uses it (engineering, sales) and how many people? Only if shareable.
+# TODO(sam): decisions/trade-offs — confirm each before publishing (e.g. why FastAPI + PostgreSQL, why a separate calculation engine).
+# TODO(sam): results — any verified, non-confidential outcome (e.g. quote preparation time) with its source.
+# TODO(sam): confirm whether naming the standards (CV: DNV 2.7-1, ASME B30.9) is acceptable in the anonymized case study.
+# TODO(sam): confirm FastAPI and Tailwind CSS (listed in the old site's stack, not in the CV bullets).
+es:
+  title: Plataforma de configuración de sistemas de izaje
+  summary: >-
+    Plataforma en producción para configurar ensambles de izaje industrial. Un
+    motor de cálculo en Python aplica estándares publicados de equipos de izaje a
+    cada configuración, y la aplicación genera configuraciones técnicas, costos y
+    resúmenes para cotizar.
+---
+
+## System
+
+- **Calculation engine (Python):** load distribution, component selection and
+  geometry validation for each configuration.
+- **Frontend (React/TypeScript):** builds configurations and compares capacity,
+  cost and stock between options.
+- **Delivery:** the full stack runs in Docker containers, with CI/CD, so
+  development and production use the same environment.
+
+{/* TODO(sam): architecture diagram (generic, non-proprietary) once the boundaries are confirmed. */}

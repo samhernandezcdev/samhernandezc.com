@@ -1,0 +1,134 @@
+# Employment history. Source: CV PDFs in public/ (EN and ES), rewritten in plain
+# language. Employers may be named here; the industrial case study in
+# src/content/work stays anonymized.
+# Unverified CV outcomes are intentionally omitted (see engineering-case-study).
+# `problem` and `changed` are left out until Samuel confirms them: TODO(sam).
+
+- id: cables-del-golfo
+  role: Software Developer
+  org: Cables del Golfo MX
+  location: Villahermosa, Tabasco, MX
+  period: { start: "2025-11" }
+  owned: >-
+    Requirements gathering, technology selection and implementation of the
+    configuration platform for lifting systems.
+  built:
+    - Python calculation engine for load distribution, component selection and
+      geometry validation, applying the DNV 2.7-1 and ASME B30.9 standards.
+    - React/TypeScript frontend that compares capacity, cost and stock across
+      configurations.
+    - Docker setup and CI/CD so development and production run the same stack.
+  stack: [Python, React, TypeScript, Docker]
+  # TODO(sam): problem (workflow before the platform) and changed (verified outcome).
+  es:
+    role: Desarrollador de Software
+    owned: >-
+      Levantamiento de requerimientos, selección tecnológica e implementación de
+      la plataforma de configuración de sistemas de izaje.
+    built:
+      - Motor de cálculo en Python para distribución de cargas, selección de
+        componentes y validación geométrica, aplicando los estándares DNV 2.7-1 y
+        ASME B30.9.
+      - Frontend en React/TypeScript que compara capacidad, costo y stock entre
+        configuraciones.
+      - Configuración con Docker y CI/CD para que desarrollo y producción usen el
+        mismo stack.
+
+- id: heavy-lift-consulting
+  role: IT Consultant & Software Developer
+  org: Heavy-Lift Rigging Services & Consulting Mexico
+  location: Villahermosa, Tabasco, MX
+  period: { start: "2024-12", end: "2025-09" }
+  owned: >-
+    IT engagements from requirements to delivery: workshops, vendor evaluation
+    and software architecture.
+  built:
+    - Architecture decision records (ADRs) and solution architecture reports.
+    - A written evaluation of GraphQL vs. REST for ASP.NET Core microservices,
+      comparing performance and scalability.
+    - An event-driven architecture design for a hybrid affiliate platform.
+    - Post-implementation review templates.
+  stack: [ASP.NET Core, GraphQL, REST]
+  # TODO(sam): was the affiliate platform built or only designed? CV EN says "architected", ES "definiendo".
+  es:
+    role: Consultor IT y Desarrollador de Software
+    owned: >-
+      Proyectos de TI desde requerimientos hasta entrega: talleres, evaluación de
+      proveedores y arquitectura de software.
+    built:
+      - Architecture Decision Records (ADRs) y reportes de arquitectura de
+        soluciones.
+      - Evaluación escrita de GraphQL vs. REST para microservicios en ASP.NET
+        Core, comparando rendimiento y escalabilidad.
+      - Diseño de arquitectura event-driven para una plataforma híbrida de
+        afiliados.
+      - Plantillas de revisión post-implementación.
+
+- id: heavy-lift-developer
+  role: Software Developer
+  org: Heavy-Lift Rigging Services & Consulting Mexico
+  location: Villahermosa, Tabasco, MX
+  period: { start: "2023-05", end: "2024-07" }
+  built:
+    - Internal web applications with ASP.NET Core (C#), Angular and SQL Server.
+    - Power BI dashboards with KPI reports for the finance and operations teams.
+    - Angular and Tailwind CSS interfaces using RxJS.
+    - Flutter (BLoC) mobile inspection app for field data capture, with
+      synchronization across sites.
+  stack: [C#, ASP.NET Core, Angular, SQL Server, Power BI, Flutter]
+  # TODO(sam): owned (your scope vs. the team's) and any verified outcome.
+  es:
+    role: Desarrollador de Software
+    built:
+      - Aplicaciones web internas con ASP.NET Core (C#), Angular y SQL Server.
+      - Dashboards de Power BI con reportes de KPIs para los equipos de finanzas y
+        operaciones.
+      - Interfaces en Angular y Tailwind CSS con RxJS.
+      - App móvil de inspección en Flutter (BLoC) para captura de datos en campo,
+        con sincronización entre sitios.
+
+- id: gumec
+  role: Software Developer
+  org: GUMEC Soluciones Tecnológicas
+  location: Villahermosa, Tabasco, MX
+  period: { start: "2022-12", end: "2024-03" }
+  owned: Full development cycle of a document management system for the oil and energy sector.
+  built:
+    - Document management system (Laravel, Vue.js, MySQL) that moved legacy
+      processes to a platform hosted on IONOS Cloud.
+    - Data-processing modules for oil-well performance analysis, with encryption
+      and role-based access control.
+    - VBA tools that check compliance with the NOM-024-STPS-2001 occupational
+      safety standard.
+    - Production deployments and environment monitoring on cloud infrastructure.
+  stack: [PHP, Laravel, Vue.js, MySQL, VBA]
+  # TODO(sam): problem and changed (verified outcome), if any.
+  es:
+    role: Desarrollador de Software
+    owned: Ciclo completo de desarrollo de un sistema de gestión documental para el sector oil & energía.
+    built:
+      - Sistema de gestión documental (Laravel, Vue.js, MySQL) que migró procesos
+        legados a una plataforma alojada en IONOS Cloud.
+      - Módulos de procesamiento de datos para análisis de desempeño de pozos
+        petroleros, con cifrado y control de acceso basado en roles.
+      - Herramientas en VBA que verifican el cumplimiento de la norma de seguridad
+        ocupacional NOM-024-STPS-2001.
+      - Despliegues en producción y monitoreo de entornos en infraestructura cloud.
+
+- id: itvh-research
+  role: Programmer / Research Developer
+  org: Instituto Tecnológico de México, Campus Villahermosa
+  location: Villahermosa, Tabasco, MX
+  period: { start: "2022-03", end: "2022-12" }
+  built:
+    - Geospatial web application with PostgreSQL, Django and React (Remix).
+    - Augmented-reality prototype in Unity/C# for HoloLens.
+    - Led InnovaTec, a real-time sign-language translation prototype.
+  stack: [Python, Django, PostgreSQL, React, Unity, C#]
+  es:
+    role: Programador / Desarrollador de Investigación
+    built:
+      - Aplicación web geoespacial con PostgreSQL, Django y React (Remix).
+      - Prototipo de realidad aumentada en Unity/C# para HoloLens.
+      - Lideró InnovaTec, un prototipo de traducción de lenguaje de señas en tiempo
+        real.
