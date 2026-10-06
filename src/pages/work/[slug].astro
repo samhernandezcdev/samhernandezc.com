@@ -1,0 +1,216 @@
+---
+// Case study. English-only. Desktop: a sticky rail (spec + contents) beside the
+// prose. Mobile: spec, collapsible contents, then prose. Drafts are routed only
+// in `astro dev` (see getCaseStudyEntries) and carry a visible draft notice.
+import { render, type CollectionEntry } from "astro:content";
+
+import Footer from "@/components/site/Footer.astro";
+import Header from "@/components/site/Header.astro";
+import DataTable from "@/components/system/DataTable.astro";
+import { t, workPaths, type UIKey } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCaseStudyEntries, getPublishedNotes } from "@/lib/content";
+import { isPublished } from "@/lib/work";
+
+export async function getStaticPaths() {
+  const entries = await getCaseStudyEntries();
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<"work">;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const { Content, headings } = await render(entry);
+const toc = headings.filter((heading) => heading.depth === 2);
+const hasNotes = (await getPublishedNotes()).length > 0;
+const isDraft = !isPublished(data);
+
+const title = `${data.title} — Case study · Samuel Hernández`;
+const description =
+  "Case study: backend architecture, deterministic engineering calculations, server-side validation, persistence and integration with ERP and CRM systems for an industrial engineering calculation and configuration platform.";
+---
+
+<BaseLayout title={title} description={description} locale="en" noindex={isDraft}>
+  <Header locale="en" showNotes={hasNotes} current="work" />
+  <main id="main" tabindex="-1" class="page">
+    <article class="case-study" aria-labelledby="case-title">
+      {isDraft && <p class="planned case-draft label">{t("en", "caseStudy.draft")}</p>}
+
+      <header class="case-header">
+        <p class="label">
+          <a class="link-quiet" href={workPaths.en}>{t("en", "workIndex.title")}</a>
+          <span aria-hidden="true"> / </span>
+          {t("en", "caseStudy.label")}
+        </p>
+        <h1 id="case-title" class="case-title">{data.title}</h1>
+        <p class="case-summary">{data.summary}</p>
+        <p class="case-lifecycle">
+          <span class="status" data-status={data.status}>{t("en", `status.${data.status}` as UIKey)}</span>
+          <span class="source">{t("en", `source.${data.source}` as UIKey)}</span>
+        </p>
+      </header>
+
+      <div class="case-layout">
+        <aside class="case-rail" aria-label="Project details">
+          <dl class="spec case-spec">
+            {data.role && (<><dt>{t("en", "caseStudy.role")}</dt><dd>{data.role}</dd></>)}
+            {data.focus && (<><dt>{t("en", "caseStudy.focus")}</dt><dd>{data.focus}</dd></>)}
+            {data.stack.length > 0 && (<><dt>{t("en", "caseStudy.stack")}</dt><dd class="meta case-stack">{data.stack.join(", ")}</dd></>)}
+          </dl>
+
+          {
+            toc.length > 0 && (
+              <details class="case-toc" open>
+                <summary class="label">{t("en", "caseStudy.contents")}</summary>
+                <ol>
+                  {toc.map((heading) => (
+                    <li>
+                      <a class="link-quiet" href={`#${heading.slug}`}>
+                        {heading.text}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+            )
+          }
+        </aside>
+
+        <div class="prose case-prose">
+          <Content components={{ table: DataTable }} />
+        </div>
+      </div>
+
+      <footer class="case-footer">
+        <a class="link" href={workPaths.en}>{t("en", "caseStudy.allWork")}</a>
+      </footer>
+    </article>
+  </main>
+  <Footer locale="en" />
+</BaseLayout>
+
+<style>
+  .case-study {
+    padding-top: calc(var(--spacing) * 16);
+  }
+
+  .case-draft {
+    margin-bottom: calc(var(--spacing) * 8);
+    padding: var(--spacing-component);
+    border-radius: var(--radius-md);
+  }
+
+  .case-header {
+    display: grid;
+    gap: calc(var(--spacing) * 4);
+    max-width: 52rem;
+    padding-bottom: calc(var(--spacing) * 8);
+    border-bottom: var(--border-hairline) solid var(--color-border-strong);
+  }
+
+  .case-header .link-quiet {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+
+  .case-title {
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    letter-spacing: -0.02em;
+  }
+
+  .case-summary {
+    max-width: 44rem;
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+    color: var(--color-text-muted);
+  }
+
+  .case-lifecycle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+  }
+
+  .case-layout {
+    display: grid;
+    gap: calc(var(--spacing) * 8);
+    margin-top: calc(var(--spacing) * 8);
+  }
+
+  @media (min-width: 64rem) {
+    .case-layout {
+      grid-template-columns: var(--container-rail) minmax(0, var(--container-prose));
+      gap: calc(var(--spacing) * 16);
+    }
+
+    .case-rail {
+      position: sticky;
+      top: calc(var(--spacing) * 6);
+      align-self: start;
+    }
+  }
+
+  .case-spec {
+    grid-template-columns: 1fr;
+  }
+
+  .case-spec > dt {
+    padding-block-end: 0;
+    border-bottom: 0;
+  }
+
+  .case-spec > dd {
+    padding-block-start: 0.15rem;
+  }
+
+  .case-stack {
+    color: var(--color-text);
+  }
+
+  .case-toc {
+    margin-top: calc(var(--spacing) * 6);
+  }
+
+  .case-toc summary {
+    display: flex;
+    align-items: center;
+    min-height: var(--target-min);
+    cursor: pointer;
+  }
+
+  .case-toc ol {
+    display: grid;
+    gap: 0;
+    border-left: var(--border-hairline) solid var(--color-border);
+  }
+
+  .case-toc a {
+    display: flex;
+    align-items: center;
+    min-height: var(--target-min);
+    padding-left: var(--spacing-component);
+    font-size: var(--text-small);
+  }
+
+  .case-prose :global(h2) {
+    scroll-margin-top: calc(var(--spacing) * 6);
+  }
+
+  .case-footer {
+    margin-top: var(--spacing-section);
+    padding-top: var(--spacing-component-lg);
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .case-footer .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+</style>

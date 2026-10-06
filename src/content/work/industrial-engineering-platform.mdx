@@ -1,52 +1,275 @@
 ---
-# Anonymized case study: no company name, production URL, formulas, schema,
-# proprietary rules, screenshots or confidential data (see engineering-case-study).
-# Sources: CV (EN/ES) and the project description previously published in src/i18n/pages.ts.
-title: Industrial lifting-system configuration platform
+# Anonymized case study. Source of truth: the Phase 4A evidence sheet (interview
+# with Samuel, 2026-10). Never add: employer or employee names, production URL,
+# screenshots, formulas, spreadsheet contents, product families, schema, endpoint
+# names, ERP brand, prices or costs, standard names, or "CPQ".
+# Deliberately not claimed (unverified): launch date, user counts, any metric,
+# CI/CD, deployment infrastructure, Tailwind CSS, ERP read/write direction or
+# sync mechanism, exact snapshot contents, sole authorship, from-scratch start.
+title: Industrial lifting-equipment configuration platform
 slug: industrial-engineering-platform
 summary: >-
-  Production platform for configuring industrial lifting assemblies. A Python
-  calculation engine applies published lifting-equipment standards to each
-  configuration, and the app produces technical configurations, costs and
-  quoting summaries.
+  An internal platform that turns engineering rules into one backend:
+  deterministic calculations, validation and component compatibility, with
+  saved configurations and integrations with the company's ERP and CRM.
 status: production
 source: private
-visibility: draft
-featured: false
+visibility: public
+featured: true
 order: 1
-role: Software Developer
-timeline:
-  start: "2025-11"
-stack: [Python, FastAPI, React, TypeScript, PostgreSQL, Docker, Tailwind CSS]
-responsibility: >-
-  Requirements gathering and technology selection, the Python calculation
-  engine, the React/TypeScript frontend and the Docker-based setup for
-  development and production.
-constraints:
-  - Calculations must follow published safety standards for lifting equipment.
-  - Every result must be reproducible and auditable from its inputs.
-# TODO(sam): problem — how were configurations and quotes prepared before this system?
-# TODO(sam): context — who uses it (engineering, sales) and how many people? Only if shareable.
-# TODO(sam): decisions/trade-offs — confirm each before publishing (e.g. why FastAPI + PostgreSQL, why a separate calculation engine).
-# TODO(sam): results — any verified, non-confidential outcome (e.g. quote preparation time) with its source.
-# TODO(sam): confirm whether naming the standards (CV: DNV 2.7-1, ASME B30.9) is acceptable in the anonymized case study.
-# TODO(sam): confirm FastAPI and Tailwind CSS (listed in the old site's stack, not in the CV bullets).
+role: Software Engineer, primary implementer
+focus: Backend architecture, deterministic calculation, validation, persistence and integrations
+problem: >-
+  Technical configuration depended partly on spreadsheet calculators, technical
+  tables and manual validation. The engineering rules needed one consistent,
+  reusable implementation.
+stack: [Python, FastAPI, PostgreSQL, React, TypeScript, Docker]
+results:
+  - Engineering rules that lived partly in spreadsheets now run from one backend implementation.
+  - Repeated validation and component-compatibility checks are automated.
+  - Technical configurations are saved and can be referenced later.
+  - Component selection can take current availability into account.
+  - Technical configuration data continues into the commercial workflow without the platform becoming the CRM or ERP.
 es:
-  title: Plataforma de configuración de sistemas de izaje
+  title: Plataforma de configuración de equipos de izaje industrial
   summary: >-
-    Plataforma en producción para configurar ensambles de izaje industrial. Un
-    motor de cálculo en Python aplica estándares publicados de equipos de izaje a
-    cada configuración, y la aplicación genera configuraciones técnicas, costos y
-    resúmenes para cotizar.
+    Plataforma interna que lleva las reglas de ingeniería a un solo backend:
+    cálculos deterministas, validación y compatibilidad de componentes, con
+    configuraciones guardadas e integraciones con el ERP y el CRM de la empresa.
+  problem: >-
+    La configuración técnica dependía en parte de calculadoras en hojas de
+    cálculo, tablas técnicas y validación manual. Las reglas de ingeniería
+    necesitaban una implementación única, consistente y reutilizable.
+  role: Ingeniero de Software, implementador principal
+  result: >-
+    Las reglas de ingeniería que vivían en parte en hojas de cálculo ahora se
+    ejecutan desde una sola implementación en el backend.
 ---
 
-## System
+import Decision from "@/components/work/Decision.astro";
+import SystemDiagram from "@/components/work/SystemDiagram.astro";
 
-- **Calculation engine (Python):** load distribution, component selection and
-  geometry validation for each configuration.
-- **Frontend (React/TypeScript):** builds configurations and compares capacity,
-  cost and stock between options.
-- **Delivery:** the full stack runs in Docker containers, with CI/CD, so
-  development and production use the same environment.
+## Context
 
-{/* TODO(sam): architecture diagram (generic, non-proprietary) once the boundaries are confirmed. */}
+Requests start with a customer need in Sales. When a request needs technical
+resolution, engineering, technical and operations staff work out the
+configuration: the required capacity, the geometry and the compatible
+components.
+
+Engineering owns the formulas, assumptions and technical rules. The commercial
+system owns the customer quotation.
+
+## Problem
+
+Before the platform, that technical work depended partly on spreadsheet
+calculators, technical tables and catalogs, engineering references and manual
+validation. Some product families had their own spreadsheet calculators.
+
+The platform was built to digitalize and centralize technical configuration,
+calculation and validation: depend less on spreadsheets and manual checks,
+reduce errors and the time needed to reach a technical configuration, and keep
+the engineering rules in one reusable internal system.
+
+## Constraints
+
+- **Engineering owns correctness.** The software implements rules that domain
+  specialists validate. It does not define them.
+- **Rules derive from published lifting-equipment standards.**
+- **Operational data changes.** Product, availability and cost-related data live
+  in the company's ERP and change over time.
+- **Commercial work belongs elsewhere.** Price, margins, discounts, taxes and the
+  customer quotation belong to the commercial system (CRM).
+
+## My responsibility
+
+I was the primary implementer of the application, working with commercial,
+engineering and operations stakeholders.
+
+- Analyzed existing spreadsheet calculators (their inputs, outputs, formulas and
+  dependencies) and other technical artifacts to translate the domain rules into
+  application logic.
+- Designed and implemented the architecture: a React and TypeScript frontend, a
+  REST API, a Python and FastAPI backend, and PostgreSQL.
+- Built the backend, the API contracts and the frontend configuration workflow.
+- Implemented the calculation engine, server-side validation and the
+  component-compatibility and selection logic.
+- Designed persistence for saved technical configurations.
+- Worked on the platform side of the integrations with the company's ERP and CRM.
+- Wrote automated tests, set up Docker, and maintain and evolve the
+  application.
+
+I implement the engineering rules in software. I did not design the engineering
+formulas: specialists own them and validate their correctness.
+
+## Architecture
+
+<SystemDiagram
+  caption="High-level shape of the platform. Solid connectors are synchronous calls. The ERP and CRM are separate systems the platform integrates with; it does not own them."
+  layers={[
+    { label: "client", nodes: [{ name: "Configuration workflow", kind: "service", note: "React, TypeScript" }] },
+    { label: "REST", edge: "sync", nodes: [
+      { name: "Calculation engine", kind: "service" },
+      { name: "Validation", kind: "service" },
+      { name: "Component selection", kind: "service" },
+      { name: "Persistence", kind: "service" },
+      { name: "Integrations", kind: "service" },
+    ], group: "FastAPI application" },
+    { label: "data", edge: "sync", nodes: [{ name: "PostgreSQL", kind: "store", note: "domain data, saved configurations" }] },
+  ]}
+  external={[
+    { name: "Company ERP", flow: "product, availability and cost-related data → platform" },
+    { name: "CRM", flow: "platform → technical configuration data" },
+  ]}
+/>
+
+The backend is the single authoritative place for calculation, validation and
+engineering rules. The frontend consumes that logic instead of reimplementing it.
+PostgreSQL stores domain data and saved configurations. The ERP and the CRM sit
+outside the platform: it consumes product, availability and cost-related data
+from the ERP and passes technical configuration data into the commercial workflow.
+
+## Correctness model
+
+The platform produces two kinds of answer, and they behave differently.
+
+<SystemDiagram
+  caption="An engineering result is deterministic. A component recommendation also depends on current operational data."
+  layers={[
+    { label: "input", nodes: [{ name: "Technical inputs", kind: "service" }] },
+    { label: "deterministic", edge: "sync", nodes: [{ name: "Engineering calculation", kind: "service", note: "validated rules" }] },
+    { label: "result", edge: "sync", nodes: [{ name: "Valid technical candidates", kind: "service" }] },
+    { label: "filtered by current data", edge: "sync", nodes: [{ name: "Catalog and availability", kind: "external", note: "changes over time" }] },
+    { label: "output", edge: "sync", nodes: [{ name: "Current component recommendation", kind: "service" }] },
+  ]}
+/>
+
+- **The engineering result** is deterministic: the same technical inputs and the
+  same rules give the same result.
+- **The component recommendation** also uses the current catalog and
+  availability. The same inputs can lead to a different recommendation later if
+  stock or the catalog changed.
+
+That difference is intended. The calculation stays stable, and the
+recommendation reflects what can actually be used now.
+
+Validation runs in two places. The frontend validates for usability; the backend
+enforces the rules, so a request that bypasses the UI still has to meet them.
+
+## Engineering decisions
+
+<Decision
+  title="Centralize spreadsheet-derived rules in backend code"
+  problem="Engineering logic lived partly in spreadsheet calculators and technical artifacts, with manual validation."
+  choice="Analyze the calculators' inputs, outputs, formulas and dependencies, and implement the rules as reusable domain logic in the backend."
+  why="The goal was one owned implementation of the rules, not a web version of a spreadsheet screen. Extending the spreadsheets would have kept the dependency the project set out to reduce."
+  tradeoff="A rule change now needs software work, validation and a deployment. Engineering cannot edit the rules directly."
+/>
+
+<Decision
+  title="Make the backend authoritative for calculation and validation"
+  problem="Rules this important could not depend on frontend state or be implemented twice."
+  choice="Calculation, validation and the authoritative rules live in the FastAPI backend. The frontend validates for usability; the backend enforces."
+  why="One place executes the engineering logic, so the interface and the backend cannot drift apart, and requests that skip the UI still meet the constraints."
+  tradeoff="More responsibility sits in the backend, and new engineering behavior needs API work before the interface can use it."
+/>
+
+<Decision
+  title="Separate the deterministic calculation from changing operational data"
+  problem="Calculations need to be reproducible, but availability, catalog and cost-related data change over time."
+  choice="Keep the calculation deterministic with respect to technical inputs and rules, and let a separate recommendation step use current operational data."
+  why="A correct calculation should not change because stock changed, but a recommendation still has to be usable today."
+  tradeoff="The same inputs can lead to a different recommendation later. That is accepted on purpose."
+/>
+
+<Decision
+  title="Persist technical configurations"
+  problem="People need to save a technical configuration and come back to it, while the data around it keeps changing."
+  choice="Store the configuration and its calculated result instead of recomputing it from current data every time."
+  why="Recomputing a saved configuration against today's data could silently change its result or recommendation."
+  tradeoff="More data-model complexity, and a saved result can differ from what current data would produce. That divergence is partly the point."
+/>
+
+<Decision
+  title="Keep the engineering platform separate from the CRM"
+  problem="The platform had started to touch commercial concepts, but technical configuration and the commercial quotation are different responsibilities."
+  choice="The platform owns technical correctness. The CRM owns the customer, price, margins, discounts, taxes and the quotation. The boundary was agreed with stakeholders; I implemented it and keep it in the architecture."
+  why="The engineering application does not turn into the commercial system of record, and each system keeps a clear job."
+  tradeoff="The systems need integration and coordination, and data has to cross the boundary."
+/>
+
+## Correctness and validation
+
+Correctness is shared between the people who own the rules and the software that
+runs them.
+
+- **Engineering specialists** validate formulas, assumptions and expected results.
+- **I** implement the rules, encode the validation, compare results with
+  reference calculators and known cases where they exist, and protect the
+  behavior with automated tests.
+
+Reference calculators and known cases were used to validate implementation
+behavior. The automated tests cover calculation and domain behavior, validation
+rules, regression cases and API behavior.
+
+## Saved configurations
+
+The platform persists technical configurations, so earlier results can be
+referenced without depending only on the current state of the system. That
+matters because the catalog, availability, cost context, component status and
+even the rules can all change.
+
+Saved configurations keep the technical result. Making the exact rule and
+catalog context behind each result explicit is one of the changes I would make
+today.
+
+## How the system and its boundaries evolved
+
+The application started as a technical calculator and configurator. Saved
+configurations and a richer technical workflow came next. Later it began to use
+operational data from the company's ERP and to pass technical data into the
+commercial workflow.
+
+Early development explored commercial-facing features. As the system grew, its
+scope settled on technical work, and the boundaries became explicit:
+
+<dl class="spec">
+  <dt>This platform</dt>
+  <dd>Technical configuration, calculations, compatibility and validation, saved configurations, technical documents and the technical side of integrations.</dd>
+  <dt>CRM</dt>
+  <dd>Customer, selling price, margins, discounts, taxes and the authoritative quotation.</dd>
+  <dt>ERP</dt>
+  <dd>Enterprise, product, inventory and cost data. The platform consumes it and does not replace it.</dd>
+</dl>
+
+## Outcomes
+
+The platform is used internally as part of the technical and commercial
+workflow.
+
+- Engineering rules that lived partly in spreadsheets now run from one backend
+  implementation.
+- Repeated validation and component-compatibility checks are automated.
+- Technical configurations are saved and can be referenced later.
+- Component selection can take current availability into account.
+- Technical configuration data continues into the commercial workflow without
+  the platform becoming the CRM or ERP.
+
+These outcomes are qualitative. No measurements are published for this system.
+
+## What I would change today
+
+1. **Explicit rule and catalog versioning.** Saved configurations keep the
+   technical result, but I would record more clearly which rule set and catalog
+   context produced it, so historical results are easier to reason about. Full
+   event sourcing would add complexity that is probably not justified here.
+2. **A stronger reference-case regression suite.** More golden fixtures from
+   validated cases and, where they fit, property-based tests for invariants. For
+   this kind of software, confidence in domain behavior matters more than a
+   coverage percentage.
+3. **Formal, observable integration contracts.** Once the platform talked to the
+   CRM and ERP, integration failures became a different class of problem from
+   calculation errors. Clearer data contracts, better failure visibility and
+   contract tests would address that.
+
+I would do these before making the rules editable by non-developers. For
+engineering logic, governance, validation and versioning come first.

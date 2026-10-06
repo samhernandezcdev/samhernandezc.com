@@ -10,6 +10,7 @@ export const defaultLocale: Locale = "en";
 export const localizedRoutes = ["/", "/work", "/about"] as const;
 
 export const homePaths: Record<Locale, string> = { en: "/", es: "/es" };
+export const workPaths: Record<Locale, string> = { en: "/work", es: "/es/work" };
 export const htmlLang: Record<Locale, string> = { en: "en", es: "es" };
 export const ogLocale: Record<Locale, string> = { en: "en_US", es: "es_MX" };
 
@@ -62,6 +63,21 @@ const en = {
   "work.caseStudy": "Read the case study",
   "work.role": "Role",
   "work.outcome": "Outcome",
+
+  "workIndex.metaTitle": "Work · Samuel Hernández",
+  "workIndex.metaDescription":
+    "Software systems Samuel Hernández has built, with lifecycle status, role, problem and stack. Case studies cover architecture, engineering decisions and trade-offs.",
+  "workIndex.title": "Work",
+  "workIndex.intro":
+    "Systems I have built, with their lifecycle status. Case studies explain the problem, my role, the architecture and the engineering decisions.",
+  "caseStudy.label": "Case study",
+  "caseStudy.role": "Role",
+  "caseStudy.focus": "Focus",
+  "caseStudy.stack": "Stack",
+  "caseStudy.status": "Status",
+  "caseStudy.contents": "Contents",
+  "caseStudy.allWork": "All work",
+  "caseStudy.draft": "Draft preview. This case study is not published.",
 
   "engineer.title": "What I engineer",
   "engineer.exploring": "Exploring",
@@ -146,6 +162,21 @@ const es = {
   "work.role": "Rol",
   "work.outcome": "Resultado",
 
+  "workIndex.metaTitle": "Proyectos · Samuel Hernández",
+  "workIndex.metaDescription":
+    "Sistemas de software que Samuel Hernández ha construido, con su estado, rol, problema y stack. Los casos de estudio cubren arquitectura, decisiones de ingeniería y trade-offs.",
+  "workIndex.title": "Proyectos",
+  "workIndex.intro":
+    "Sistemas que he construido y su estado actual. Los casos de estudio explican el problema, mi rol, la arquitectura y las decisiones de ingeniería.",
+  "caseStudy.label": "Caso de estudio",
+  "caseStudy.role": "Rol",
+  "caseStudy.focus": "Enfoque",
+  "caseStudy.stack": "Stack",
+  "caseStudy.status": "Estado",
+  "caseStudy.contents": "Contenido",
+  "caseStudy.allWork": "Todos los proyectos",
+  "caseStudy.draft": "Vista previa de borrador. Este caso de estudio no está publicado.",
+
   "engineer.title": "Qué construyo",
   "engineer.exploring": "Explorando",
   "engineer.backend.title": "Sistemas backend",
@@ -212,6 +243,6 @@ export const capabilities = [
   },
   {
     id: "reliability",
-    used: ["Docker", "CI/CD", "Automated tests", "Database migrations"],
+    used: ["Docker", "Automated tests", "Database migrations"],
   },
 ] as const;

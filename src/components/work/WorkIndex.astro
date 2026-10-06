@@ -1,0 +1,60 @@
+---
+// Work index: a ledger of published work entries on the page's shared axis
+// (lifecycle and source in the label column). Source: the work collection via
+// src/lib/content.ts, so drafts never render.
+import Footer from "@/components/site/Footer.astro";
+import Header from "@/components/site/Header.astro";
+import WorkRow from "@/components/work/WorkRow.astro";
+import { t, workPaths, type Locale } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { caseStudyPath, getPublishedNotes, getPublishedWork } from "@/lib/content";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const other: Locale = locale === "en" ? "es" : "en";
+const entries = await getPublishedWork();
+const hasNotes = (await getPublishedNotes()).length > 0;
+---
+
+<BaseLayout
+  title={t(locale, "workIndex.metaTitle")}
+  description={t(locale, "workIndex.metaDescription")}
+  locale={locale}
+  alternates={workPaths}
+>
+  <Header locale={locale} alternatePath={workPaths[other]} showNotes={hasNotes} current="work" />
+  <main id="main" tabindex="-1" class="page">
+    <section class="work-index" aria-labelledby="work-index-title">
+      <div class="section-head">
+        <h1 id="work-index-title" class="work-index-title">{t(locale, "workIndex.title")}</h1>
+        <p class="section-intro">{t(locale, "workIndex.intro")}</p>
+      </div>
+
+      <div class="ledger">
+        {
+          entries.map((entry) => (
+            <WorkRow entry={entry} locale={locale} href={caseStudyPath(entry)} ledger level={2} />
+          ))
+        }
+      </div>
+    </section>
+  </main>
+  <Footer locale={locale} />
+</BaseLayout>
+
+<style>
+  .work-index {
+    padding-top: calc(var(--spacing) * 16);
+  }
+
+  .work-index-title {
+    font-size: var(--text-h1);
+  }
+
+  .ledger {
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+</style>

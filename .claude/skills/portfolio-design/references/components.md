@@ -83,9 +83,14 @@ Built on `.row-link`. Order:
 
 Shown only when a featured work entry is public (otherwise the section falls back to "Selected experience", see above). The row itself is the link, so it needs no `→` and no "Read more". Don't: images, decisions or trade-offs (those live in the case study), badge walls, hover zoom.
 
-## Case-study header
-- Title, then the summary at `text-lead`, the status chip and source, then a `.spec` table (role, timeline, stack, links).
-- Desktop at `lg`: a sticky rail (`container-rail`) for the spec table and TOC beside the prose. Mobile: the spec table comes first and the TOC sits in a `<details>`.
+## Work index (implemented, `components/work/WorkIndex.astro`)
+- A ledger on `.axis`: lifecycle and source in the label column; title (h2, linked when a case study exists), problem, role, one result line (neutral `border-strong` rule, never the accent), stack, and "Read the case study". No cards, images or badges.
+
+## Case study (implemented, `pages/work/[slug].astro`)
+- Header: breadcrumb (Work / Case study), the title at `h1`, the summary at `lead`, the status chip and source, and a `border-strong` rule.
+- Desktop at `lg`: a sticky rail (`container-rail`) with a stacked spec (role, focus, stack; no timeline, which would link the anonymized study to the employer) and the contents list, beside the prose. Mobile: spec, then contents in a `<details>`, then prose.
+- `Decision.astro`: a 2px text-color rule, the decision as `h3`, and a key/value sheet (Problem, Choice, Why, Trade-off; the trade-off muted). The decisions are the visual center.
+- `SystemDiagram.astro`: layered diagram language plus an optional `group` box (one application's modules) and an "outside the platform" boundary listing external systems with the direction of their data.
 
 ## Measurement display
 - The value and unit in tabular mono, the label in body type, and the method/environment as a muted caption.

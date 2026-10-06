@@ -5,11 +5,12 @@ Implemented in Phase 1. Defined in `src/content.config.ts` with the Content Laye
 ## Collections
 ### `work` — `src/content/work/*.mdx`
 - Identity/status: `title`, `slug`, `summary`, `status` (`research|designing|building|production|archived`), `source` (`open|private`), `visibility` (`public|draft`), `featured`, `order`, `wasProduction?`.
-- Role/stack: `role`, `timeline {start, end?}`, `stack[]`, `org?` (omitted when anonymized), `links {github?, demo?}`.
-- Narrative (optional): `problem`, `context`, `constraints[]`, `responsibility`, `decisions[] {title, why, tradeoff?}`, `results[]`.
+- Role/stack: `role`, `focus?` (case-study header), `timeline {start, end?}`, `stack[]`, `org?` (omitted when anonymized), `links {github?, demo?}`.
+- Narrative (optional): `problem` (one sentence, used by rows), `context`, `constraints[]`, `responsibility`, `decisions[] {title, problem?, choice?, why, tradeoff?}`, `results[]` (qualitative; the first is the row's result line when no verified measurement exists).
+- Case-study body: the MDX body is the case study. It imports `@/components/work/Decision.astro` and `@/components/work/SystemDiagram.astro`; an entry has a case study when its body is non-empty (`hasCaseStudy`).
 - Evidence: `evidence? {repo, readme, architectureDoc?, verticalSlice?}`.
 - Measurements: `technicalMeasurements[]`, `productionOutcomes[]` — exact shapes and rules in `.claude/skills/engineering-case-study/references/honesty-rules.md`.
-- `diagram?` (SystemDiagram data), `es? {title, summary}`.
+- `diagram?` (SystemDiagram data), `es? {title?, summary, problem?, role?, result?}` for the Spanish Home and Work index rows.
 - Zod `superRefine` + collection-level check enforce the lifecycle rules in `engineering-case-study/references/status-taxonomy.md`.
 
 ### `notes` — `src/content/notes/*.mdx`
@@ -19,7 +20,12 @@ Implemented in Phase 1. Defined in `src/content.config.ts` with the Content Laye
 `role`, `org`, `period`, `problem`, `owned`, `built`, `changed`, `es?`.
 
 ## Draft handling
-A single helper (e.g. `src/lib/work.ts`) loads collections and filters `visibility: 'draft'` / `draft: true` out of production builds (`import.meta.env.PROD`). Every page, the sitemap, RSS and the command palette use that helper — never `getCollection` directly.
+`src/lib/content.ts` is the only module that calls `getCollection`: `getPublishedWork`, `getFeaturedWork`, `getPublishedNotes`, `getExperience`, `caseStudyPath`. Drafts never reach production output. One dev-only exception: `getCaseStudyEntries` also routes draft case studies in `astro dev` (with a visible draft notice and `noindex`) so they can be reviewed before promotion.
+
+## Routes
+- `/`, `/es`: homepage. The evidence section is "Selected work" once a featured case study is public, otherwise "Selected experience".
+- `/work`, `/es/work`: Work index (ledger of published entries).
+- `/work/[slug]`: case study, English-only. Linked from Spanish pages with an `EN` marker and `hreflang="en"`.
 
 ## i18n
 - English is canonical at `/`. Spanish shells: `/es`, `/es/work`, `/es/about`.

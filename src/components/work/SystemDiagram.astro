@@ -1,0 +1,124 @@
+---
+// Layered system diagram in the design-system diagram language: real text,
+// semantic lists, a caption. Layers stack top to bottom; an optional `group`
+// labels the nodes of one layer as parts of a single application. External
+// systems are listed below a boundary line with the direction of their data.
+type Kind = "service" | "store" | "queue" | "external";
+
+interface Node {
+  name: string;
+  kind?: Kind;
+  note?: string;
+  planned?: boolean;
+}
+
+interface Layer {
+  label: string;
+  edge?: "sync" | "async";
+  group?: string;
+  nodes: Node[];
+}
+
+interface External {
+  name: string;
+  flow: string;
+}
+
+interface Props {
+  caption: string;
+  layers: Layer[];
+  external?: External[];
+}
+
+const { caption, layers, external = [] } = Astro.props;
+---
+
+<figure class="diagram system-diagram">
+  <ol class="diagram-layers">
+    {
+      layers.map((layer) => (
+        <li class="diagram-layer" data-edge={layer.edge}>
+          <span class="diagram-label">{layer.label}</span>
+          <div class:list={[layer.group && "diagram-group"]}>
+            {layer.group && <span class="diagram-group-label">{layer.group}</span>}
+            <ul class="diagram-nodes">
+              {layer.nodes.map((node) => (
+                <li class:list={["diagram-node", node.planned && "planned"]} data-kind={node.kind ?? "service"}>
+                  {node.kind && node.kind !== "service" && <span class="diagram-kind">{node.kind}</span>}
+                  {node.name}
+                  {node.note && <span class="diagram-note">{node.note}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+
+  {
+    external.length > 0 && (
+      <div class="diagram-boundary">
+        <span class="diagram-label">outside the platform</span>
+        <ul class="diagram-externals">
+          {external.map((system) => (
+            <li class="diagram-node" data-kind="external">
+              <span class="diagram-kind">external</span>
+              {system.name}
+              <span class="diagram-note">{system.flow}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  <figcaption>{caption}</figcaption>
+</figure>
+
+<style>
+  .system-diagram {
+    margin-block: calc(var(--spacing) * 8);
+  }
+
+  .diagram-group {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    padding: var(--spacing-component);
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+  }
+
+  .diagram-group-label {
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .diagram-note {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--color-text-muted);
+  }
+
+  .diagram-boundary {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    margin-top: calc(var(--spacing) * 8);
+    padding-top: var(--spacing-component);
+    border-top: var(--border-hairline) solid var(--color-border-strong);
+  }
+
+  .diagram-externals {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: calc(var(--spacing) * 3);
+    list-style: none;
+    padding: 0;
+  }
+
+  .diagram-externals .diagram-node {
+    min-width: 14rem;
+  }
+</style>

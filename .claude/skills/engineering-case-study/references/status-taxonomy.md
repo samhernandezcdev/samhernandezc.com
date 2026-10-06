@@ -36,7 +36,7 @@ Never publish empty roadmap projects to signal interest.
 - Collection-level check: more than one public `building` entry ⇒ build error.
 
 ## Current seed intent
-- Industrial engineering platform — `production`, `private`, public, anonymized.
+- Industrial engineering platform — `production`, `private`, anonymized; facts in the Phase 4A evidence sheet. Never "CPQ", "quoting" or "pricing".
 - AI Schema & ETL Validation Harness, multi-tenant FastAPI backend — status/source pending Samuel's confirmation and repo URLs.
 - Public CPQ, Enterprise Knowledge Agent, Agent Reliability Platform — `draft`.
 - Heavy-Lift site — `archived`, listed under "Other work", not featured.

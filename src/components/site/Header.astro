@@ -3,22 +3,24 @@
 // appears once a note is published, About once /about is built (Phase 6), so
 // the links fit on one row at 390px and no menu disclosure is needed yet.
 import GitHub from "@/components/icons/GitHub.astro";
-import { homePaths, htmlLang, links, t, type Locale } from "@/i18n/ui";
+import { homePaths, htmlLang, links, t, workPaths, type Locale } from "@/i18n/ui";
 
 interface Props {
   locale: Locale;
   /** Path of this page in the other language, when it exists. */
   alternatePath?: string;
   showNotes?: boolean;
+  /** Route section the current page belongs to (sets aria-current). */
+  current?: "work" | "notes";
 }
 
-const { locale, alternatePath, showNotes = false } = Astro.props;
+const { locale, alternatePath, showNotes = false, current } = Astro.props;
 const other: Locale = locale === "en" ? "es" : "en";
 const home = homePaths[locale];
 
 const nav = [
-  { href: `${home === "/" ? "" : home}/#work`, label: t(locale, "nav.work") },
-  ...(showNotes ? [{ href: "/notes", label: t(locale, "nav.notes") }] : []),
+  { id: "work", href: workPaths[locale], label: t(locale, "nav.work") },
+  ...(showNotes ? [{ id: "notes", href: "/notes", label: t(locale, "nav.notes") }] : []),
 ];
 ---
 
@@ -29,9 +31,9 @@ const nav = [
     <nav class="site-nav" aria-label={t(locale, "nav.label")}>
       <ul>
         {
-          nav.map(({ href, label }) => (
+          nav.map(({ id, href, label }) => (
             <li>
-              <a class="link-quiet nav-link" href={href}>
+              <a class="link-quiet nav-link" href={href} aria-current={current === id ? "page" : undefined}>
                 {label}
               </a>
             </li>

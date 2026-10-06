@@ -64,6 +64,8 @@ export const workSchema = z
 
     // Role / context
     role: nonEmpty.optional(),
+    /** Case-study header: the engineering areas the work centers on. */
+    focus: nonEmpty.optional(),
     timeline: z.object({ start: yearMonth, end: yearMonth.optional() }).strict().optional(),
     stack: z.array(nonEmpty).default([]),
     org: nonEmpty.optional(),
@@ -75,7 +77,17 @@ export const workSchema = z
     constraints: z.array(nonEmpty).optional(),
     responsibility: nonEmpty.optional(),
     decisions: z
-      .array(z.object({ title: nonEmpty, why: nonEmpty, tradeoff: nonEmpty.optional() }).strict())
+      .array(
+        z
+          .object({
+            title: nonEmpty,
+            problem: nonEmpty.optional(),
+            choice: nonEmpty.optional(),
+            why: nonEmpty,
+            tradeoff: nonEmpty.optional(),
+          })
+          .strict(),
+      )
       .optional(),
     results: z.array(nonEmpty).optional(),
 
@@ -84,8 +96,17 @@ export const workSchema = z
     technicalMeasurements: z.array(technicalMeasurementSchema).default([]),
     productionOutcomes: z.array(productionOutcomeSchema).default([]),
 
-    // Spanish shell (Home / Work index only)
-    es: z.object({ title: nonEmpty.optional(), summary: nonEmpty }).strict().optional(),
+    // Spanish shell (Home / Work index only; case studies stay English-only)
+    es: z
+      .object({
+        title: nonEmpty.optional(),
+        summary: nonEmpty,
+        problem: nonEmpty.optional(),
+        role: nonEmpty.optional(),
+        result: nonEmpty.optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict()
   .superRefine((data, ctx) => {

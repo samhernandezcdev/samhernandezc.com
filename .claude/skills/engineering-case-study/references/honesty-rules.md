@@ -16,7 +16,7 @@ technicalMeasurements[] {
 }
 
 productionOutcomes[] {
-  label: string;          // "quote preparation time"
+  label: string;          // "time to reach a technical configuration"
   value: string;
   source: string;         // logs, stakeholder report, analytics
   verified: boolean;

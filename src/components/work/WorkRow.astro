@@ -1,0 +1,132 @@
+---
+// Evidence row for a published work entry: status/source, title, problem,
+// role, one verified result and a short stack. Decisions and trade-offs live in
+// the case study. On Spanish pages, English-only case studies are marked EN.
+import type { CollectionEntry } from "astro:content";
+
+import { t, type Locale, type UIKey } from "@/i18n/ui";
+import { verifiedOnly } from "@/lib/work";
+
+interface Props {
+  entry: CollectionEntry<"work">;
+  locale: Locale;
+  /** Case-study URL, when a case study exists. */
+  href?: string;
+  /** Render as a row on the shared axis (Work index) instead of a stacked row. */
+  ledger?: boolean;
+  /** Title heading level: h2 directly under a page h1, h3 inside a section. */
+  level?: 2 | 3;
+}
+
+const { entry, locale, href, ledger = false, level = 3 } = Astro.props;
+const Heading = level === 2 ? "h2" : "h3";
+const { data } = entry;
+const es = locale === "es" ? data.es : undefined;
+const title = es?.title ?? data.title;
+const problem = es?.problem ?? data.problem ?? es?.summary ?? data.summary;
+const role = es?.role ?? data.role;
+const measured =
+  verifiedOnly(data.productionOutcomes)[0] ?? verifiedOnly(data.technicalMeasurements)[0];
+const result = measured
+  ? `${measured.label}: ${measured.value}${"unit" in measured && measured.unit ? ` ${measured.unit}` : ""}`
+  : (es?.result ?? (locale === "en" ? data.results?.[0] : undefined));
+const englishOnly = locale !== "en";
+---
+
+<article class:list={["work-row", ledger && "axis work-row-ledger"]}>
+  <div class="work-row-meta">
+    <span class="status" data-status={data.status}>{t(locale, `status.${data.status}` as UIKey)}</span>
+    <span class="source">{t(locale, `source.${data.source}` as UIKey)}</span>
+  </div>
+  <div class="work-row-body">
+    <Heading class="work-row-title">
+      {
+        href ? (
+          <a class="link" href={href} hreflang={englishOnly ? "en" : undefined}>
+            {title}
+          </a>
+        ) : (
+          title
+        )
+      }
+    </Heading>
+    <p class="work-row-problem">{problem}</p>
+    {role && <p class="label work-row-role">{t(locale, "work.role")}: {role}</p>}
+    {result && <p class="work-row-result">{result}</p>}
+    {data.stack.length > 0 && <p class="meta">{data.stack.slice(0, 6).join(", ").toLowerCase()}</p>}
+    {
+      href && (
+        <p class="work-row-link">
+          <a class="link" href={href} hreflang={englishOnly ? "en" : undefined}>
+            {t(locale, "work.caseStudy")}
+          </a>
+          {englishOnly && (
+            <span class="meta" title={t(locale, "lang.englishOnly")}>
+              EN<span class="visually-hidden">, {t(locale, "lang.englishOnly")}</span>
+            </span>
+          )}
+        </p>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .work-row {
+    padding-block: var(--spacing-component-lg);
+  }
+
+  .work-row + :global(.work-row) {
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .work-row-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    margin-bottom: calc(var(--spacing) * 3);
+  }
+
+  .work-row-ledger .work-row-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0;
+  }
+
+  .work-row-body {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    max-width: var(--container-prose);
+  }
+
+  .work-row-title {
+    font-size: var(--text-h3);
+  }
+
+  .work-row-title .link {
+    display: inline;
+  }
+
+  .work-row-problem {
+    color: var(--color-text);
+  }
+
+  .work-row-result {
+    padding-left: calc(var(--spacing) * 3);
+    border-left: 2px solid var(--color-border-strong);
+    color: var(--color-text-muted);
+  }
+
+  .work-row-link {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+  }
+
+  .work-row-link .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+</style>

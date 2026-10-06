@@ -4,9 +4,9 @@
 // recent roles from the experience collection, grouped by organization at
 // presentation level. Draft work never reaches this component.
 import External from "@/components/icons/External.astro";
-import WorkRow from "@/components/home/WorkRow.astro";
+import WorkRow from "@/components/work/WorkRow.astro";
 import { t, type Locale, type UIKey } from "@/i18n/ui";
-import { getExperience, getFeaturedWork, getPublishedWork } from "@/lib/content";
+import { caseStudyPath, getExperience, getFeaturedWork, getPublishedWork } from "@/lib/content";
 
 interface Props {
   locale: Locale;
@@ -44,7 +44,7 @@ const introKey: UIKey = showWork ? "work.intro" : "experience.intro";
     showWork ? (
       <div class="rows">
         {featured.map((entry) => (
-          <WorkRow entry={entry} locale={locale} />
+          <WorkRow entry={entry} locale={locale} href={caseStudyPath(entry)} />
         ))}
       </div>
     ) : (
