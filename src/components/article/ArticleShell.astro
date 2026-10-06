@@ -1,0 +1,172 @@
+---
+// Long-form reading layout shared by case studies and notes. Desktop (lg): a
+// sticky rail (optional metadata slot + "On this page") beside a 68ch prose
+// column. Mobile: rail content, then "On this page" as a native disclosure
+// collapsed by default, then the prose. No client JS, no scroll-spy.
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+  /** Accessible name of the rail. */
+  railLabel: string;
+  /** Visible label of the contents list. */
+  contentsLabel: string;
+  /** Only long articles get a contents list. */
+  minSections?: number;
+}
+
+const { headings, railLabel, contentsLabel, minSections = 4 } = Astro.props;
+const toc = headings.filter((heading) => heading.depth === 2);
+const showToc = toc.length >= minSections;
+const hasRail = showToc || Astro.slots.has("rail");
+---
+
+<div class:list={["article-layout", hasRail && "article-layout-rail"]}>
+  {
+    hasRail && (
+      <aside class="article-rail" aria-label={railLabel}>
+        <slot name="rail" />
+        {showToc && (
+          <>
+            {/* Desktop: always-visible list in the sticky rail. */}
+            <nav class="article-toc article-toc-rail" aria-labelledby="toc-rail-title">
+              <p id="toc-rail-title" class="label article-toc-title">{contentsLabel}</p>
+              <ol>
+                {toc.map((heading) => (
+                  <li><a class="link-quiet" href={`#${heading.slug}`}>{heading.text}</a></li>
+                ))}
+              </ol>
+            </nav>
+            {/* Mobile: native disclosure, collapsed so the article starts right away. */}
+            <details class="article-toc article-toc-disclosure">
+              <summary class="label">{contentsLabel}</summary>
+              <nav aria-label={contentsLabel}>
+                <ol>
+                  {toc.map((heading) => (
+                    <li><a class="link-quiet" href={`#${heading.slug}`}>{heading.text}</a></li>
+                  ))}
+                </ol>
+              </nav>
+            </details>
+          </>
+        )}
+      </aside>
+    )
+  }
+
+  <div class="prose article-prose">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .article-layout {
+    display: grid;
+    /* minmax(0, …): long code lines scroll inside <pre> instead of widening
+       the column past the viewport. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: calc(var(--spacing) * 8);
+    margin-top: calc(var(--spacing) * 8);
+  }
+
+  @media (min-width: 64rem) {
+    .article-layout-rail {
+      grid-template-columns: var(--container-rail) minmax(0, var(--container-prose));
+      gap: calc(var(--spacing) * 16);
+    }
+
+    .article-rail {
+      position: sticky;
+      top: calc(var(--spacing) * 6);
+      align-self: start;
+    }
+  }
+
+  .article-toc {
+    margin-top: calc(var(--spacing) * 6);
+  }
+
+  .article-toc-title {
+    margin-bottom: calc(var(--spacing) * 2);
+  }
+
+  /* One contents list per breakpoint; the hidden one leaves the a11y tree. */
+  .article-toc-rail {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    .article-toc-rail {
+      display: block;
+    }
+
+    .article-toc-disclosure {
+      display: none;
+    }
+  }
+
+  .article-toc-disclosure {
+    margin-top: calc(var(--spacing) * 4);
+    border-block: var(--border-hairline) solid var(--color-border);
+  }
+
+  .article-toc-disclosure summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--target-min);
+    color: var(--color-text);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .article-toc-disclosure summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .article-toc-disclosure summary::after {
+    content: "+";
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+  }
+
+  .article-toc-disclosure[open] summary::after {
+    content: "−";
+  }
+
+  .article-toc-disclosure nav {
+    padding-bottom: var(--spacing-component);
+  }
+
+  .article-toc ol {
+    display: grid;
+    gap: 0;
+    border-left: var(--border-hairline) solid var(--color-border);
+  }
+
+  .article-toc a {
+    display: flex;
+    align-items: center;
+    min-height: var(--target-min);
+    padding-left: var(--spacing-component);
+    font-size: var(--text-small);
+  }
+
+  /* Sections start on a hairline with the drafting-green tick, the same
+     section marker as the homepage. */
+  .article-prose > :global(h2) {
+    position: relative;
+    padding-top: var(--spacing-component-lg);
+    border-top: var(--border-hairline) solid var(--color-border);
+    scroll-margin-top: calc(var(--spacing) * 6);
+  }
+
+  .article-prose > :global(h2)::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 1.5rem;
+    border-top: 2px solid var(--color-accent);
+  }
+</style>

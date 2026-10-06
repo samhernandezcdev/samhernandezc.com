@@ -15,7 +15,7 @@ Record each decision as a row below: package · purpose · benefit · runtime im
 | `astro` 5 → 7 | Current Content Layer, MDX 8 compatibility (requires Node ≥ 22.12) | no | 0 |
 | `@astrojs/mdx` | Components inside case studies/notes | no | 1 |
 | `@astrojs/sitemap` | Sitemap with i18n alternates | no | 8 |
-| `@astrojs/rss` | Notes feed (when first note ships) | no | 5 |
+| `@astrojs/rss` | Notes feed (added with the first note) | no | 5 |
 | `@astrojs/check` + `typescript` (dev) | `astro check` | no | 0 |
 | `@fontsource-variable/geist-mono` | Consistent mono font | no (font file) | 2 |
 | `@playwright/test` (dev) | Screenshots for visual-review; smoke tests | no | −1 |

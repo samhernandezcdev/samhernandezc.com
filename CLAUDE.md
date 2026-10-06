@@ -28,9 +28,9 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 - i18n: inglés canónico en `/`, español en `/es`; ambos renderizan `src/components/home/HomePage.astro` con textos de `src/i18n/ui.ts`. `/en` redirige a `/` (`redirects` en `astro.config.mjs`).
 
 ## Estructura principal
-- `src/pages/` — `index.astro` (EN), `es/index.astro` (ES), `work/index.astro` + `es/work/index.astro` (Work index), `work/[slug].astro` (case studies, EN only).
+- `src/pages/` — `index.astro` (EN), `es/index.astro` (ES), `work/index.astro` + `es/work/index.astro` (Work index), `work/[slug].astro` (case studies, EN only), `notes/index.astro` + `notes/[slug].astro` (notas, solo EN), `rss.xml.ts` (feed de notas publicadas).
 - `src/layouts/BaseLayout.astro` — `<html>`, design system, ThemeScript, skip link, meta SEO/OG, canonical, hreflang.
-- `src/components/` — `site/` (Header, Footer), `home/` (HomePage, Hero, SelectedWork, WorkRow, Capabilities, LatestNotes, BkodeBanner, Contact), `work/` (WorkIndex, WorkRow, Decision, SystemDiagram), `system/` (ThemeScript, ThemeSwitch, DataTable), `icons/`.
+- `src/components/` — `site/` (Header, Footer), `home/` (HomePage, Hero, SelectedWork, WorkRow, Capabilities, LatestNotes, BkodeBanner, Contact), `work/` (WorkIndex, WorkRow, Decision, SystemDiagram), `article/` (ArticleShell: layout de lectura compartido), `notes/` (NoteRow), `system/` (ThemeScript, ThemeSwitch, DataTable), `icons/`.
 - `src/i18n/ui.ts` — textos de UI/home EN/ES (paridad de claves por tipos). `src/lib/content.ts` — único acceso a colecciones (filtra borradores).
 - `src/styles/system.css` + `src/styles/system/` — nuevo design system (tokens light/dark con `light-dark()`, primitivas, prose, código, diagramas). Reglas en el skill `portfolio-design`.
 - `src/dev/` — páginas solo de desarrollo (`/dev/design-system`), inyectadas por la integración `dev-pages` únicamente en `astro dev`.
@@ -58,6 +58,7 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 - Antes de terminar un cambio: `npm run check` y `npm run build`.
 - Cambios visuales: revisar todas las rutas existentes (hoy `/`, `/es`, `/work`, `/es/work` y `/work/industrial-engineering-platform`) en desktop y mobile, light y dark; tras fases de UI, usar `visual-review`.
 - Case studies: los hechos del caso industrial salen solo de la hoja de evidencia de la Fase 4A (resumida en el frontmatter del MDX). No agregar afirmaciones nuevas sin confirmación.
+- Notas: escritura de ingeniería genérica; ejemplos sintéticos marcados como tales; nunca empleador, dominio de izaje, CRM/ERP ni detalles del caso confidencial; sin métricas ni anécdotas inventadas. Borrador por defecto (`draft: true`).
 - Contenido nuevo: debe existir en ambos idiomas donde la página tenga versión ES.
 
 ## Restricciones — qué NO hacer

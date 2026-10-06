@@ -94,6 +94,16 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 - `Decision.astro`: a 2px text-color rule, the decision as `h3`, and a key/value sheet (Problem, Choice, Why, Trade-off; the trade-off muted). The decisions are the visual center.
 - `SystemDiagram.astro`: layered diagram language plus an optional `group` box (one application's modules) and an "outside the platform" boundary listing external systems with the direction of their data. Under 768px the group's modules use a two-column grid instead of one vertical stack; nothing is hidden and nothing overflows.
 
+## Article shell (`components/article/ArticleShell.astro`)
+- Shared reading layout for case studies and notes: optional `rail` slot plus "On this page" (sticky rail on desktop; collapsed native `<details>` on mobile), 68ch prose, and `h2`s marked with the hairline and tick.
+- The contents list appears only for articles with 4+ sections; without rail content and contents, the layout is a single prose column.
+
+## Notes (implemented)
+- Index (`/notes`): a dated ledger on `.axis`. The `<time>` date and reading time sit in the label column; the title link (h2), description and plain-text topics sit beside it. No cards, covers, avatars or counters. The RSS link is a quiet `link-quiet`.
+- Note page: breadcrumb (Engineering notes), title `h1`, description at `lead`, then a mono meta line (Published date, Updated, reading time, topics), then ArticleShell. "All notes" at the end.
+- Homepage "Engineering notes": at most 3 `NoteRow`s (date, reading time, title, description; no topics). Hidden when no note is published.
+- Code: the token-derived Shiki pair, no copy button or editor chrome (deferred until a note needs it).
+
 ## Measurement display
 - The value and unit in tabular mono, the label in body type, and the method/environment as a muted caption.
 - Unverified entries never render in production. In dev they show as "— pending verification" inside a `.planned` box.

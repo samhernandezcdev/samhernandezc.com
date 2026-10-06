@@ -1,6 +1,7 @@
 ---
 import ThemeScript from "@/components/system/ThemeScript.astro";
 import { defaultLocale, htmlLang, ogLocale, t, type Locale } from "@/i18n/ui";
+import { getPublishedNotes } from "@/lib/content";
 import "@/styles/system.css";
 
 interface Props {
@@ -10,9 +11,22 @@ interface Props {
   /** Paths of this page in each language that exists, e.g. { en: "/", es: "/es" }. */
   alternates?: Partial<Record<Locale, string>>;
   noindex?: boolean;
+  /** "article" for notes; publication dates are emitted only for articles. */
+  ogType?: "website" | "article";
+  published?: Date;
+  modified?: Date;
 }
 
-const { title, description, locale = defaultLocale, alternates = {}, noindex = false } = Astro.props;
+const {
+  title,
+  description,
+  locale = defaultLocale,
+  alternates = {},
+  noindex = false,
+  ogType = "website",
+  published,
+  modified,
+} = Astro.props;
 
 const site = Astro.site ?? new URL("https://samhernandezc.com");
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, "") || "/", site).href;
@@ -21,6 +35,8 @@ const alternateLinks = Object.entries(alternates).map(([lang, path]) => ({
   href: new URL(path, site).href,
 }));
 const xDefault = alternates[defaultLocale];
+// RSS autodiscovery only once the feed has content.
+const hasFeed = (await getPublishedNotes()).length > 0;
 ---
 
 <!doctype html>
@@ -37,7 +53,10 @@ const xDefault = alternates[defaultLocale];
     {alternateLinks.map(({ lang, href }) => <link rel="alternate" hreflang={lang} href={href} />)}
     {xDefault && <link rel="alternate" hreflang="x-default" href={new URL(xDefault, site).href} />}
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
+    {ogType === "article" && published && <meta property="article:published_time" content={published.toISOString()} />}
+    {ogType === "article" && modified && <meta property="article:modified_time" content={modified.toISOString()} />}
+    {ogType === "article" && <meta property="article:author" content="Samuel Hernández" />}
     <meta property="og:site_name" content="Samuel Hernández" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -48,6 +67,8 @@ const xDefault = alternates[defaultLocale];
     <meta name="twitter:description" content={description} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {hasFeed && <link rel="alternate" type="application/rss+xml" title="Engineering notes · Samuel Hernández" href={new URL("/rss.xml", site).href} />}
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#main">{t(locale, "nav.skipToContent")}</a>

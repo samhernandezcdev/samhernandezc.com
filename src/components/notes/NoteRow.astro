@@ -1,0 +1,92 @@
+---
+// One entry in the notes ledger (Notes index, homepage Latest notes): date and
+// reading time in the label column, title, description and topics beside it.
+// Notes are English-only; Spanish pages mark the link EN.
+import type { CollectionEntry } from "astro:content";
+
+import { t, type Locale } from "@/i18n/ui";
+import { readingMinutes } from "@/lib/content";
+
+interface Props {
+  note: CollectionEntry<"notes">;
+  locale: Locale;
+  level?: 2 | 3;
+  showTags?: boolean;
+}
+
+const { note, locale, level = 3, showTags = true } = Astro.props;
+const { data } = note;
+const Heading = level === 2 ? "h2" : "h3";
+const iso = data.pubDate.toISOString().slice(0, 10);
+const englishOnly = locale !== "en";
+---
+
+<article class="axis note-row">
+  <p class="meta note-row-meta">
+    <time datetime={iso}>{iso}</time>
+    <span>{readingMinutes(note.body)} {t(locale, "notes.readingTime")}</span>
+  </p>
+  <div class="note-row-body">
+    <Heading class="note-row-title" lang="en">
+      <a class="link" href={`/notes/${note.id}`} hreflang={englishOnly ? "en" : undefined}>{data.title}</a>
+      {
+        englishOnly && (
+          <span class="meta note-row-lang" title={t(locale, "lang.englishOnly")}>
+            EN<span class="visually-hidden">, {t(locale, "lang.englishOnly")}</span>
+          </span>
+        )
+      }
+    </Heading>
+    <p class="note-row-description" lang="en">{data.description}</p>
+    {
+      showTags && data.tags.length > 0 && (
+        <p class="meta">
+          <span class="visually-hidden">{t(locale, "notes.tags")}: </span>
+          {data.tags.join(", ")}
+        </p>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .note-row {
+    padding-block: var(--spacing-component-lg);
+  }
+
+  .note-row + :global(.note-row) {
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .note-row-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+    padding-top: 0.2rem;
+  }
+
+  @media (min-width: 48rem) {
+    .note-row-meta {
+      flex-direction: column;
+    }
+  }
+
+  .note-row-body {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    max-width: var(--container-prose);
+  }
+
+  .note-row-title {
+    font-size: var(--text-h3);
+  }
+
+  .note-row-lang {
+    margin-left: calc(var(--spacing) * 2);
+    font-weight: 400;
+  }
+
+  .note-row-description {
+    color: var(--color-text-muted);
+  }
+</style>

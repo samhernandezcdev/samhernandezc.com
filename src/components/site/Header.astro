@@ -18,9 +18,12 @@ const { locale, alternatePath, showNotes = false, current } = Astro.props;
 const other: Locale = locale === "en" ? "es" : "en";
 const home = homePaths[locale];
 
+// Notes are English-only: on Spanish pages the link is marked EN.
 const nav = [
-  { id: "work", href: workPaths[locale], label: t(locale, "nav.work") },
-  ...(showNotes ? [{ id: "notes", href: "/notes", label: t(locale, "nav.notes") }] : []),
+  { id: "work", href: workPaths[locale], label: t(locale, "nav.work"), englishOnly: false },
+  ...(showNotes
+    ? [{ id: "notes", href: "/notes", label: t(locale, "nav.notes"), englishOnly: locale !== "en" }]
+    : []),
 ];
 ---
 
@@ -31,10 +34,20 @@ const nav = [
     <nav class="site-nav" aria-label={t(locale, "nav.label")}>
       <ul>
         {
-          nav.map(({ id, href, label }) => (
+          nav.map(({ id, href, label, englishOnly }) => (
             <li>
-              <a class="link-quiet nav-link" href={href} aria-current={current === id ? "page" : undefined}>
+              <a
+                class="link-quiet nav-link"
+                href={href}
+                hreflang={englishOnly ? "en" : undefined}
+                aria-current={current === id ? "page" : undefined}
+              >
                 {label}
+                {englishOnly && (
+                  <span class="meta nav-lang">
+                    EN<span class="visually-hidden">, {t(locale, "lang.englishOnly")}</span>
+                  </span>
+                )}
               </a>
             </li>
           ))
@@ -71,9 +84,10 @@ const nav = [
 
   .site-header-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: var(--spacing-component);
+    gap: 0 var(--spacing-component);
     min-height: 4rem;
   }
 
@@ -100,6 +114,21 @@ const nav = [
     min-height: var(--target-min);
     padding-inline: var(--spacing-inline);
     font-size: var(--text-small);
+  }
+
+  .nav-lang {
+    margin-left: 0.35em;
+  }
+
+  /* Narrow phones: tighter link padding so the row fits (it wraps below ~340px). */
+  @media (max-width: 26rem) {
+    .site-nav ul {
+      gap: 0;
+    }
+
+    .nav-link {
+      padding-inline: calc(var(--spacing) * 1.5);
+    }
   }
 
   .lang-link {

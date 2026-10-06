@@ -92,6 +92,16 @@ const en = {
 
   "notes.title": "Engineering notes",
   "notes.readingTime": "min read",
+  "notes.metaTitle": "Engineering notes · Samuel Hernández",
+  "notes.metaDescription":
+    "Engineering notes by Samuel Hernández on backend systems, correctness, data-intensive systems, reliability and applied AI engineering.",
+  "notes.intro": "Writing on backend systems, correctness, reliability and applied AI engineering.",
+  "notes.empty": "No notes are published yet.",
+  "notes.all": "All notes",
+  "notes.published": "Published",
+  "notes.updated": "Updated",
+  "notes.tags": "Topics",
+  "notes.rss": "RSS feed",
 
   "bkode.tagline": "Software engineering for businesses.",
   "bkode.prompt": "Need a product built?",
@@ -190,6 +200,16 @@ const es = {
 
   "notes.title": "Notas de ingeniería",
   "notes.readingTime": "min de lectura",
+  "notes.metaTitle": "Notas de ingeniería · Samuel Hernández",
+  "notes.metaDescription":
+    "Notas de ingeniería de Samuel Hernández sobre sistemas backend, corrección, sistemas de datos, confiabilidad e IA aplicada. En inglés.",
+  "notes.intro": "Notas sobre sistemas backend, corrección, confiabilidad e IA aplicada. En inglés.",
+  "notes.empty": "Aún no hay notas publicadas.",
+  "notes.all": "Todas las notas",
+  "notes.published": "Publicado",
+  "notes.updated": "Actualizado",
+  "notes.tags": "Temas",
+  "notes.rss": "Feed RSS",
 
   "bkode.tagline": "Ingeniería de software para empresas.",
   "bkode.prompt": "¿Necesitas construir un producto?",

@@ -1,0 +1,204 @@
+---
+# Generic engineering note. The example is synthetic (a shipping-box selector);
+# it describes no real system, employer, customer or dataset. No measurements,
+# incidents or scale are claimed.
+title: Deterministic rules on top of changing data
+description: >-
+  Why a system that computes from rules and then recommends from live data
+  should keep those two steps apart, and how that changes persistence and
+  testing.
+pubDate: 2026-10-05
+tags: [system design, correctness, testing]
+draft: false
+---
+
+Many internal systems do two different things in one request. First they
+compute something from rules: a required capacity, an eligibility decision, a
+set of constraints a solution must satisfy. Then they pick something concrete
+from data that changes on its own schedule: what is in stock, what is in the
+catalog this week, what a supplier currently offers.
+
+From the outside this looks like one answer. Inside, it is two kinds of answer
+with different properties, and treating them as one makes the system harder to
+test, harder to explain and harder to trust.
+
+## Two kinds of answer
+
+The first answer is a **domain result**. It depends only on the inputs and the
+rules. Given the same inputs and the same rules, it should come out the same
+every time. That makes it a function in the mathematical sense, and it is the
+part domain specialists can check.
+
+The second answer is an **operational recommendation**. It takes the domain
+result and chooses among things that exist right now. It depends on state the
+system does not control, so the same inputs can legitimately produce a different
+recommendation tomorrow.
+
+Mixing them causes a specific kind of confusion. A user enters the same values
+twice, gets two different answers, and has no way to tell whether the rules
+changed, the data changed, or something is broken.
+
+## A synthetic example
+
+Take a deliberately simple case: choosing a shipping box for an order. The
+example is invented for illustration.
+
+The domain rule decides what any acceptable box must satisfy: enough internal
+volume for the items plus packing margin, and a weight limit above the order's
+weight. Nothing about stock is involved.
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Item:
+    volume_l: float
+    weight_kg: float
+
+
+@dataclass(frozen=True)
+class Rules:
+    version: str
+    packing_margin: float  # e.g. 0.15 = 15% extra volume
+
+
+@dataclass(frozen=True)
+class Requirement:
+    min_volume_l: float
+    min_weight_limit_kg: float
+
+
+def required_box(items: list[Item], rules: Rules) -> Requirement:
+    """Domain result: pure, deterministic, no I/O."""
+    volume = sum(item.volume_l for item in items)
+    weight = sum(item.weight_kg for item in items)
+    return Requirement(
+        min_volume_l=volume * (1 + rules.packing_margin),
+        min_weight_limit_kg=weight,
+    )
+```
+
+The recommendation step takes that requirement and the current state of the
+world:
+
+```python
+@dataclass(frozen=True)
+class Box:
+    sku: str
+    volume_l: float
+    weight_limit_kg: float
+
+
+def recommend(
+    req: Requirement,
+    catalog: list[Box],
+    stock: dict[str, int],
+) -> Box | None:
+    """Operational recommendation: depends on catalog and stock right now."""
+    fits = [
+        box for box in catalog
+        if box.volume_l >= req.min_volume_l
+        and box.weight_limit_kg >= req.min_weight_limit_kg
+        and stock.get(box.sku, 0) > 0
+    ]
+    return min(fits, key=lambda box: box.volume_l, default=None)
+```
+
+`required_box` never reads the database. `recommend` never re-derives the rules.
+When the answer changes, you can tell which half changed.
+
+## What the split buys you
+
+**Explanations.** The system can say "the requirement is unchanged; the box you
+saw last week is out of stock, so this is the next smallest that fits." That is
+a sentence a user can act on, and it needs the two steps to be separate.
+
+**One authoritative place for the rules.** In a client-server system like this,
+I would keep the authoritative domain step on the server, behind validation the
+client cannot bypass. The interface can check inputs early for usability, but it
+should consume the rules, not reimplement them. Maintaining the same rule in two
+places creates an unnecessary risk of divergence.
+
+**Different tests for different risks.** The domain step and the recommendation
+step fail in different ways, so they deserve different tests. More on that below.
+
+## Saving a result
+
+The moment users can save their work, the split matters for persistence too.
+
+If you store only the inputs and recompute on read, a saved result can quietly
+change: the catalog moved on, stock ran out, or the rules were revised. Sometimes
+that is what you want. Usually, for something a person reviewed and saved, it is
+not.
+
+A more explicit historical record stores what was decided and the context it
+was decided in:
+
+| Store | Why |
+| --- | --- |
+| The inputs | To recompute or audit later |
+| The domain result | So it does not depend on later rule changes |
+| The rules version | To know which rules produced it |
+| The recommendation and the state it used | So "what we chose then" survives catalog and stock changes |
+
+This is snapshotting, not event sourcing. Full event sourcing gives you a complete
+history, but it adds a lot of machinery that many internal tools do not need.
+Recording an explicit rules version and the relevant state is often enough to
+reason about historical results.
+
+The trade-off is that saved results will diverge from what the system would
+produce today. That divergence is the point: a saved result describes a decision
+made under specific conditions. If I were starting such a system again, I would
+make the rules and catalog version explicit in every saved result from the first
+version instead of adding it later.
+
+## Testing each layer differently
+
+**The domain step** is a pure function, so it is the easiest thing in the system
+to test well.
+
+- Golden cases: inputs and expected outputs agreed with the people who own the
+  rules. For domain-heavy systems, these are often some of the highest-value
+  tests in the suite.
+- Property-based tests for invariants, for example: adding an item never makes
+  the required volume smaller. Libraries such as
+  [Hypothesis](https://hypothesis.readthedocs.io/) generate the inputs.
+
+**The recommendation step** depends on state, so fix the state in the test.
+
+- Build small catalogs and stock tables as fixtures, and assert on the choice.
+- Assert the validity invariant explicitly: whatever is recommended must
+  satisfy the domain requirement.
+- Cover the empty case. "Nothing in stock fits" is a normal answer, not an
+  exception.
+
+**The boundaries** with the systems that own catalog and stock data fail in yet
+another way. Contract tests detect interface and schema drift, such as a renamed
+or missing field. Runtime problems such as timeouts, unavailable dependencies or
+unexpectedly stale data need integration tests, monitoring and visible failure
+reporting. Both are a different class of problem from a wrong calculation, and
+they should not be hidden inside it.
+
+For this kind of software, I care more about strong regression evidence on the
+domain step than about a high coverage percentage across everything.
+
+## The same split around AI components
+
+The same principle has an analogue in systems that call language models. A
+model's output can be nondeterministic, but some of the checks around it can
+remain deterministic: schema validation of structured output, rule-based
+constraints, and evaluation against reference answers. Keeping those checks as a
+separate layer gives some of the same benefits: a place to put golden cases, a
+clearer answer to "what changed?", and a record of what was accepted under which
+prompt, model and evaluation version.
+
+## A short checklist
+
+- Can the domain result be computed without any I/O?
+- Is there exactly one authoritative implementation of each rule?
+- When a recommendation changes, can the system say whether the rules or the data
+  changed?
+- Does a saved result record the rules version and the state it was decided
+  under?
+- Do the tests for the domain step come from cases the rule owners agreed on?

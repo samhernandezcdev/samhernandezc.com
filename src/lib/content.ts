@@ -46,8 +46,22 @@ export async function getExperience(): Promise<CollectionEntry<"experience">[]> 
   return entries.sort((a, b) => b.data.period.start.localeCompare(a.data.period.start));
 }
 
-/** Rough reading time from the raw MDX body (≈ 230 words per minute). */
+/**
+ * Reading time from the raw MDX body, computed at build time. Counts prose
+ * words at ~230 wpm; fenced code, MDX import/export lines, JSX/HTML tags and
+ * comments are excluded because readers skim them at a different pace.
+ */
 export function readingMinutes(body: string | undefined): number {
-  const words = (body ?? "").trim().split(/\s+/).filter(Boolean).length;
+  const prose = (body ?? "")
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/^\s*(import|export)\s.*$/gm, " ")
+    .replace(/\{\/\*[\s\S]*?\*\/\}/g, " ")
+    .replace(/<[^>]+>/g, " ");
+  const words = prose.split(/\s+/).filter((word) => /[\p{L}\p{N}]/u.test(word)).length;
   return Math.max(1, Math.round(words / 230));
+}
+
+/** Note routes. Production: published only. `astro dev`: drafts too, for review. */
+export async function getNoteEntries(): Promise<CollectionEntry<"notes">[]> {
+  return getCollection("notes", ({ data }) => import.meta.env.DEV || !data.draft);
 }

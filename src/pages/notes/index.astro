@@ -1,0 +1,70 @@
+---
+// Notes index: a journal-style ledger of published notes (English-only).
+// Exists even with zero notes, but the header and homepage only link to it
+// once a note is published.
+import NoteRow from "@/components/notes/NoteRow.astro";
+import Footer from "@/components/site/Footer.astro";
+import Header from "@/components/site/Header.astro";
+import { t } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getPublishedNotes } from "@/lib/content";
+
+const notes = await getPublishedNotes();
+---
+
+<BaseLayout title={t("en", "notes.metaTitle")} description={t("en", "notes.metaDescription")} locale="en" noindex={notes.length === 0}>
+  <Header locale="en" showNotes={notes.length > 0} current="notes" />
+  <main id="main" tabindex="-1" class="page">
+    <section class="notes-index" aria-labelledby="notes-index-title">
+      <div class="section-head">
+        <h1 id="notes-index-title" class="notes-index-title">{t("en", "notes.title")}</h1>
+        <p class="section-intro">{t("en", "notes.intro")}</p>
+      </div>
+
+      {
+        notes.length > 0 ? (
+          <div class="notes-ledger">
+            {notes.map((note) => (
+              <NoteRow note={note} locale="en" level={2} />
+            ))}
+          </div>
+        ) : (
+          <p class="label">{t("en", "notes.empty")}</p>
+        )
+      }
+
+      {
+        notes.length > 0 && (
+          <p class="notes-feed label">
+            <a class="link-quiet" href="/rss.xml">{t("en", "notes.rss")}</a>
+          </p>
+        )
+      }
+    </section>
+  </main>
+  <Footer locale="en" />
+</BaseLayout>
+
+<style>
+  .notes-index {
+    padding-top: calc(var(--spacing) * 16);
+  }
+
+  .notes-index-title {
+    font-size: var(--text-h1);
+  }
+
+  .notes-ledger {
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  .notes-feed {
+    margin-top: var(--spacing-component-lg);
+  }
+
+  .notes-feed a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+</style>
