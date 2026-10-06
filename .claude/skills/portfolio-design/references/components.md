@@ -104,6 +104,17 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 - Homepage "Engineering notes": at most 3 `NoteRow`s (date, reading time, title, description; no topics). Hidden when no note is published.
 - Code: the token-derived Shiki pair, no copy button or editor chrome (deferred until a note needs it).
 
+## About (implemented, `components/about/AboutPage.astro`)
+- `h1` "About", then a strong rule and `.axis` with the name in the label column, the identity statement at `h2` size and the direction line at `lead`.
+- Sections (each a section head with tick): How I got here (prose on the axis), How I work (principles as axis rows: title as `h3` left, sentence right), Experience (`ExperienceList`, full history with `owned` lines), Current direction (prose), Contact (shared component).
+- No portrait, quotes, skill pills, timeline graphics or cards.
+- `ExperienceList` (`components/experience/`): shared by About (all roles, all items) and the homepage fallback (3 roles, 2 items). Periods use `<time datetime>`.
+
+## Header (implemented)
+- Wordmark; nav Work, Notes (only when published), About; GitHub; language switch set apart by a hairline divider.
+- On Spanish pages, English-only Notes carries a muted superscript `EN` annotation (plus screen-reader text), so it doesn't read like a second language switch.
+- Narrow screens: the row wraps (wordmark, then the nav); the nav list may wrap again at 320px. No menu disclosure.
+
 ## Measurement display
 - The value and unit in tabular mono, the label in body type, and the method/environment as a muted caption.
 - Unverified entries never render in production. In dev they show as "— pending verification" inside a `.planned` box.

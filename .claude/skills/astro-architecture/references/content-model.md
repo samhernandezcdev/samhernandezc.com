@@ -26,6 +26,7 @@ Implemented in Phase 1. Defined in `src/content.config.ts` with the Content Laye
 - `/`, `/es`: homepage. The evidence section is "Selected work" once a featured case study is public, otherwise "Selected experience".
 - `/work`, `/es/work`: Work index (ledger of published entries).
 - `/work/[slug]`: case study, English-only. Linked from Spanish pages with an `EN` marker and `hreflang="en"`.
+- `/about`, `/es/about`: About, copy in `src/i18n/about.ts` (EN/ES, typed). Facts come only from the experience collection, the case study, the note and the Phase 4A evidence; Applied AI is direction, never a title. `Person` JSON-LD (jobTitle Software Engineer; `worksFor` from the current experience entry).
 - `/notes`, `/notes/[slug]`: English-only. No `/es/notes`. Header and homepage show Notes only when `getPublishedNotes()` is non-empty; on Spanish pages the Notes link carries `EN`.
 - `/rss.xml`: published notes only (`@astrojs/rss`, no trailing slash to match canonicals). Autodiscovery `<link>` only when the feed has items.
 - Reading time: `readingMinutes()` in `src/lib/content.ts`, build-time, ~230 wpm over prose words (code fences, imports and tags excluded).

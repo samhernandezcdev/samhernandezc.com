@@ -11,6 +11,7 @@ export const localizedRoutes = ["/", "/work", "/about"] as const;
 
 export const homePaths: Record<Locale, string> = { en: "/", es: "/es" };
 export const workPaths: Record<Locale, string> = { en: "/work", es: "/es/work" };
+export const aboutPaths: Record<Locale, string> = { en: "/about", es: "/es/about" };
 export const htmlLang: Record<Locale, string> = { en: "en", es: "es" };
 export const ogLocale: Record<Locale, string> = { en: "en_US", es: "es_MX" };
 

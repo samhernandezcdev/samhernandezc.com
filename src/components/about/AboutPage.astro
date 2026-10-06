@@ -1,0 +1,211 @@
+---
+// About: identity, trajectory, working principles, full experience, current
+// direction, contact. Static; no client JS beyond the shared theme script and
+// the contact copy button.
+import Contact from "@/components/home/Contact.astro";
+import ExperienceList from "@/components/experience/ExperienceList.astro";
+import Footer from "@/components/site/Footer.astro";
+import Header from "@/components/site/Header.astro";
+import { about } from "@/i18n/about";
+import { aboutPaths, links, type Locale } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getExperience, getPublishedNotes } from "@/lib/content";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = about[locale];
+const other: Locale = locale === "en" ? "es" : "en";
+const hasNotes = (await getPublishedNotes()).length > 0;
+const englishOnly = locale !== "en";
+const current = (await getExperience())[0]?.data;
+const site = Astro.site ?? new URL("https://samhernandezc.com");
+
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Samuel Hernández",
+  jobTitle: "Software Engineer",
+  url: site.href,
+  sameAs: [links.github, links.linkedin],
+  ...(current && !current.period.end && { worksFor: { "@type": "Organization", name: current.org } }),
+};
+---
+
+<BaseLayout title={copy.metaTitle} description={copy.metaDescription} locale={locale} alternates={aboutPaths}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(person)} />
+  <Header locale={locale} alternatePath={aboutPaths[other]} showNotes={hasNotes} current="about" />
+  <main id="main" tabindex="-1" class="page">
+    <header class="about-intro">
+      <h1 class="about-title">{copy.title}</h1>
+      <div class="axis about-lead">
+        <p class="label">Samuel Hernández</p>
+        <div>
+          <p class="about-statement">{copy.lead}</p>
+          <p class="about-direction">{copy.leadDirection}</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="page-section" aria-labelledby="path-title">
+      <div class="section-head">
+        <h2 id="path-title">{copy.pathTitle}</h2>
+      </div>
+      <div class="axis">
+        <span class="axis-spacer" aria-hidden="true"></span>
+        <div class="prose about-prose">
+          {copy.path.map((paragraph) => <p>{paragraph}</p>)}
+          <p>
+            <a href="/work/industrial-engineering-platform" hreflang={englishOnly ? "en" : undefined}>{copy.pathCaseStudy}</a>
+            {englishOnly && <span class="meta about-lang"> EN</span>}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section" aria-labelledby="principles-title">
+      <div class="section-head">
+        <h2 id="principles-title">{copy.principlesTitle}</h2>
+        <p class="section-intro">{copy.principlesIntro}</p>
+      </div>
+      <ul class="principles">
+        {
+          copy.principles.map((principle) => (
+            <li class="axis principle">
+              <h3 class="principle-title">{principle.title}</h3>
+              <div class="principle-body">
+                <p>{principle.body}</p>
+                {principle.link && (
+                  <p class="principle-link">
+                    <a class="link" href={principle.link.href} hreflang={englishOnly ? "en" : undefined}>
+                      {principle.link.text}
+                    </a>
+                    {englishOnly && <span class="meta about-lang"> EN</span>}
+                  </p>
+                )}
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="page-section" aria-labelledby="experience-title">
+      <div class="section-head">
+        <h2 id="experience-title">{copy.experienceTitle}</h2>
+        <p class="section-intro">{copy.experienceIntro}</p>
+      </div>
+      <ExperienceList locale={locale} showOwned />
+    </section>
+
+    <section class="page-section" aria-labelledby="direction-title">
+      <div class="section-head">
+        <h2 id="direction-title">{copy.directionTitle}</h2>
+      </div>
+      <div class="axis">
+        <span class="axis-spacer" aria-hidden="true"></span>
+        <div class="prose about-prose">
+          {copy.direction.map((paragraph) => <p>{paragraph}</p>)}
+          <p>{copy.roles}</p>
+          <p class="about-aside">
+            {copy.bkode}{" "}
+            <a href={links.bkode} rel="noopener">bkode.lat</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <Contact locale={locale} />
+  </main>
+  <Footer locale={locale} />
+</BaseLayout>
+
+<style>
+  .about-intro {
+    padding-top: calc(var(--spacing) * 16);
+  }
+
+  .about-title {
+    font-size: var(--text-h1);
+  }
+
+  .about-lead {
+    margin-top: calc(var(--spacing) * 8);
+    padding-top: calc(var(--spacing) * 6);
+    border-top: var(--border-hairline) solid var(--color-border-strong);
+  }
+
+  .about-lead .label {
+    padding-top: 0.35rem;
+  }
+
+  .about-statement {
+    max-width: 34ch;
+    font-size: var(--text-h2);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+
+  .about-direction {
+    max-width: var(--container-prose);
+    margin-top: calc(var(--spacing) * 6);
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+    color: var(--color-text-muted);
+  }
+
+  /* The empty label cell only matters when the axis has two columns. */
+  @media (max-width: 47.99rem) {
+    .axis-spacer {
+      display: none;
+    }
+  }
+
+  .about-prose a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+
+  .about-lang {
+    margin-left: 0.35em;
+  }
+
+  .about-aside {
+    color: var(--color-text-muted);
+  }
+
+  .principles {
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  .principle {
+    padding-block: var(--spacing-component-lg);
+  }
+
+  .principle + .principle {
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .principle-title {
+    font-size: var(--text-body);
+    font-weight: 600;
+    line-height: var(--leading-heading);
+  }
+
+  .principle-body {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    max-width: var(--container-prose);
+    color: var(--color-text-muted);
+  }
+
+  .principle-link .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+</style>

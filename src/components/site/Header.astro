@@ -1,9 +1,9 @@
 ---
-// Static header, no client JS. The nav lists only routes that exist: Notes
-// appears once a note is published, About once /about is built (Phase 6), so
-// the links fit on one row at 390px and no menu disclosure is needed yet.
+// Static header, no client JS. The nav lists only routes that exist (Notes
+// appears once a note is published). On narrow screens the row wraps: the
+// wordmark, then the nav. No menu disclosure is needed for four links.
 import GitHub from "@/components/icons/GitHub.astro";
-import { homePaths, htmlLang, links, t, workPaths, type Locale } from "@/i18n/ui";
+import { aboutPaths, homePaths, htmlLang, links, t, workPaths, type Locale } from "@/i18n/ui";
 
 interface Props {
   locale: Locale;
@@ -11,7 +11,7 @@ interface Props {
   alternatePath?: string;
   showNotes?: boolean;
   /** Route section the current page belongs to (sets aria-current). */
-  current?: "work" | "notes";
+  current?: "work" | "notes" | "about";
 }
 
 const { locale, alternatePath, showNotes = false, current } = Astro.props;
@@ -24,6 +24,7 @@ const nav = [
   ...(showNotes
     ? [{ id: "notes", href: "/notes", label: t(locale, "nav.notes"), englishOnly: locale !== "en" }]
     : []),
+  { id: "about", href: aboutPaths[locale], label: t(locale, "nav.about"), englishOnly: false },
 ];
 ---
 
@@ -59,7 +60,7 @@ const nav = [
         </li>
         {
           alternatePath && (
-            <li>
+            <li class="lang-item">
               <a
                 class="link-quiet nav-link lang-link"
                 href={alternatePath}
@@ -104,8 +105,16 @@ const nav = [
 
   .site-nav ul {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--spacing-inline);
+    gap: 0 var(--spacing-inline);
+  }
+
+  /* The language switch is set apart from the section links. */
+  .lang-item {
+    margin-left: var(--spacing-inline);
+    padding-left: var(--spacing-inline);
+    border-left: var(--border-hairline) solid var(--color-border);
   }
 
   .nav-link {
@@ -116,8 +125,13 @@ const nav = [
     font-size: var(--text-small);
   }
 
+  /* "EN" on an English-only destination: a muted superscript annotation, so it
+     reads as part of the link, not as a second language switch. */
   .nav-lang {
-    margin-left: 0.35em;
+    margin-left: 0.15em;
+    font-size: 0.625rem;
+    vertical-align: super;
+    color: var(--color-text-muted);
   }
 
   /* Narrow phones: tighter link padding so the row fits (it wraps below ~340px). */
