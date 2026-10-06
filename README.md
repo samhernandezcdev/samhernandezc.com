@@ -4,10 +4,10 @@ Personal engineering portfolio of Samuel Hernández. Static site built with Astr
 
 ## Stack
 
-- Astro 7 (static output, no SSR adapter)
-- Tailwind CSS 4 (CSS-first configuration in `src/styles/global.css`)
+- Astro 7 (static output, no SSR adapter), MDX and Content Collections
+- Tailwind CSS 4 (CSS-first design system in `src/styles/system.css`)
 - TypeScript (strict)
-- React islands for the current header and contact form (scheduled for removal)
+- No client framework; a few hundred bytes of inline JavaScript
 
 ## Requirements
 
@@ -20,7 +20,8 @@ Personal engineering portfolio of Samuel Hernández. Static site built with Astr
 |---|---|
 | `npm install` | Install dependencies |
 | `npm run dev` | Start the local dev server |
-| `npm run check` | Type-check `.astro`, `.ts` and `.tsx` files (`astro check`) |
+| `npm run check` | Type-check `.astro` and `.ts` files (`astro check`) |
+| `npm run test:content` | Content-model schema tests (`node --test`) |
 | `npm run build` | Build the static site into `dist/` |
 | `npm run preview` | Serve the built site locally |
 
@@ -28,16 +29,17 @@ Personal engineering portfolio of Samuel Hernández. Static site built with Astr
 
 ```
 src/
-  pages/        routes (`/` ES, `/en` EN)
-  layouts/      BaseLayout (head, SEO meta, hreflang)
-  components/   layout, sections, features, ui primitives
-  i18n/         typed ES/EN content
-  styles/       Tailwind theme and global CSS
-  assets/       images processed by astro:assets
+  pages/        routes (`/` EN, `/es` ES, `/work`, `/work/[slug]`)
+  layouts/      BaseLayout (head, SEO meta, hreflang, theme)
+  components/   site shell, home sections, work/case-study components
+  content/      work, notes and experience collections (MDX/YAML)
+  i18n/         typed EN/ES UI strings
+  lib/          content access and work schema rules
+  styles/       design system (tokens, primitives, prose, code, diagrams)
 public/         static files served as-is (favicon, CV PDFs)
 ```
 
-Resume PDFs must keep the exact filenames listed in `public/README.md`.
+Resume PDFs in `public/` must keep the exact filenames `Samuel-Hernandez-CV-EN.pdf` and `Samuel-Hernandez-CV-ES.pdf`; the site links them directly.
 
 ## Deployment
 

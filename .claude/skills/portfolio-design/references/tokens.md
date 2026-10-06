@@ -34,7 +34,7 @@ Live preview: `npm run dev`, then open `/dev/design-system`. It is dev-only and 
 
 The green is kept dark and low in chroma so it never reads as terminal green.
 
-**Accent budget:** use it only for link underlines, the focus ring, link hover text, the `building` marker, and the short tick that starts each section head. Never use it for backgrounds, headings, icons or decoration. Primary buttons are monochrome.
+**Accent budget:** use it only for link underlines, the focus ring, link hover text, the `building` marker, and the short tick that starts each section head (homepage sections and case-study `h2`s). Never use it for backgrounds, headings, icons or decoration. Primary buttons are monochrome.
 
 ## Type scale (`text-*`)
 | Step | Size | Use |

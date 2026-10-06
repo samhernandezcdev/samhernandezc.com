@@ -56,9 +56,6 @@ resolution, engineering, technical and operations staff work out the
 configuration: the required capacity, the geometry and the compatible
 components.
 
-Engineering owns the formulas, assumptions and technical rules. The commercial
-system owns the customer quotation.
-
 ## Problem
 
 Before the platform, that technical work depended partly on spreadsheet
@@ -72,8 +69,8 @@ the engineering rules in one reusable internal system.
 
 ## Constraints
 
-- **Engineering owns correctness.** The software implements rules that domain
-  specialists validate. It does not define them.
+- **Engineering owns correctness.** Domain specialists own the formulas,
+  assumptions and technical rules, and validate them.
 - **Rules derive from published lifting-equipment standards.**
 - **Operational data changes.** Product, availability and cost-related data live
   in the company's ERP and change over time.
@@ -213,14 +210,11 @@ rules, regression cases and API behavior.
 
 ## Saved configurations
 
-The platform persists technical configurations, so earlier results can be
-referenced without depending only on the current state of the system. That
-matters because the catalog, availability, cost context, component status and
-even the rules can all change.
-
-Saved configurations keep the technical result. Making the exact rule and
-catalog context behind each result explicit is one of the changes I would make
-today.
+Saved configurations keep the technical result, so earlier work can be
+referenced without depending only on the current catalog, availability, cost
+context, component status or rules, all of which can change. Making the exact
+rule and catalog context behind each result explicit is one of the changes I
+would make today.
 
 ## How the system and its boundaries evolved
 

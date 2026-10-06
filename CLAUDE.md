@@ -34,7 +34,7 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 - `src/i18n/ui.ts` — textos de UI/home EN/ES (paridad de claves por tipos). `src/lib/content.ts` — único acceso a colecciones (filtra borradores).
 - `src/styles/system.css` + `src/styles/system/` — nuevo design system (tokens light/dark con `light-dark()`, primitivas, prose, código, diagramas). Reglas en el skill `portfolio-design`.
 - `src/dev/` — páginas solo de desarrollo (`/dev/design-system`), inyectadas por la integración `dev-pages` únicamente en `astro dev`.
-- `src/assets/` — imágenes importadas (optimizadas por Astro). `public/` — favicon y PDFs de CV (nombres exactos en `public/README.md`).
+- `src/assets/` — imágenes importadas (optimizadas por Astro). `public/` — favicon y PDFs de CV, con nombres exactos `Samuel-Hernandez-CV-EN.pdf` y `Samuel-Hernandez-CV-ES.pdf` (el sitio los enlaza directamente; no se generan en el build).
 - `scripts/screenshot.mjs` — herramienta dev de `visual-review` (Playwright). No es parte del sitio.
 - `docs/` — contenido personal no relacionado, no enrutado. **Off-limits.**
 

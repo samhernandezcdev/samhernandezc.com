@@ -75,7 +75,7 @@ const en = {
   "caseStudy.focus": "Focus",
   "caseStudy.stack": "Stack",
   "caseStudy.status": "Status",
-  "caseStudy.contents": "Contents",
+  "caseStudy.contents": "On this page",
   "caseStudy.allWork": "All work",
   "caseStudy.draft": "Draft preview. This case study is not published.",
 
@@ -173,7 +173,7 @@ const es = {
   "caseStudy.focus": "Enfoque",
   "caseStudy.stack": "Stack",
   "caseStudy.status": "Estado",
-  "caseStudy.contents": "Contenido",
+  "caseStudy.contents": "En esta página",
   "caseStudy.allWork": "Todos los proyectos",
   "caseStudy.draft": "Vista previa de borrador. Este caso de estudio no está publicado.",
 

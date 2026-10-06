@@ -89,6 +89,22 @@ const { caption, layers, external = [] } = Astro.props;
     border-radius: var(--radius-md);
   }
 
+  /* Narrow screens: a two-column grid for an application's modules instead of
+     one long vertical stack. */
+  @media (max-width: 47.99rem) {
+    .diagram-group .diagram-nodes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: calc(var(--spacing) * 2);
+    }
+
+    .diagram-group .diagram-node {
+      align-content: center;
+      min-width: 0;
+      padding-inline: calc(var(--spacing) * 2);
+    }
+  }
+
   .diagram-group-label {
     font-size: var(--text-small);
     font-weight: 600;

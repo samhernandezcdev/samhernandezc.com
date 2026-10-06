@@ -63,18 +63,28 @@ const description =
 
           {
             toc.length > 0 && (
-              <details class="case-toc" open>
-                <summary class="label">{t("en", "caseStudy.contents")}</summary>
-                <ol>
-                  {toc.map((heading) => (
-                    <li>
-                      <a class="link-quiet" href={`#${heading.slug}`}>
-                        {heading.text}
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </details>
+              <>
+                {/* Desktop: always-visible list in the sticky rail. */}
+                <nav class="case-toc case-toc-rail" aria-labelledby="toc-rail-title">
+                  <p id="toc-rail-title" class="label case-toc-title">{t("en", "caseStudy.contents")}</p>
+                  <ol>
+                    {toc.map((heading) => (
+                      <li><a class="link-quiet" href={`#${heading.slug}`}>{heading.text}</a></li>
+                    ))}
+                  </ol>
+                </nav>
+                {/* Mobile: native disclosure, collapsed so the article starts right away. */}
+                <details class="case-toc case-toc-disclosure">
+                  <summary class="label">{t("en", "caseStudy.contents")}</summary>
+                  <nav aria-label={t("en", "caseStudy.contents")}>
+                    <ol>
+                      {toc.map((heading) => (
+                        <li><a class="link-quiet" href={`#${heading.slug}`}>{heading.text}</a></li>
+                      ))}
+                    </ol>
+                  </nav>
+                </details>
+              </>
             )
           }
         </aside>
@@ -177,11 +187,56 @@ const description =
     margin-top: calc(var(--spacing) * 6);
   }
 
-  .case-toc summary {
+  .case-toc-title {
+    margin-bottom: calc(var(--spacing) * 2);
+  }
+
+  /* One contents list per breakpoint; the hidden one leaves the a11y tree. */
+  .case-toc-rail {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    .case-toc-rail {
+      display: block;
+    }
+
+    .case-toc-disclosure {
+      display: none;
+    }
+  }
+
+  .case-toc-disclosure {
+    margin-top: calc(var(--spacing) * 4);
+    border-block: var(--border-hairline) solid var(--color-border);
+  }
+
+  .case-toc-disclosure summary {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     min-height: var(--target-min);
+    color: var(--color-text);
     cursor: pointer;
+    list-style: none;
+  }
+
+  .case-toc-disclosure summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .case-toc-disclosure summary::after {
+    content: "+";
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+  }
+
+  .case-toc-disclosure[open] summary::after {
+    content: "−";
+  }
+
+  .case-toc-disclosure nav {
+    padding-bottom: var(--spacing-component);
   }
 
   .case-toc ol {
@@ -198,8 +253,22 @@ const description =
     font-size: var(--text-small);
   }
 
-  .case-prose :global(h2) {
+  /* Case-study sections start on a hairline with the drafting-green tick,
+     the same section marker as the homepage. */
+  .case-prose > :global(h2) {
+    position: relative;
+    padding-top: var(--spacing-component-lg);
+    border-top: var(--border-hairline) solid var(--color-border);
     scroll-margin-top: calc(var(--spacing) * 6);
+  }
+
+  .case-prose > :global(h2)::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 1.5rem;
+    border-top: 2px solid var(--color-accent);
   }
 
   .case-footer {

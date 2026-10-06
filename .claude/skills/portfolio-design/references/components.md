@@ -88,9 +88,11 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 
 ## Case study (implemented, `pages/work/[slug].astro`)
 - Header: breadcrumb (Work / Case study), the title at `h1`, the summary at `lead`, the status chip and source, and a `border-strong` rule.
-- Desktop at `lg`: a sticky rail (`container-rail`) with a stacked spec (role, focus, stack; no timeline, which would link the anonymized study to the employer) and the contents list, beside the prose. Mobile: spec, then contents in a `<details>`, then prose.
+- Desktop at `lg`: a sticky rail (`container-rail`) with a stacked spec (role, focus, stack; no timeline, which would link the anonymized study to the employer) and an always-visible "On this page" `<nav>`, beside the prose.
+- Mobile: spec, then "On this page" as a native `<details>` collapsed by default (no JS, no sticky or floating behavior), then prose. Both contents lists are rendered; CSS shows exactly one per breakpoint, so the hidden one leaves the accessibility tree.
+- Each case-study `h2` starts on a hairline with the drafting-green tick, the same section marker as the homepage.
 - `Decision.astro`: a 2px text-color rule, the decision as `h3`, and a key/value sheet (Problem, Choice, Why, Trade-off; the trade-off muted). The decisions are the visual center.
-- `SystemDiagram.astro`: layered diagram language plus an optional `group` box (one application's modules) and an "outside the platform" boundary listing external systems with the direction of their data.
+- `SystemDiagram.astro`: layered diagram language plus an optional `group` box (one application's modules) and an "outside the platform" boundary listing external systems with the direction of their data. Under 768px the group's modules use a two-column grid instead of one vertical stack; nothing is hidden and nothing overflows.
 
 ## Measurement display
 - The value and unit in tabular mono, the label in body type, and the method/environment as a muted caption.
