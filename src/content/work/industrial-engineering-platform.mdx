@@ -102,20 +102,39 @@ formulas: specialists own them and validate their correctness.
 
 <SystemDiagram
   caption="High-level shape of the platform. Solid connectors are synchronous calls. The ERP and CRM are separate systems the platform integrates with; it does not own them."
+  traceIntro="Choose a flow to highlight it. The whole architecture stays visible, and the text below describes it in full."
+  traces={[
+    {
+      id: "calculation",
+      label: "Engineering calculation",
+      description: "Technical inputs from the configuration workflow reach the FastAPI backend, where the calculation engine and validation apply the engineering rules. The result is deterministic: the same inputs and rules give the same result.",
+    },
+    {
+      id: "recommendation",
+      label: "Operational recommendation",
+      description: "Product, availability and cost-related data come from the company's ERP through the integration layer. Component selection uses that current context to recommend components. It changes the recommendation, not the engineering calculation.",
+    },
+    {
+      id: "handoff",
+      label: "Commercial handoff",
+      description: "Technical configuration data leaves the platform through the integration layer and goes into the CRM. The platform owns technical correctness, the CRM owns the commercial workflow, and the ERP owns product, inventory and cost data.",
+    },
+  ]}
   layers={[
-    { label: "client", nodes: [{ name: "Configuration workflow", kind: "service", note: "React, TypeScript" }] },
-    { label: "REST", edge: "sync", nodes: [
-      { name: "Calculation engine", kind: "service" },
-      { name: "Validation", kind: "service" },
-      { name: "Component selection", kind: "service" },
+    { label: "client", nodes: [{ name: "Configuration workflow", kind: "service", note: "React, TypeScript", trace: ["calculation", "recommendation"] }] },
+    { label: "REST", edge: "sync", trace: ["calculation", "recommendation"], nodes: [
+      { name: "Calculation engine", kind: "service", trace: ["calculation"] },
+      { name: "Validation", kind: "service", trace: ["calculation"] },
+      { name: "Component selection", kind: "service", trace: ["recommendation"] },
       { name: "Persistence", kind: "service" },
-      { name: "Integrations", kind: "service" },
+      { name: "Integrations", kind: "service", trace: ["recommendation", "handoff"] },
     ], group: "FastAPI application" },
     { label: "data", edge: "sync", nodes: [{ name: "PostgreSQL", kind: "store", note: "domain data, saved configurations" }] },
   ]}
+  boundaryTrace={["recommendation", "handoff"]}
   external={[
-    { name: "Company ERP", flow: "product, availability and cost-related data → platform" },
-    { name: "CRM", flow: "platform → technical configuration data" },
+    { name: "Company ERP", flow: "product, availability and cost-related data → platform", trace: ["recommendation"] },
+    { name: "CRM", flow: "platform → technical configuration data", trace: ["handoff"] },
   ]}
 />
 

@@ -76,6 +76,12 @@
   navigation: auto;
 }
 
+/* Page and theme cross-fades stay short. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
   @view-transition {
     navigation: none;

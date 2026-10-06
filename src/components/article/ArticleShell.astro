@@ -168,5 +168,11 @@ const hasRail = showToc || Astro.slots.has("rail");
     left: 0;
     width: 1.5rem;
     border-top: 2px solid var(--color-accent);
+    transition: width var(--duration-ui) var(--ease-standard);
+  }
+
+  /* Arriving through "On this page" or an anchor: the section tick lengthens. */
+  .article-prose > :global(h2:target)::before {
+    width: 3rem;
   }
 </style>

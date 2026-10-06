@@ -90,7 +90,7 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 - Header: breadcrumb (Work / Case study), the title at `h1`, the summary at `lead`, the status chip and source, and a `border-strong` rule.
 - Desktop at `lg`: a sticky rail (`container-rail`) with a stacked spec (role, focus, stack; no timeline, which would link the anonymized study to the employer) and an always-visible "On this page" `<nav>`, beside the prose.
 - Mobile: spec, then "On this page" as a native `<details>` collapsed by default (no JS, no sticky or floating behavior), then prose. Both contents lists are rendered; CSS shows exactly one per breakpoint, so the hidden one leaves the accessibility tree.
-- Each case-study `h2` starts on a hairline with the drafting-green tick, the same section marker as the homepage.
+- Each case-study `h2` starts on a hairline with the drafting-green tick, the same section marker as the homepage. Arriving at a section through a link (`:target`) lengthens its tick; there is no scroll-spy.
 - `Decision.astro`: a 2px text-color rule, the decision as `h3`, and a key/value sheet (Problem, Choice, Why, Trade-off; the trade-off muted). The decisions are the visual center.
 - `SystemDiagram.astro`: layered diagram language plus an optional `group` box (one application's modules) and an "outside the platform" boundary listing external systems with the direction of their data. Under 768px the group's modules use a two-column grid instead of one vertical stack; nothing is hidden and nothing overflows.
 
@@ -137,9 +137,16 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 - On `.axis`: "BKODE" (h2, sans 700) in the label column; then "Software engineering for businesses." at `h2` size; then a muted line "Need a product built?" with the accent link `bkode.lat ↗`.
 - Don't: inverted bands, gradients, card treatment, large buttons, mono labels, or more than one link.
 
-## Command palette (Phase 7)
-- A native modal `<dialog>` on `surface-raised` with a hairline border and no shadow. A search input plus a listbox of navigation actions.
-- Visible trigger in the header; `⌘K` / `Ctrl K`. Navigation only. No terminal styling.
+## Command palette (implemented, `components/site/CommandPalette.astro`)
+- Native modal `<dialog>` on `surface-raised`, hairline border, no shadow; the backdrop is a translucent `bg` wash, not blur.
+- A filter field (16px+ on mobile), then grouped real links: Pages, Content (published case studies and notes), Actions (email, GitHub, LinkedIn, CV, language), plus a Theme row (Light / Dark / System, `aria-pressed`).
+- Opens with ⌘K / Ctrl K or the header trigger (search icon + mono shortcut hint on fine pointers). Escape and backdrop click close; focus returns to the opener. Arrow Up/Down, Home/End move through visible items; Enter activates natively.
+- Without JS the trigger stays hidden; every destination is reachable through normal navigation. No terminal styling, prompt glyphs or command execution.
+
+## Architecture Trace (implemented, `SystemDiagram` `traces`)
+- Optional flow buttons above a diagram (`aria-pressed`), one sentence explaining the selected flow (`aria-live="polite"`). Pressing the active button returns to the neutral diagram.
+- Tagged nodes, connectors and the external boundary get the accent border plus heavier text (never color alone); untagged parts turn muted but stay readable. No movement, zoom or drawing animation; 200ms color/border transitions, none under reduced motion.
+- Controls are hidden without JS; the neutral diagram and the prose remain the complete description.
 
 ## Footer
 - Name, links, CV, and a `.meta` build line (`built 2026-10-05, a1b2c3d, astro 7.3.5`).

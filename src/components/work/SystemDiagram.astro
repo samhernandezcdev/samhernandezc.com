@@ -3,10 +3,19 @@
 // semantic lists, a caption. Layers stack top to bottom; an optional `group`
 // labels the nodes of one layer as parts of a single application. External
 // systems are listed below a boundary line with the direction of their data.
+//
+// Optional Architecture Trace: `traces` adds buttons that highlight one flow
+// (nodes, connectors and the boundary tagged with `trace`). The static diagram
+// and the surrounding prose stay complete without JS; the controls are hidden
+// until the script runs. Client JS justification: toggling emphasis needs a
+// click handler; ~0.5 KB gz, module, runs on interaction; no-JS fallback: the
+// neutral diagram plus the text description.
 type Kind = "service" | "store" | "queue" | "external";
 
 interface Node {
   name: string;
+  /** Trace modes this node belongs to. */
+  trace?: string[];
   kind?: Kind;
   note?: string;
   planned?: boolean;
@@ -14,6 +23,8 @@ interface Node {
 
 interface Layer {
   label: string;
+  /** Trace modes that use the connector into this layer. */
+  trace?: string[];
   edge?: "sync" | "async";
   group?: string;
   nodes: Node[];
@@ -22,28 +33,67 @@ interface Layer {
 interface External {
   name: string;
   flow: string;
+  trace?: string[];
+}
+
+interface Trace {
+  id: string;
+  label: string;
+  description: string;
 }
 
 interface Props {
   caption: string;
   layers: Layer[];
   external?: External[];
+  /** Trace modes that use the boundary to external systems. */
+  boundaryTrace?: string[];
+  traces?: Trace[];
+  /** Text shown when no flow is selected. */
+  traceIntro?: string;
 }
 
-const { caption, layers, external = [] } = Astro.props;
+const { caption, layers, external = [], boundaryTrace, traces = [], traceIntro = "" } = Astro.props;
+const tags = (list?: string[]) => (list && list.length > 0 ? list.join(" ") : undefined);
 ---
 
-<figure class="diagram system-diagram">
+<figure class="diagram system-diagram" data-trace-figure={traces.length > 0 || undefined}>
+  {
+    traces.length > 0 && (
+      <div class="trace" data-trace-controls hidden>
+        <div class="trace-buttons" role="group" aria-label="Trace a flow through the architecture">
+          {traces.map((trace) => (
+            <button
+              type="button"
+              class="button trace-button"
+              aria-pressed="false"
+              data-trace-mode={trace.id}
+              data-trace-description={trace.description}
+            >
+              {trace.label}
+            </button>
+          ))}
+        </div>
+        <p class="trace-description" aria-live="polite" data-trace-output data-trace-intro={traceIntro}>
+          {traceIntro}
+        </p>
+      </div>
+    )
+  }
   <ol class="diagram-layers">
     {
       layers.map((layer) => (
-        <li class="diagram-layer" data-edge={layer.edge}>
+        <li class="diagram-layer" data-edge={layer.edge} data-trace={tags(layer.trace)}>
           <span class="diagram-label">{layer.label}</span>
           <div class:list={[layer.group && "diagram-group"]}>
             {layer.group && <span class="diagram-group-label">{layer.group}</span>}
             <ul class="diagram-nodes">
               {layer.nodes.map((node) => (
-                <li class:list={["diagram-node", node.planned && "planned"]} data-kind={node.kind ?? "service"}>
+                <li
+                  class:list={["diagram-node", node.planned && "planned"]}
+                  data-kind={node.kind ?? "service"}
+                  data-trace={tags(node.trace)}
+                >
                   {node.kind && node.kind !== "service" && <span class="diagram-kind">{node.kind}</span>}
                   {node.name}
                   {node.note && <span class="diagram-note">{node.note}</span>}
@@ -58,11 +108,11 @@ const { caption, layers, external = [] } = Astro.props;
 
   {
     external.length > 0 && (
-      <div class="diagram-boundary">
+      <div class="diagram-boundary" data-trace={tags(boundaryTrace)}>
         <span class="diagram-label">outside the platform</span>
         <ul class="diagram-externals">
           {external.map((system) => (
-            <li class="diagram-node" data-kind="external">
+            <li class="diagram-node" data-kind="external" data-trace={tags(system.trace)}>
               <span class="diagram-kind">external</span>
               {system.name}
               <span class="diagram-note">{system.flow}</span>
@@ -75,6 +125,36 @@ const { caption, layers, external = [] } = Astro.props;
 
   <figcaption>{caption}</figcaption>
 </figure>
+
+<script>
+  for (const figure of document.querySelectorAll<HTMLElement>("[data-trace-figure]")) {
+    const controls = figure.querySelector<HTMLElement>("[data-trace-controls]");
+    const output = figure.querySelector<HTMLElement>("[data-trace-output]");
+    const buttons = [...figure.querySelectorAll<HTMLButtonElement>("[data-trace-mode]")];
+    const tagged = [...figure.querySelectorAll<HTMLElement>("[data-trace]")];
+    if (!controls || !output) continue;
+
+    const select = (mode: string | null) => {
+      if (mode) figure.dataset.activeTrace = mode;
+      else delete figure.dataset.activeTrace;
+      for (const el of tagged) {
+        el.classList.toggle("is-traced", !!mode && el.dataset.trace!.split(" ").includes(mode));
+      }
+      for (const button of buttons) {
+        button.setAttribute("aria-pressed", String(button.dataset.traceMode === mode));
+      }
+      const active = buttons.find((button) => button.dataset.traceMode === mode);
+      output.textContent = active?.dataset.traceDescription ?? output.dataset.traceIntro ?? "";
+    };
+
+    controls.hidden = false;
+    controls.addEventListener("click", (event) => {
+      const button = (event.target as Element).closest<HTMLButtonElement>("[data-trace-mode]");
+      if (!button) return;
+      select(button.getAttribute("aria-pressed") === "true" ? null : button.dataset.traceMode!);
+    });
+  }
+</script>
 
 <style>
   .system-diagram {
@@ -136,5 +216,73 @@ const { caption, layers, external = [] } = Astro.props;
 
   .diagram-externals .diagram-node {
     min-width: 14rem;
+  }
+
+  /* Architecture Trace ---------------------------------------------------- */
+  .trace {
+    display: grid;
+    gap: var(--spacing-component);
+    margin-bottom: calc(var(--spacing) * 8);
+    padding-bottom: var(--spacing-component);
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  .trace[hidden] {
+    display: none;
+  }
+
+  .trace-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+  }
+
+  .trace-description {
+    min-height: 4.5em;
+    font-size: var(--text-small);
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+
+  .system-diagram :is(.diagram-node, .diagram-layer, .diagram-boundary) {
+    transition:
+      color var(--duration-ui) var(--ease-standard),
+      border-color var(--duration-ui) var(--ease-standard),
+      box-shadow var(--duration-ui) var(--ease-standard);
+  }
+
+  /* Untraced parts stay readable: muted text and quiet borders, no fading. */
+  .system-diagram[data-active-trace] .diagram-node:not(.is-traced) {
+    border-color: var(--color-border);
+    color: var(--color-text-muted);
+  }
+
+  /* Traced nodes: accent border plus heavier text, so the state is not color-only. */
+  .system-diagram[data-active-trace] .diagram-node.is-traced {
+    border-color: var(--color-accent);
+    box-shadow: inset 0 0 0 1px var(--color-accent);
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .system-diagram[data-active-trace] .diagram-layer:not(.is-traced)::before {
+    border-left-color: var(--color-border);
+  }
+
+  .system-diagram[data-active-trace] .diagram-layer:not(.is-traced)::after {
+    border-top-color: var(--color-border);
+  }
+
+  .system-diagram[data-active-trace] .diagram-layer.is-traced::before {
+    border-left-color: var(--color-accent);
+  }
+
+  .system-diagram[data-active-trace] .diagram-layer.is-traced::after {
+    border-top-color: var(--color-accent);
+  }
+
+  .system-diagram[data-active-trace] .diagram-boundary.is-traced {
+    border-top: 2px solid var(--color-accent);
+    padding-top: calc(var(--spacing-component) - 1px);
   }
 </style>

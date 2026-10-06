@@ -108,6 +108,10 @@ const englishOnly = locale !== "en";
     display: inline;
   }
 
+  .work-row:is(:hover, :focus-within) .work-row-title .link {
+    text-decoration-thickness: 2px;
+  }
+
   .work-row-problem {
     color: var(--color-text);
   }

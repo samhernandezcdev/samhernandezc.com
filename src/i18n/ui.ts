@@ -126,6 +126,23 @@ const en = {
   "source.open": "open source",
   "source.private": "private",
 
+  "palette.open": "Open the command palette",
+  "palette.title": "Go to",
+  "palette.filter": "Filter",
+  "palette.empty": "No matches.",
+  "palette.results": "results",
+  "palette.navigation": "Pages",
+  "palette.content": "Content",
+  "palette.actions": "Actions",
+  "palette.home": "Home",
+  "palette.email": "Email",
+  "palette.cv": "CV (PDF)",
+  "palette.theme": "Theme",
+  "palette.themeLight": "Light",
+  "palette.themeDark": "Dark",
+  "palette.themeSystem": "System",
+  "palette.hint": "Ctrl K",
+
   "footer.rights": "Samuel Hernández",
 } as const;
 
@@ -233,6 +250,23 @@ const es = {
   "status.archived": "archivado",
   "source.open": "código abierto",
   "source.private": "privado",
+
+  "palette.open": "Abrir la paleta de comandos",
+  "palette.title": "Ir a",
+  "palette.filter": "Filtrar",
+  "palette.empty": "Sin coincidencias.",
+  "palette.results": "resultados",
+  "palette.navigation": "Páginas",
+  "palette.content": "Contenido",
+  "palette.actions": "Acciones",
+  "palette.home": "Inicio",
+  "palette.email": "Correo",
+  "palette.cv": "CV (PDF)",
+  "palette.theme": "Tema",
+  "palette.themeLight": "Claro",
+  "palette.themeDark": "Oscuro",
+  "palette.themeSystem": "Sistema",
+  "palette.hint": "Ctrl K",
 
   "footer.rights": "Samuel Hernández",
 } as const satisfies Record<UIKey, string>;

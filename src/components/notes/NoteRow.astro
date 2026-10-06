@@ -81,6 +81,10 @@ const englishOnly = locale !== "en";
     font-size: var(--text-h3);
   }
 
+  .note-row:is(:hover, :focus-within) .note-row-title .link {
+    text-decoration-thickness: 2px;
+  }
+
   .note-row-lang {
     margin-left: calc(var(--spacing) * 2);
     font-weight: 400;

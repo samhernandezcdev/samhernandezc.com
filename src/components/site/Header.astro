@@ -3,6 +3,7 @@
 // appears once a note is published). On narrow screens the row wraps: the
 // wordmark, then the nav. No menu disclosure is needed for four links.
 import GitHub from "@/components/icons/GitHub.astro";
+import CommandPalette from "@/components/site/CommandPalette.astro";
 import { aboutPaths, homePaths, htmlLang, links, t, workPaths, type Locale } from "@/i18n/ui";
 
 interface Props {
@@ -31,6 +32,8 @@ const nav = [
 <header class="site-header">
   <div class="page site-header-row">
     <a class="wordmark" href={home} aria-label={t(locale, "nav.home")}>Samuel Hernández</a>
+
+    <CommandPalette locale={locale} alternatePath={alternatePath} />
 
     <nav class="site-nav" aria-label={t(locale, "nav.label")}>
       <ul>
@@ -92,7 +95,10 @@ const nav = [
     min-height: 4rem;
   }
 
+  /* Mobile: the palette trigger shares the first row with the wordmark; the nav
+     wraps to the next row. Desktop: wordmark, nav, then the trigger. */
   .wordmark {
+    margin-right: auto;
     display: inline-flex;
     align-items: center;
     min-height: var(--target-min);
@@ -101,6 +107,16 @@ const nav = [
     letter-spacing: -0.01em;
     text-decoration: none;
     white-space: nowrap;
+  }
+
+  @media (min-width: 48rem) {
+    .site-nav {
+      order: 1;
+    }
+
+    :global(.palette-trigger) {
+      order: 2;
+    }
   }
 
   .site-nav ul {

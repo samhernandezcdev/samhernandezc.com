@@ -39,6 +39,12 @@
     left: 0;
     width: 1.5rem;
     border-top: 2px solid var(--color-accent);
+    transition: width var(--duration-ui) var(--ease-standard);
+  }
+
+  /* Arriving at a section through a link: its tick lengthens (no scroll-spy). */
+  .page-section:target > .section-head::before {
+    width: 3rem;
   }
 
   .section-head > * {
