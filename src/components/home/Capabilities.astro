@@ -1,0 +1,77 @@
+---
+import { capabilities, t, type Locale, type UIKey } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<section class="page-section" aria-labelledby="engineer-title">
+  <div class="section-head">
+    <h2 id="engineer-title">{t(locale, "engineer.title")}</h2>
+  </div>
+
+  <ul class="capabilities">
+    {
+      capabilities.map((area) => (
+        <li class="axis capability">
+          <h3 class="capability-title">{t(locale, `engineer.${area.id}.title` as UIKey)}</h3>
+          <div class="capability-content">
+            <p class="capability-body">{t(locale, `engineer.${area.id}.body` as UIKey)}</p>
+            <p class="meta capability-used">{area.used.join(", ")}</p>
+            {"exploring" in area && (
+              <p class="meta capability-exploring">
+                <span class="capability-exploring-label">{t(locale, "engineer.exploring")}:</span>{" "}
+                {area.exploring.join(", ")}
+              </p>
+            )}
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  /* Rows on the shared axis: no column-height imbalance between areas. */
+  .capabilities {
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  .capability {
+    padding-block: var(--spacing-component-lg);
+  }
+
+  .capability + .capability {
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .capability-title {
+    font-size: var(--text-h3);
+  }
+
+  .capability-content {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    max-width: var(--container-prose);
+  }
+
+  .capability-body {
+    color: var(--color-text-muted);
+  }
+
+  .capability-used {
+    color: var(--color-text);
+  }
+
+  .capability-exploring {
+    color: var(--color-text-muted);
+  }
+
+  .capability-exploring-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-small);
+  }
+</style>

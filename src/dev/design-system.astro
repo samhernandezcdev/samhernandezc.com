@@ -5,7 +5,7 @@
 import DataTable from "@/components/system/DataTable.astro";
 import ThemeSwitch from "@/components/system/ThemeSwitch.astro";
 import ProseSpecimen from "@/dev/prose-specimen.mdx";
-import SystemLayout from "@/layouts/SystemLayout.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 
 const colors = [
   ["bg", "Page background"],
@@ -37,7 +37,7 @@ const accents = [
 ];
 ---
 
-<SystemLayout title="Design system · dev" noindex>
+<BaseLayout title="Design system · dev" description="Dev-only design-system preview." noindex>
   <main class="page py-section">
     <header class="flex flex-wrap items-end justify-between gap-6 border-b border-border pb-8">
       <div>
@@ -255,7 +255,7 @@ const accents = [
       </figure>
     </section>
   </main>
-</SystemLayout>
+</BaseLayout>
 
 <style>
   /* Specimen only: shows the keyboard focus ring without needing keyboard input. */

@@ -6,7 +6,8 @@
 - Command palette: loaded on idle or on first open, not on initial render path.
 - Enforced in CI by a size-check script over `dist/_astro/*.js` (Phase 8).
 
-Baseline before the redesign (for comparison): React client runtime ~183 KB + Header island ~43 KB + ClientRouter ~15 KB (raw).
+Baseline before the redesign: ~253 KB raw / ~81 KB gz (React runtime, Header and ContactForm islands, ClientRouter).
+After Phase 3 (home): 512 B raw / 381 B gz per page, inline: ThemeScript + copy-email. No JS files in `dist/_astro`.
 
 ## Allowed scripts (planned)
 | Script | Purpose | Loading |

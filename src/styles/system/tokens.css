@@ -69,6 +69,7 @@
   --container-page: 70rem; /* 1120px */
   --container-prose: 68ch;
   --container-rail: 15rem; /* future case-study metadata/TOC rail */
+  --container-label: 11rem; /* metadata column: the page's shared left axis */
 
   /* Shape */
   --radius-*: initial;

@@ -1,105 +1,56 @@
 ---
-import { ClientRouter } from "astro:transitions";
-import "../styles/global.css";
+import ThemeScript from "@/components/system/ThemeScript.astro";
+import { defaultLocale, htmlLang, ogLocale, t, type Locale } from "@/i18n/ui";
+import "@/styles/system.css";
 
 interface Props {
   title: string;
   description: string;
-  lang?: string;
-  ogLocale?: string;
-  image?: string;
-  canonicalURL?: string;
-  alternateLocales?: Array<{
-    lang: string;
-    href: string;
-  }>;
+  locale?: Locale;
+  /** Paths of this page in each language that exists, e.g. { en: "/", es: "/es" }. */
+  alternates?: Partial<Record<Locale, string>>;
+  noindex?: boolean;
 }
 
-const {
-  title,
-  description,
-  lang = "es",
-  ogLocale = "es_MX",
-  image = "/og-default.png",
-  canonicalURL = Astro.url.href,
-  alternateLocales = [],
-} = Astro.props;
+const { title, description, locale = defaultLocale, alternates = {}, noindex = false } = Astro.props;
 
-const siteName = "Samuel Hernandez";
-const pageTitle = title.includes(siteName) ? title : `${siteName}: ${title}`;
-const ogImage = new URL(image, Astro.site).toString();
-const alternateLinks = alternateLocales.map((alternate) => ({
-  lang: alternate.lang,
-  href: new URL(alternate.href, Astro.site).toString(),
+const site = Astro.site ?? new URL("https://samhernandezc.com");
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, "") || "/", site).href;
+const alternateLinks = Object.entries(alternates).map(([lang, path]) => ({
+  lang: htmlLang[lang as Locale],
+  href: new URL(path, site).href,
 }));
+const xDefault = alternates[defaultLocale];
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={htmlLang[locale]}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="generator" content={Astro.generator} />
-    
-    <title>{pageTitle}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ThemeScript />
+    <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="author" content={siteName} />
-    <link rel="canonical" href={canonicalURL} />
-    {alternateLinks.map((alternate) => (
-      <link rel="alternate" hreflang={alternate.lang} href={alternate.href} />
-    ))}
-    <link rel="alternate" hreflang="x-default" href={new URL("/", Astro.site).toString()} />
-    
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:site_name" content={siteName} />
-    <meta property="og:locale" content={ogLocale} />
+    <meta name="author" content="Samuel Hernández" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    {alternateLinks.map(({ lang, href }) => <link rel="alternate" hreflang={lang} href={href} />)}
+    {xDefault && <link rel="alternate" hreflang="x-default" href={new URL(xDefault, site).href} />}
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={pageTitle} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Samuel Hernández" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale[locale]} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
-    <ClientRouter fallback="animate" />
   </head>
-  <body class="min-h-screen bg-background text-foreground antialiased">
+  <body>
+    <a class="skip-link" href="#main">{t(locale, "nav.skipToContent")}</a>
     <slot />
-    <script>
-      document.documentElement.classList.add("js");
- 
-      function initReveal() {
-        const elements = document.querySelectorAll<HTMLElement>("[data-reveal]");
-        if (!elements.length) return;
- 
-        const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (prefersReduced) {
-          elements.forEach((el) => el.classList.add("is-visible"));
-          return;
-        }
- 
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add("is-visible");
-                observer.unobserve(entry.target);
-              }
-            });
-          },
-          { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
-        );
- 
-        elements.forEach((el) => observer.observe(el));
-      }
- 
-      // Run on initial load and after every View Transition navigation
-      document.addEventListener("astro:page-load", initReveal);
-      initReveal();
-    </script>
   </body>
 </html>

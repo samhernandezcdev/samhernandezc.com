@@ -1,0 +1,70 @@
+---
+// Business handoff, once per page: a quiet surface band on the page's shared
+// axis, same color scheme as the page. Separates business inquiries from the
+// career identity without a conversion-strip treatment.
+import External from "@/components/icons/External.astro";
+import { links, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<aside class="bkode" aria-labelledby="bkode-title">
+  <div class="page axis bkode-row">
+    <h2 id="bkode-title" class="bkode-name">BKODE</h2>
+    <div>
+      <p class="bkode-tagline">{t(locale, "bkode.tagline")}</p>
+      <p class="bkode-handoff">
+        {t(locale, "bkode.prompt")}
+        <a class="link bkode-link" href={links.bkode} rel="noopener">
+          bkode.lat<External />
+        </a>
+      </p>
+    </div>
+  </div>
+</aside>
+
+<style>
+  .bkode {
+    margin-top: var(--spacing-section);
+    border-block: var(--border-hairline) solid var(--color-border-strong);
+    background-color: var(--color-surface);
+  }
+
+  .bkode-row {
+    align-items: baseline;
+    padding-block: calc(var(--spacing) * 12);
+  }
+
+  .bkode-name {
+    font-size: var(--text-h2);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .bkode-tagline {
+    font-size: var(--text-h2);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  .bkode-handoff {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+    margin-top: calc(var(--spacing) * 3);
+    color: var(--color-text-muted);
+  }
+
+  .bkode-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    min-height: var(--target-min);
+    color: var(--color-text);
+  }
+</style>

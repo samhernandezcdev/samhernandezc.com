@@ -1,0 +1,108 @@
+---
+// Static professional contact links. The copy-email button is a progressive
+// enhancement. Client JS justification: copying needs the Clipboard API;
+// ~0.4 KB, deferred module, runs on click; no-JS fallback: the button stays
+// hidden and the address is a normal selectable mailto link.
+import { links, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<section id="contact" class="page-section" aria-labelledby="contact-title">
+  <div class="section-head">
+    <h2 id="contact-title">{t(locale, "contact.title")}</h2>
+    <p class="section-intro">{t(locale, "contact.lead")}</p>
+  </div>
+
+  <dl class="spec contact-spec">
+    <dt>{t(locale, "contact.email")}</dt>
+    <dd class="contact-email">
+      <a class="link" href={`mailto:${links.email}`}>{links.email}</a>
+      <button
+        type="button"
+        class="button contact-copy"
+        data-copy={links.email}
+        data-copied-label={t(locale, "contact.copied")}
+        hidden
+      >
+        {t(locale, "contact.copy")}
+      </button>
+      <span class="visually-hidden" aria-live="polite" data-copy-status></span>
+    </dd>
+    <dt>{t(locale, "contact.linkedin")}</dt>
+    <dd><a class="link" href={links.linkedin} rel="me noopener">linkedin.com/in/samueldhernandezc</a></dd>
+    <dt>{t(locale, "contact.github")}</dt>
+    <dd><a class="link" href={links.github} rel="me noopener">github.com/samhernandezcdev</a></dd>
+    <dt>{t(locale, "contact.cv")}</dt>
+    <dd class="contact-cv">
+      <a class="link" href={links.cv.en} hreflang="en" type="application/pdf">{t(locale, "contact.cvEn")}</a>
+      <a class="link" href={links.cv.es} hreflang="es" type="application/pdf">{t(locale, "contact.cvEs")}</a>
+    </dd>
+  </dl>
+</section>
+
+<style>
+  .contact-spec {
+    max-width: var(--container-prose);
+  }
+
+  /* Same label axis as the rest of the homepage (.axis breakpoint and gap). */
+  @media (min-width: 48rem) {
+    /* The axis gap lives in the label cell so row hairlines stay continuous. */
+    .contact-spec {
+      grid-template-columns: calc(var(--container-label) + var(--spacing) * 8) minmax(0, 1fr);
+      max-width: calc(var(--container-label) + var(--spacing) * 8 + var(--container-prose));
+    }
+
+    .contact-spec > dt {
+      padding-inline-end: calc(var(--spacing) * 8);
+    }
+  }
+
+  .contact-spec > dd {
+    font-size: var(--text-body);
+  }
+
+  .contact-email,
+  .contact-cv {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 6);
+  }
+
+  /* Each contact link is its own touch target (44px on coarse pointers). */
+  .contact-spec .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+
+  .contact-spec > dd {
+    padding-block: 0.2rem;
+  }
+
+  .contact-copy[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+    if (!navigator.clipboard) continue;
+    const status = button.parentElement?.querySelector<HTMLElement>("[data-copy-status]");
+    button.hidden = false;
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy ?? "");
+        if (status) status.textContent = button.dataset.copiedLabel ?? "";
+      } catch {
+        // Clipboard denied: the mailto link and selectable text remain.
+      }
+    });
+  }
+</script>

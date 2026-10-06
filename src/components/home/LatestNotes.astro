@@ -1,0 +1,39 @@
+---
+// Renders nothing until at least one note is published (no placeholders).
+// Notes are English-only; the Spanish home labels them EN.
+import { t, type Locale } from "@/i18n/ui";
+import { getPublishedNotes, readingMinutes } from "@/lib/content";
+
+interface Props {
+  locale: Locale;
+  limit?: number;
+}
+
+const { locale, limit = 3 } = Astro.props;
+const notes = (await getPublishedNotes()).slice(0, limit);
+const date = (d: Date) => d.toISOString().slice(0, 10);
+---
+
+{
+  notes.length > 0 && (
+    <section class="page-section" aria-labelledby="notes-title">
+      <div class="section-head">
+        <h2 id="notes-title">{t(locale, "notes.title")}</h2>
+      </div>
+      <ul class="rows">
+        {notes.map((note) => (
+          <li>
+            <a class="row-link" href={`/notes/${note.id}`} hreflang="en">
+              <p class="meta">
+                {date(note.data.pubDate)}, {readingMinutes(note.body)} {t(locale, "notes.readingTime")}
+                {locale !== "en" && <span title={t(locale, "lang.englishOnly")}>, EN</span>}
+              </p>
+              <h3 class="row-title" lang="en">{note.data.title}</h3>
+              {note.data.tags.length > 0 && <p class="meta">{note.data.tags.join(", ")}</p>}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}

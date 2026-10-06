@@ -15,6 +15,70 @@
     margin-top: var(--spacing-section);
   }
 
+  /* Page sections: heading block + content, separated by section rhythm. */
+  .page-section {
+    margin-top: var(--spacing-section);
+    scroll-margin-top: var(--spacing-component-lg);
+  }
+
+  /* Section head: starts on a hairline marked by a short drafting-green tick,
+     the one structural use of the accent. */
+  .section-head {
+    position: relative;
+    display: grid;
+    gap: calc(var(--spacing) * 3);
+    margin-bottom: calc(var(--spacing) * 8);
+    padding-top: var(--spacing-component-lg);
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .section-head::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 1.5rem;
+    border-top: 2px solid var(--color-accent);
+  }
+
+  .section-head > * {
+    max-width: var(--container-prose);
+  }
+
+  /* Shared two-column axis: metadata/label column + content. */
+  .axis {
+    display: grid;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 8);
+  }
+
+  @media (min-width: 48rem) {
+    .axis {
+      grid-template-columns: var(--container-label) minmax(0, 1fr);
+    }
+  }
+
+  .section-intro {
+    color: var(--color-text-muted);
+  }
+
+  /* Skip link: hidden until focused, then pinned top-left. */
+  .skip-link {
+    position: absolute;
+    top: var(--spacing-inline);
+    left: var(--spacing-inline);
+    z-index: 10;
+    padding: var(--spacing-inline) var(--spacing-component);
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-raised);
+    color: var(--color-text);
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus-visible {
+    transform: none;
+  }
+
   /* Links ------------------------------------------------------------------- */
   .link {
     color: var(--color-text);

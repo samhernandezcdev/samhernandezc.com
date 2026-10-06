@@ -34,7 +34,7 @@ Live preview: `npm run dev`, then open `/dev/design-system`. It is dev-only and 
 
 The green is kept dark and low in chroma so it never reads as terminal green.
 
-**Accent budget:** use it only for link underlines, the focus ring, link hover text and the `building` marker. Never use it for backgrounds, headings, icons or decoration. Primary buttons are monochrome.
+**Accent budget:** use it only for link underlines, the focus ring, link hover text, the `building` marker, and the short tick that starts each section head. Never use it for backgrounds, headings, icons or decoration. Primary buttons are monochrome.
 
 ## Type scale (`text-*`)
 | Step | Size | Use |
@@ -62,6 +62,7 @@ Line heights: `leading-tight` 1.12 (h1/display), `leading-heading` 1.3, `leading
 ## Layout
 - `container-page`: 70rem (1120px) content width. The `.page` primitive adds the gutters.
 - `container-prose`: 68ch reading measure.
+- `container-label`: 11rem, the shared label/metadata column (`.axis`).
 - `container-rail`: 15rem, reserved for the future case-study metadata/TOC rail. The rail sits beside the prose at `lg`; below that everything is one column.
 - Breakpoints are Tailwind's defaults (`sm` 640, `md` 768, `lg` 1024, `xl` 1280). Mobile-first; layouts change at `md` (two columns of metadata) and `lg` (rail + prose).
 - Wide content (code, tables, figures) stays within the measure and scrolls inside its own box. The page itself never scrolls sideways.

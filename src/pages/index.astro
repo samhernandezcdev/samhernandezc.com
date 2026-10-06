@@ -1,19 +1,5 @@
 ---
-import HomePage from "@/components/pages/HomePage.astro";
-import { languages, pages } from "@/i18n/pages";
-import BaseLayout from "@/layouts/BaseLayout.astro";
-
-const language = "es";
-const content = pages[language];
-const settings = languages[language];
+import HomePage from "@/components/home/HomePage.astro";
 ---
 
-<BaseLayout
-  title={content.meta.title}
-  description={content.meta.description}
-  lang={settings.htmlLang}
-  ogLocale={settings.ogLocale}
-  alternateLocales={[{ lang: languages.en.htmlLang, href: languages.en.path }]}
->
-  <HomePage language={language} content={content} />
-</BaseLayout>
+<HomePage locale="en" />

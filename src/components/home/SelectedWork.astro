@@ -1,0 +1,213 @@
+---
+// Evidence section. With at least one published, featured work entry it is
+// "Selected work" (project rows). Until then it is "Selected experience":
+// recent roles from the experience collection, grouped by organization at
+// presentation level. Draft work never reaches this component.
+import External from "@/components/icons/External.astro";
+import WorkRow from "@/components/home/WorkRow.astro";
+import { t, type Locale, type UIKey } from "@/i18n/ui";
+import { getExperience, getFeaturedWork, getPublishedWork } from "@/lib/content";
+
+interface Props {
+  locale: Locale;
+  /** How many recent roles to show in the experience fallback. */
+  roles?: number;
+}
+
+const { locale, roles = 3 } = Astro.props;
+const featured = await getFeaturedWork();
+const showWork = featured.length > 0;
+const other = (await getPublishedWork()).filter(({ data }) => !data.featured);
+
+type Role = Awaited<ReturnType<typeof getExperience>>[number]["data"];
+const groups: { org: string; roles: Role[] }[] = [];
+for (const { data } of (await getExperience()).slice(0, roles)) {
+  const last = groups.at(-1);
+  if (last?.org === data.org) last.roles.push(data);
+  else groups.push({ org: data.org, roles: [data] });
+}
+
+const present = t(locale, "work.present");
+const period = (start: string, end?: string) => `${start} – ${end ?? present}`;
+const span = (rs: Role[]) => period(rs.at(-1)!.period.start, rs[0].period.end);
+const titleKey: UIKey = showWork ? "work.title" : "experience.title";
+const introKey: UIKey = showWork ? "work.intro" : "experience.intro";
+---
+
+<section id="work" class="page-section" aria-labelledby="work-title">
+  <div class="section-head">
+    <h2 id="work-title">{t(locale, titleKey)}</h2>
+    <p class="section-intro">{t(locale, introKey)}</p>
+  </div>
+
+  {
+    showWork ? (
+      <div class="rows">
+        {featured.map((entry) => (
+          <WorkRow entry={entry} locale={locale} />
+        ))}
+      </div>
+    ) : (
+      <ol class="rows">
+        {groups.map((group) => (
+          <li class="axis org-row">
+            <p class="meta org-period">{span(group.roles)}</p>
+            <div>
+              <h3 class="org-name">{group.org}</h3>
+              <ol class="org-roles" reversed={group.roles.length > 1 || undefined}>
+                {group.roles.map((role) => {
+                  const localized = locale === "es" ? role.es : undefined;
+                  const built = (localized?.built ?? role.built).slice(0, 2);
+                  return (
+                    <li class="role">
+                      <p class="role-head">
+                        <span class="role-title">{localized?.role ?? role.role}</span>
+                        {group.roles.length > 1 && (
+                          <span class="meta">{period(role.period.start, role.period.end)}</span>
+                        )}
+                      </p>
+                      {built.length > 0 && (
+                        <ul class="role-built">
+                          {built.map((item) => (
+                            <li>{item}</li>
+                          ))}
+                        </ul>
+                      )}
+                      {role.stack.length > 0 && (
+                        <p class="meta role-stack">{role.stack.slice(0, 5).join(", ").toLowerCase()}</p>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+          </li>
+        ))}
+      </ol>
+    )
+  }
+
+  {
+    other.length > 0 && (
+      <div class="axis other-work">
+        <h3 class="label other-work-title">{t(locale, "work.other")}</h3>
+        <ul>
+          {other.map(({ data }) => (
+            <li class="other-work-item">
+              <span class="status" data-status={data.status}>
+                {t(locale, `status.${data.status}` as UIKey)}
+              </span>
+              {data.links?.demo ? (
+                <a class="link" href={data.links.demo} rel="noopener">
+                  {(locale === "es" && data.es?.title) || data.title}
+                  <External class="external-mark" />
+                </a>
+              ) : (
+                <span>{(locale === "es" && data.es?.title) || data.title}</span>
+              )}
+              {data.stack.length > 0 && (
+                <span class="meta">{data.stack.slice(0, 4).join(", ").toLowerCase()}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .rows {
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  .org-row {
+    padding-block: var(--spacing-component-lg);
+  }
+
+  .org-row + .org-row {
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .org-period {
+    padding-top: 0.2rem;
+  }
+
+  .org-name {
+    font-size: var(--text-h3);
+  }
+
+  .role + .role {
+    margin-top: var(--spacing-component-lg);
+    padding-top: var(--spacing-component);
+    border-top: var(--border-hairline) dotted var(--color-border-strong);
+  }
+
+  .role-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 4);
+    max-width: var(--container-prose);
+  }
+
+  /* Mobile: every role date sits on its own line under the title, so grouped
+     roles align identically regardless of title length. */
+  @media (max-width: 47.99rem) {
+    .role-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .role-title {
+    color: var(--color-text-muted);
+  }
+
+  .role-built {
+    max-width: var(--container-prose);
+    margin-top: calc(var(--spacing) * 3);
+    padding-left: 1.1em;
+    list-style: disc;
+  }
+
+  .role-built li + li {
+    margin-top: calc(var(--spacing) * 1);
+  }
+
+  .role-built li::marker {
+    color: var(--color-text-muted);
+  }
+
+  .role-stack {
+    margin-top: calc(var(--spacing) * 3);
+  }
+
+  .other-work {
+    margin-top: calc(var(--spacing) * 8);
+  }
+
+  .other-work-title {
+    font-weight: 400;
+  }
+
+  .other-work-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    font-size: var(--text-small);
+  }
+
+  .other-work-item .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    min-height: var(--target-min);
+  }
+
+  .external-mark {
+    color: var(--color-text-muted);
+  }
+</style>

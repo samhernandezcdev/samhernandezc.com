@@ -81,7 +81,7 @@ Built on `.row-link`. Order:
 5. Verified outcome, only if one exists. With no outcome, the line is absent, with no placeholder.
 6. Stack line (`.meta`, comma-separated)
 
-The row itself is the link, so it needs no `→` and no "Read more". Don't: images, decisions or trade-offs (those live in the case study), badge walls, hover zoom.
+Shown only when a featured work entry is public (otherwise the section falls back to "Selected experience", see above). The row itself is the link, so it needs no `→` and no "Read more". Don't: images, decisions or trade-offs (those live in the case study), badge walls, hover zoom.
 
 ## Case-study header
 - Title, then the summary at `text-lead`, the status chip and source, then a `.spec` table (role, timeline, stack, links).
@@ -91,10 +91,23 @@ The row itself is the link, so it needs no `→` and no "Read more". Don't: imag
 - The value and unit in tabular mono, the label in body type, and the method/environment as a muted caption.
 - Unverified entries never render in production. In dev they show as "— pending verification" inside a `.planned` box.
 
-## BKODE banner (Phase 3)
-- The one deliberately different band: full-bleed, with an inverted scheme. Set `color-scheme` opposite to the page on the band so the same tokens invert, rather than adding new colors.
-- Content: "Need a product built?", then BKODE, then "Software engineering for businesses.", then a link to https://bkode.lat. It appears once.
-- Don't: gradients, glows, mascots, or more than one call to action.
+## Shared axis (`.axis`, `--container-label`)
+- The homepage runs on one left axis: an 11rem label/metadata column plus content. The hero role, the facts strip's first column, experience periods, capability titles, "Other work" and the BKODE name all sit on it. New page-level rows should use `.axis` rather than inventing column widths.
+- Section heads start on a hairline with a 1.5rem drafting-green tick (`.section-head`). This is the accent's one structural use.
+
+## Hero (implemented)
+- Masthead: the name at `display`, then a `border-strong` hairline, then `.axis` with the role in the label column and the thesis as the dominant statement (`h2` size, regular weight, about 34ch), then the actions. It closes with a datasheet strip of four facts (label + value; stack in mono): 4 columns on desktop, 2×2 on mobile.
+- No status panel, image or decoration.
+
+## Evidence section ("Selected work" / "Selected experience")
+- With at least one published, featured work entry: "Selected work" and WorkRows.
+- Otherwise: "Selected experience", the three most recent roles from the experience collection. Consecutive roles at the same organization are grouped under one organization heading (the overall period is in the label column, each role's own period beside its title, separated by a dotted rule). This is a presentation-level grouping; the data stays one entry per role.
+- The hero's primary action uses the same label as the section.
+
+## BKODE handoff (implemented)
+- Appears once: a quiet full-width `surface` band with `border-strong` hairlines, in the same color scheme as the page (no inversion).
+- On `.axis`: "BKODE" (h2, sans 700) in the label column; then "Software engineering for businesses." at `h2` size; then a muted line "Need a product built?" with the accent link `bkode.lat ↗`.
+- Don't: inverted bands, gradients, card treatment, large buttons, mono labels, or more than one link.
 
 ## Command palette (Phase 7)
 - A native modal `<dialog>` on `surface-raised` with a hairline border and no shadow. A search input plus a listbox of navigation actions.

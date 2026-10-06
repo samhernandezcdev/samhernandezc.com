@@ -18,7 +18,6 @@ Record each decision as a row below: package · purpose · benefit · runtime im
 | `@astrojs/rss` | Notes feed (when first note ships) | no | 5 |
 | `@astrojs/check` + `typescript` (dev) | `astro check` | no | 0 |
 | `@fontsource-variable/geist-mono` | Consistent mono font | no (font file) | 2 |
-| `@lucide/astro` | Build-time icons (replaces deprecated `lucide-astro`) | no | 3 |
 | `@playwright/test` (dev) | Screenshots for visual-review; smoke tests | no | −1 |
 | `@axe-core/playwright` (dev) | Accessibility tests | no | 8 |
 
@@ -35,8 +34,8 @@ Built-in Shiki is used for code highlighting — no extra package.
 | ESLint / Prettier | Not requested; `astro check` covers types |
 | Any CMS | Content is MDX in the repo |
 
-## To remove (Phase 3)
-`react`, `react-dom`, `@astrojs/react`, `@types/react*`, `radix-ui`, `shadcn`, `class-variance-authority`, `clsx`, `tailwind-merge`, `tw-animate-css`, `lucide-react`, `lucide-astro`, `astro-icon`, `@iconify-json/simple-icons`.
+## Removed in Phase 3
+`react`, `react-dom`, `@astrojs/react`, `@types/react*`, `radix-ui`, `shadcn`, `class-variance-authority`, `clsx`, `tailwind-merge`, `tw-animate-css`, `lucide-react`, `lucide-astro`, `astro-icon`, `@iconify-json/simple-icons`. Icons are inline SVG components in `src/components/icons/` (`@lucide/astro` was not needed).
 
 ## Undecided
 Analytics — privacy-friendly, cookieless; choice depends on hosting (not yet confirmed).

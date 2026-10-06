@@ -1,0 +1,12 @@
+---
+// Small "leaves the site" mark for external links. Decorative; the link carries
+// a visually hidden "opens in a new tab" note where it does.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<svg class={className} viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false">
+  <path d="M5.5 3.5h7v7M12.5 3.5l-9 9"></path>
+</svg>

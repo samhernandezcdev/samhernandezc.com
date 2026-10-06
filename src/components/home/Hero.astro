@@ -1,0 +1,139 @@
+---
+// Masthead composition: name, then a hairline-ruled body on the page's shared
+// metadata axis (role in the label column, thesis as the dominant statement),
+// closed by a datasheet strip of verified facts. Typography and rules only.
+import { links, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  /** Label of the evidence section the primary action points to. */
+  workLabel: string;
+}
+
+const { locale, workLabel } = Astro.props;
+const stack = ["Python", "FastAPI", "PostgreSQL", "TypeScript"];
+const facts = [
+  { term: t(locale, "hero.spec.experience"), value: t(locale, "hero.spec.experienceValue") },
+  { term: t(locale, "hero.spec.stack"), value: stack.join(", "), mono: true },
+  { term: t(locale, "hero.spec.focus"), value: t(locale, "hero.spec.focusValue") },
+  { term: t(locale, "hero.spec.location"), value: t(locale, "hero.spec.locationValue") },
+];
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <h1 id="hero-title" class="hero-name">{t(locale, "hero.name")}</h1>
+
+  <div class="axis hero-body">
+    <p class="hero-role">{t(locale, "hero.role")}</p>
+    <div>
+      <p class="hero-thesis">{t(locale, "hero.thesis")}</p>
+      <div class="hero-actions">
+        <a class="button" data-variant="primary" href="#work">{workLabel}</a>
+        <a class="button" href={links.github} rel="me noopener">{t(locale, "hero.cta.github")}</a>
+        <a class="button" href={links.cv[locale]}>{t(locale, "hero.cta.cv")}</a>
+      </div>
+    </div>
+  </div>
+
+  <dl class="hero-facts" aria-label={t(locale, "hero.spec.label")}>
+    {
+      facts.map(({ term, value, mono }) => (
+        <div class="hero-fact">
+          <dt class="label">{term}</dt>
+          <dd class:list={[mono && "meta hero-fact-mono"]}>{value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</section>
+
+<style>
+  .hero {
+    padding-top: calc(var(--spacing) * 16);
+  }
+
+  @media (min-width: 64rem) {
+    .hero {
+      padding-top: calc(var(--spacing) * 24);
+    }
+  }
+
+  .hero-name {
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+    letter-spacing: -0.025em;
+  }
+
+  .hero-body {
+    margin-top: calc(var(--spacing) * 8);
+    padding-top: calc(var(--spacing) * 6);
+    border-top: var(--border-hairline) solid var(--color-border-strong);
+  }
+
+  .hero-role {
+    padding-top: 0.35rem;
+    color: var(--color-text-muted);
+  }
+
+  /* The thesis is the statement of the page: larger than lead, regular weight. */
+  .hero-thesis {
+    max-width: 34ch;
+    font-size: var(--text-h2);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 3);
+    margin-top: calc(var(--spacing) * 8);
+  }
+
+  /* Datasheet strip: four verified facts, hairline-separated. */
+  .hero-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: calc(var(--spacing) * 12);
+    border-top: var(--border-hairline) solid var(--color-border);
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  @media (min-width: 64rem) {
+    .hero-facts {
+      grid-template-columns: var(--container-label) repeat(3, minmax(0, 1fr));
+      column-gap: calc(var(--spacing) * 8);
+    }
+  }
+
+  .hero-fact {
+    display: grid;
+    align-content: start;
+    gap: calc(var(--spacing) * 1);
+    padding-block: var(--spacing-component);
+    font-size: var(--text-small);
+  }
+
+  @media (max-width: 63.99rem) {
+    .hero-fact:nth-child(n + 3) {
+      border-top: var(--border-hairline) solid var(--color-border);
+    }
+
+    .hero-fact:nth-child(even) {
+      padding-left: var(--spacing-component);
+      border-left: var(--border-hairline) solid var(--color-border);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .hero-fact + .hero-fact {
+      padding-left: var(--spacing-component-lg);
+      border-left: var(--border-hairline) solid var(--color-border);
+    }
+  }
+
+  .hero-fact-mono {
+    color: var(--color-text);
+  }
+</style>

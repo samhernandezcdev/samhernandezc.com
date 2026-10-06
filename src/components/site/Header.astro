@@ -1,0 +1,107 @@
+---
+// Static header, no client JS. The nav lists only routes that exist: Notes
+// appears once a note is published, About once /about is built (Phase 6), so
+// the links fit on one row at 390px and no menu disclosure is needed yet.
+import GitHub from "@/components/icons/GitHub.astro";
+import { homePaths, htmlLang, links, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  /** Path of this page in the other language, when it exists. */
+  alternatePath?: string;
+  showNotes?: boolean;
+}
+
+const { locale, alternatePath, showNotes = false } = Astro.props;
+const other: Locale = locale === "en" ? "es" : "en";
+const home = homePaths[locale];
+
+const nav = [
+  { href: `${home === "/" ? "" : home}/#work`, label: t(locale, "nav.work") },
+  ...(showNotes ? [{ href: "/notes", label: t(locale, "nav.notes") }] : []),
+];
+---
+
+<header class="site-header">
+  <div class="page site-header-row">
+    <a class="wordmark" href={home} aria-label={t(locale, "nav.home")}>Samuel Hernández</a>
+
+    <nav class="site-nav" aria-label={t(locale, "nav.label")}>
+      <ul>
+        {
+          nav.map(({ href, label }) => (
+            <li>
+              <a class="link-quiet nav-link" href={href}>
+                {label}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a class="icon-button" href={links.github} rel="me noopener" aria-label="GitHub">
+            <GitHub />
+          </a>
+        </li>
+        {
+          alternatePath && (
+            <li>
+              <a
+                class="link-quiet nav-link lang-link"
+                href={alternatePath}
+                hreflang={htmlLang[other]}
+                lang={htmlLang[other]}
+                aria-label={t(locale, "lang.switchLabel")}
+              >
+                {t(locale, "lang.switch")}
+              </a>
+            </li>
+          )
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  .site-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-component);
+    min-height: 4rem;
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+    color: var(--color-text);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .site-nav ul {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-inline);
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+    padding-inline: var(--spacing-inline);
+    font-size: var(--text-small);
+  }
+
+  .lang-link {
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+  }
+</style>

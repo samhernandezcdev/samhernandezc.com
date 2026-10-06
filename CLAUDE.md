@@ -21,18 +21,17 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 
 **Precedencia:** skills del proyecto > plugin `frontend-design` (instalado a nivel proyecto) > defaults genéricos de Claude. `frontend-design` aporta criterio, pero no redefine la identidad visual aprobada.
 
-## Stack y arquitectura (estado actual, tras la Fase 0)
-- Astro 7 estático (sin adaptador SSR; Node ≥ 22.12, declarado en `engines`) + React 19 (islas en `Header.tsx` y `ContactForm.tsx`) + Tailwind CSS 4 CSS-first + shadcn/ui + lucide. El rediseño elimina React/shadcn en la Fase 3.
+## Stack y arquitectura (estado actual, tras la Fase 3)
+- Astro 7 estático (sin adaptador SSR; Node ≥ 22.12, declarado en `engines`) + MDX + Tailwind CSS 4 CSS-first. **Sin framework de cliente** (React, shadcn y las librerías de iconos se eliminaron en la Fase 3); iconos como SVG inline en `src/components/icons/`.
 - TypeScript estricto (`astro/tsconfigs/strict`), alias `@/*` → `./src/*`.
-- Sin backend propio. `ContactForm.tsx` envía a Netlify Forms (se elimina en la Fase 3). No hay `netlify.toml`/`vercel.json`: el hosting no está confirmado.
-- i18n manual actual: `/` (ES) y `/en` (EN) comparten `HomePage.astro` con el diccionario de `src/i18n/pages.ts`.
+- Sin backend propio ni formulario de contacto (solo enlaces). No hay `netlify.toml`/`vercel.json`: el hosting no está confirmado.
+- i18n: inglés canónico en `/`, español en `/es`; ambos renderizan `src/components/home/HomePage.astro` con textos de `src/i18n/ui.ts`. `/en` redirige a `/` (`redirects` en `astro.config.mjs`).
 
 ## Estructura principal
-- `src/pages/` — `index.astro` (ES), `en.astro` (EN).
-- `src/layouts/BaseLayout.astro` — `<html>`, meta SEO/OG/Twitter, hreflang, `ClientRouter`, reveal-on-scroll.
-- `src/components/` — `pages/HomePage.astro`, `layout/` (Header.tsx, LanguageSwitch.tsx, Footer, Section), `sections/` (Hero, Services, Skills, Projects, Resume, Availability, Contact), `features/ContactForm.tsx`, `ui/` (shadcn: button, separator).
-- `src/i18n/pages.ts` — fuente actual del contenido bilingüe (se reemplaza por Content Collections + `src/i18n/ui.ts` en la Fase 1).
-- `src/styles/global.css` — tema legado de las páginas actuales (no extender).
+- `src/pages/` — `index.astro` (EN), `es/index.astro` (ES).
+- `src/layouts/BaseLayout.astro` — `<html>`, design system, ThemeScript, skip link, meta SEO/OG, canonical, hreflang.
+- `src/components/` — `site/` (Header, Footer), `home/` (HomePage, Hero, SelectedWork, WorkRow, Capabilities, LatestNotes, BkodeBanner, Contact), `system/` (ThemeScript, ThemeSwitch, DataTable), `icons/`.
+- `src/i18n/ui.ts` — textos de UI/home EN/ES (paridad de claves por tipos). `src/lib/content.ts` — único acceso a colecciones (filtra borradores).
 - `src/styles/system.css` + `src/styles/system/` — nuevo design system (tokens light/dark con `light-dark()`, primitivas, prose, código, diagramas). Reglas en el skill `portfolio-design`.
 - `src/dev/` — páginas solo de desarrollo (`/dev/design-system`), inyectadas por la integración `dev-pages` únicamente en `astro dev`.
 - `src/assets/` — imágenes importadas (optimizadas por Astro). `public/` — favicon y PDFs de CV (nombres exactos en `public/README.md`).
@@ -50,14 +49,14 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 
 ## Convenciones de código
 - Componentes en PascalCase; utilidades/hooks en kebab-case o minúsculas.
-- `interface Props` en `.astro`; `type XProps` en `.tsx`. React: `export default function X`. Utilidades/datos: named exports.
+- `interface Props` en `.astro`. Utilidades/datos: named exports.
 - Usa `@/*` para imports entre carpetas de `src/` en código nuevo.
 - Tailwind v4 CSS-first: nunca crear `tailwind.config.js`. Usar tokens, no valores arbitrarios.
-- No agregar nuevos primitivos shadcn ni islas React: el rediseño los elimina. Interactividad nueva = Astro + TS vanilla, justificada según `astro-architecture`.
+- No agregar islas de framework (React/Vue/Preact). Interactividad = Astro + TS vanilla, justificada según `astro-architecture`.
 
 ## Verificaciones obligatorias
 - Antes de terminar un cambio: `npm run check` y `npm run build`.
-- Cambios visuales: revisar todas las rutas existentes (hoy `/` y `/en`) en desktop y mobile; tras fases de UI, usar `visual-review`.
+- Cambios visuales: revisar todas las rutas existentes (hoy `/` y `/es`) en desktop y mobile, light y dark; tras fases de UI, usar `visual-review`.
 - Contenido nuevo: debe existir en ambos idiomas donde la página tenga versión ES.
 
 ## Restricciones — qué NO hacer
@@ -78,4 +77,4 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 
 ## Supuestos señalados
 - No hay referencias a `import.meta.env` todavía; documentar variables de entorno aquí cuando existan.
-- Hosting no confirmado; Netlify es solo una inferencia por Netlify Forms.
+- Hosting no confirmado (Netlify Forms ya no se usa).
