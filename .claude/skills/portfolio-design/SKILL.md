@@ -1,6 +1,6 @@
 ---
 name: portfolio-design
-description: Visual design system and rules for Samuel Hernández's engineering portfolio (samhernandezc.com). Use this skill whenever creating or changing anything visual in this repo — layouts, pages, Astro components, Tailwind classes, design tokens (src/styles/system), typography, spacing, color, light/dark themes, responsive behavior, hover/focus states, motion, the command palette's look, or the BKODE banner — even if the request only says "make it look better", "fix the hero" or "style this section".
+description: Visual design system and rules for Samuel Hernández's engineering portfolio (samhernandezc.bkode.lat). Use this skill whenever creating or changing anything visual in this repo — layouts, pages, Astro components, Tailwind classes, design tokens (src/styles/system), typography, spacing, color, light/dark themes, responsive behavior, hover/focus states, motion, the command palette's look, or the BKODE banner — even if the request only says "make it look better", "fix the hero" or "style this section".
 ---
 
 # Portfolio design

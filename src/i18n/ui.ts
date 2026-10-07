@@ -161,6 +161,14 @@ const en = {
   "theme.fixed": "Preference:",
 
   "footer.rights": "Samuel Hernández",
+
+  "notFound.metaTitle": "Page not found · Samuel Hernández",
+  "notFound.title": "Page not found",
+  "notFound.lead": "This address does not match a page on this site. It may have moved, or the link may be mistyped.",
+  "notFound.home": "Go to the homepage",
+  "notFound.work": "See the work",
+  "notFound.search": "Or search the site from the header (Ctrl K).",
+  "notFound.spanish": "Ir al inicio en español",
 } as const;
 
 export type UIKey = keyof typeof en;
@@ -168,7 +176,7 @@ export type UIKey = keyof typeof en;
 const es = {
   "meta.title": "Samuel Hernández — Ingeniero de Software (Backend, Python, IA aplicada)",
   "meta.description":
-    "Ingeniero de software que construye sistemas backend con Python, FastAPI, PostgreSQL y TypeScript para software industrial y empresarial. Hoy enfocado en sistemas de IA evaluados y confiables.",
+    "Ingeniero de software: sistemas backend con Python, FastAPI, PostgreSQL y TypeScript para software industrial y empresarial, hoy hacia IA evaluada y confiable.",
 
   "nav.label": "Principal",
   "nav.work": "Proyectos",
@@ -303,6 +311,14 @@ const es = {
   "theme.fixed": "Preferencia:",
 
   "footer.rights": "Samuel Hernández",
+
+  "notFound.metaTitle": "Página no encontrada · Samuel Hernández",
+  "notFound.title": "Página no encontrada",
+  "notFound.lead": "Esta dirección no corresponde a ninguna página del sitio. Puede haberse movido o el enlace puede tener un error.",
+  "notFound.home": "Ir a la página de inicio",
+  "notFound.work": "Ver los proyectos",
+  "notFound.search": "O busca en el sitio desde el encabezado (Ctrl K).",
+  "notFound.spanish": "Ir al inicio en español",
 } as const satisfies Record<UIKey, string>;
 
 export const ui: Record<Locale, Record<UIKey, string>> = { en, es };

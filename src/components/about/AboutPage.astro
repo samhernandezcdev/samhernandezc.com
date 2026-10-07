@@ -11,6 +11,8 @@ import { about } from "@/i18n/about";
 import { aboutPaths, links, type Locale } from "@/i18n/ui";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getExperience, getPublishedNotes } from "@/lib/content";
+import { graph, person } from "@/lib/structured-data";
+import { siteUrl } from "@/lib/site";
 
 interface Props {
   locale: Locale;
@@ -22,21 +24,14 @@ const other: Locale = locale === "en" ? "es" : "en";
 const hasNotes = (await getPublishedNotes()).length > 0;
 const englishOnly = locale !== "en";
 const current = (await getExperience())[0]?.data;
-const site = Astro.site ?? new URL("https://samhernandezc.com");
+const site = siteUrl(Astro.site);
 
-const person = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name: "Samuel Hernández",
-  jobTitle: "Software Engineer",
-  url: site.href,
-  sameAs: [links.github, links.linkedin],
-  ...(current && !current.period.end && { worksFor: { "@type": "Organization", name: current.org } }),
-};
+// The current role (from the experience collection) is the only Organization stated.
+const jsonLd = graph(person(site, current && !current.period.end ? current.org : undefined));
 ---
 
 <BaseLayout title={copy.metaTitle} description={copy.metaDescription} locale={locale} alternates={aboutPaths}>
-  <script slot="head" type="application/ld+json" set:html={JSON.stringify(person)} />
+  <script slot="head" type="application/ld+json" set:html={jsonLd} />
   <Header locale={locale} alternatePath={aboutPaths[other]} showNotes={hasNotes} current="about" />
   <main id="main" tabindex="-1" class="page">
     <header class="about-intro">

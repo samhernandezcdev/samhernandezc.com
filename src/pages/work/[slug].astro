@@ -11,7 +11,9 @@ import DataTable from "@/components/system/DataTable.astro";
 import { t, workPaths, type UIKey } from "@/i18n/ui";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getCaseStudyEntries, getPublishedNotes } from "@/lib/content";
+import { caseStudy, graph } from "@/lib/structured-data";
 import { isPublished } from "@/lib/work";
+import { siteUrl } from "@/lib/site";
 
 export async function getStaticPaths() {
   const entries = await getCaseStudyEntries();
@@ -30,10 +32,20 @@ const isDraft = !isPublished(data);
 
 const title = `${data.title} — Case study · Samuel Hernández`;
 const description =
-  "Case study: backend architecture, deterministic engineering calculations, server-side validation, persistence and integration with ERP and CRM systems for an industrial engineering calculation and configuration platform.";
+  "Case study: backend architecture, deterministic calculations, validation, persistence and ERP/CRM integration for an industrial engineering configuration platform.";
+const site = siteUrl(Astro.site);
+const jsonLd = graph(
+  caseStudy(site, {
+    name: data.title,
+    description,
+    url: new URL(`/work/${entry.id}`, site).href,
+    keywords: data.stack,
+  }),
+);
 ---
 
 <BaseLayout title={title} description={description} locale="en" noindex={isDraft}>
+  {!isDraft && <script slot="head" type="application/ld+json" set:html={jsonLd} />}
   <Header locale="en" showNotes={hasNotes} current="work" />
   <main id="main" tabindex="-1" class="page">
     <article class="case-study" aria-labelledby="case-title">

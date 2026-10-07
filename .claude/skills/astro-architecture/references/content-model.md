@@ -40,4 +40,4 @@ Implemented in Phase 1. Defined in `src/content.config.ts` with the Content Laye
 - `/en` → `/` via `redirects` in `astro.config.mjs`; host-level 301s are configured outside the repo.
 
 ## Canonical domain
-`site: 'https://samhernandezc.com'`. BKODE is a separate brand at `https://bkode.lat`.
+`site` is `SITE_ORIGIN` from `src/lib/site.ts`: `https://samhernandezc.bkode.lat`, the only production origin. Every absolute URL (canonical, hreflang, Open Graph, JSON-LD, RSS, sitemap, robots.txt) derives from it. BKODE is a separate brand at `https://bkode.lat`.

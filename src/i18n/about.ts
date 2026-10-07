@@ -29,7 +29,7 @@ type AboutCopy = {
 const en: AboutCopy = {
   metaTitle: "About · Samuel Hernández",
   metaDescription:
-    "Samuel Hernández is a software engineer focused on backend systems and domain-heavy applications where correctness matters, now extending that work toward evaluated, reliable AI systems.",
+    "Samuel Hernández, software engineer: backend systems and domain-heavy applications where correctness matters, now extended to evaluated, reliable AI systems.",
   title: "About",
   lead: "I'm a software engineer focused on backend systems, domain-heavy applications and software where correctness matters.",
   leadDirection:
@@ -81,7 +81,7 @@ const en: AboutCopy = {
 const es: AboutCopy = {
   metaTitle: "Sobre mí · Samuel Hernández",
   metaDescription:
-    "Samuel Hernández es ingeniero de software enfocado en sistemas backend y aplicaciones con dominio complejo donde la exactitud importa, y hoy extiende ese trabajo hacia sistemas de IA evaluados y confiables.",
+    "Samuel Hernández, ingeniero de software: sistemas backend y aplicaciones de dominio complejo donde la exactitud importa, hoy extendidos a IA evaluada y confiable.",
   title: "Sobre mí",
   lead: "Soy ingeniero de software. Me enfoco en sistemas backend, aplicaciones con reglas de dominio complejas y software donde la exactitud importa.",
   leadDirection:

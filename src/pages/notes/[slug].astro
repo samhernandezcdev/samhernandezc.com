@@ -11,6 +11,7 @@ import DataTable from "@/components/system/DataTable.astro";
 import { links, t } from "@/i18n/ui";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getNoteEntries, getPublishedNotes, readingMinutes } from "@/lib/content";
+import { siteUrl } from "@/lib/site";
 
 export async function getStaticPaths() {
   const notes = await getNoteEntries();
@@ -26,7 +27,7 @@ const { data } = note;
 const { Content, headings } = await render(note);
 const hasPublished = (await getPublishedNotes()).length > 0;
 const iso = (date: Date) => date.toISOString().slice(0, 10);
-const site = Astro.site ?? new URL("https://samhernandezc.com");
+const site = siteUrl(Astro.site);
 const url = new URL(`/notes/${note.id}`, site).href;
 
 const jsonLd = {

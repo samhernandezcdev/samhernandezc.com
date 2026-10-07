@@ -2,6 +2,7 @@ import rss from "@astrojs/rss";
 import type { APIContext } from "astro";
 
 import { getPublishedNotes } from "@/lib/content";
+import { siteUrl } from "@/lib/site";
 
 // Engineering notes feed. Published notes only (drafts never reach it).
 export async function GET(context: APIContext) {
@@ -10,7 +11,7 @@ export async function GET(context: APIContext) {
     title: "Engineering notes · Samuel Hernández",
     description:
       "Notes on backend systems, correctness, reliability and applied AI engineering by Samuel Hernández.",
-    site: context.site ?? "https://samhernandezc.com",
+    site: siteUrl(context.site),
     items: notes.map((note) => ({
       title: note.data.title,
       description: note.data.description,

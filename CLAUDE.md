@@ -1,10 +1,10 @@
 # CLAUDE.md
 
 ## Propósito del proyecto
-Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño: pasa de un sitio de freelance/landing a la identidad profesional de un Software Engineer orientado a backend, sistemas de datos y applied AI. El plan aprobado vive fuera del repo (plan de Claude); sus decisiones vigentes están resumidas abajo y detalladas en `.claude/skills/*/references/`.
+Portafolio personal de Samuel Hernández (samhernandezc.bkode.lat). Está en rediseño: pasa de un sitio de freelance/landing a la identidad profesional de un Software Engineer orientado a backend, sistemas de datos y applied AI. El plan aprobado vive fuera del repo (plan de Claude); sus decisiones vigentes están resumidas abajo y detalladas en `.claude/skills/*/references/`.
 
 ## Decisiones confirmadas del rediseño
-- Dominio canónico: `https://samhernandezc.com` (`samhernandezc.bkode.lat` → 301 a futuro, configurado en el host). BKODE es una marca separada en `https://bkode.lat`.
+- Origen de producción y canónico: `https://samhernandezc.bkode.lat`, definido una sola vez en `src/lib/site.ts` (`SITE_ORIGIN`, usado por `site` en `astro.config.mjs`). No existe otro dominio en la arquitectura de release: no usar `samhernandezc.com` como canónico, alterno ni origen de redirect. BKODE es una marca separada en `https://bkode.lat`.
 - Idiomas: inglés canónico en `/`; español solo para Home, Work index y About en `/es/*`. Case studies y notas solo en inglés.
 - Identidad del empleador vs. confidencialidad: el historial laboral (CV, Experience, `Person.worksFor`) puede nombrar al empleador. El case study del sistema industrial va anonimizado: sin detalles de producto, URL de producción, fórmulas, esquema, reglas propietarias ni capturas privadas.
 - Proyectos futuros: `visibility: draft` por defecto; como máximo un proyecto `building` público, y solo con evidencia (repo, README, arquitectura documentada, commits reales, vertical slice funcionando).
@@ -36,6 +36,7 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 - `src/dev/` — páginas solo de desarrollo (`/dev/design-system`), inyectadas por la integración `dev-pages` únicamente en `astro dev`.
 - `src/assets/` — imágenes importadas (optimizadas por Astro). `public/` — favicon y PDFs de CV, con nombres exactos `Samuel-Hernandez-CV-EN.pdf` y `Samuel-Hernandez-CV-ES.pdf` (el sitio los enlaza directamente; no se generan en el build).
 - `scripts/screenshot.mjs` — herramienta dev de `visual-review` (Playwright). No es parte del sitio.
+- `tests/e2e/` — pruebas de producto versionadas. Las capturas y scripts de `visual-review` viven en `.claude/review/` (gitignored) y no forman parte de la suite.
 - `docs/` — contenido personal no relacionado, no enrutado. **Off-limits.**
 
 ## Comandos verificados
@@ -45,6 +46,10 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 - `node scripts/screenshot.mjs` — capturas desktop/mobile × light/dark de todas las rutas de `dist/` en `.claude/review/` (requiere build previo). Con `--dev --routes /dev/design-system` captura páginas solo-dev (en Git Bash anteponer `MSYS_NO_PATHCONV=1`).
 - `npm run test:content` — pruebas del esquema de contenido (`node --test`).
 - `npm run check` — `astro check` (tipos en `.astro`/`.ts`/`.tsx`).
+- `npm run test:e2e` — Playwright sobre el build (`tests/e2e/`: interacción, axe en todas las rutas light/dark, metadata/SEO). Requiere `npm run build` antes y, la primera vez, `npx playwright install chromium`.
+- `npm run test:budget` — falla si alguna página de `dist/` supera 6 KB gzip de JS propio.
+- Secuencia de release (igual que CI en `.github/workflows/ci.yml`, solo verificación, sin deploy): `npm ci` → `check` → `build` → `test:content` → `test:e2e` → `test:budget`.
+- `node scripts/og-image.mjs` — regenera `public/og-default.png` (1200×630) solo si cambian nombre, rol o dominio.
 - No existen `lint`, `test` ni `format`. No inventes comandos que no estén en `package.json`.
 
 ## Convenciones de código
@@ -61,6 +66,11 @@ Portafolio personal de Samuel Hernández (samhernandezc.com). Está en rediseño
 - Case studies: los hechos del caso industrial salen solo de la hoja de evidencia de la Fase 4A (resumida en el frontmatter del MDX). No agregar afirmaciones nuevas sin confirmación.
 - Notas: escritura de ingeniería genérica; ejemplos sintéticos marcados como tales; nunca empleador, dominio de izaje, CRM/ERP ni detalles del caso confidencial; sin métricas ni anécdotas inventadas. Borrador por defecto (`draft: true`).
 - Contenido nuevo: debe existir en ambos idiomas donde la página tenga versión ES.
+
+## Estado de release (Fase 8)
+- Diseño e interacciones congelados: solo se corrigen defectos, accesibilidad, rendimiento, metadata/SEO y contradicciones factuales.
+- Bloqueador abierto: los PDFs de CV en `public/` dicen "(CPQ software)" (EN) y "CI/CD" en el rol industrial (EN y ES). No hay fuente editable en el repo; Samuel debe reemplazarlos con los mismos nombres de archivo. El CI de este repo no valida esa afirmación del rol industrial.
+- `/en` → `/` necesita un 301 real en el host (fuera del repo); el build solo emite un fallback noindex.
 
 ## Restricciones — qué NO hacer
 - No modificar `docs/` ni crear documentación del proyecto ahí. El conocimiento para Claude va en `.claude/skills/*/references/`.

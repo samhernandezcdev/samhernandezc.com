@@ -3,6 +3,7 @@ import ThemeScript from "@/components/system/ThemeScript.astro";
 import { defaultLocale, htmlLang, ogLocale, t, type Locale } from "@/i18n/ui";
 import { getPublishedNotes } from "@/lib/content";
 import "@/styles/system.css";
+import { siteUrl } from "@/lib/site";
 
 interface Props {
   title: string;
@@ -28,13 +29,16 @@ const {
   modified,
 } = Astro.props;
 
-const site = Astro.site ?? new URL("https://samhernandezc.com");
+const site = siteUrl(Astro.site);
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, "") || "/", site).href;
 const alternateLinks = Object.entries(alternates).map(([lang, path]) => ({
   lang: htmlLang[lang as Locale],
   href: new URL(path, site).href,
 }));
 const xDefault = alternates[defaultLocale];
+// One static, site-level share image (public/og-default.png, rendered by scripts/og-image.mjs).
+const ogImage = new URL("/og-default.png", site).href;
+const ogImageAlt = "Samuel Hernández, Software Engineer: backend systems, data and applied AI.";
 // RSS autodiscovery only once the feed has content.
 const hasFeed = (await getPublishedNotes()).length > 0;
 ---
@@ -62,9 +66,16 @@ const hasFeed = (await getPublishedNotes()).length > 0;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={ogLocale[locale]} />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {hasFeed && <link rel="alternate" type="application/rss+xml" title="Engineering notes · Samuel Hernández" href={new URL("/rss.xml", site).href} />}

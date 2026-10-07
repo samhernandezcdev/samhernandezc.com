@@ -1,0 +1,55 @@
+---
+// Not-found page (served as /404.html by static hosts). English, with a link to
+// the Spanish home. Existing primitives only; noindex and excluded from the sitemap.
+import Footer from "@/components/site/Footer.astro";
+import Header from "@/components/site/Header.astro";
+import { homePaths, t, workPaths } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getPublishedNotes } from "@/lib/content";
+
+const hasNotes = (await getPublishedNotes()).length > 0;
+---
+
+<BaseLayout title={t("en", "notFound.metaTitle")} description={t("en", "notFound.lead")} locale="en" noindex>
+  <Header locale="en" showNotes={hasNotes} />
+  <main id="main" tabindex="-1" class="page">
+    <section class="not-found" aria-labelledby="not-found-title">
+      <div class="section-head">
+        <h1 id="not-found-title" class="not-found-title">{t("en", "notFound.title")}</h1>
+        <p class="section-intro">{t("en", "notFound.lead")}</p>
+      </div>
+      <ul class="not-found-links">
+        <li><a class="link" href={homePaths.en}>{t("en", "notFound.home")}</a></li>
+        <li><a class="link" href={workPaths.en}>{t("en", "notFound.work")}</a></li>
+        <li><a class="link" href={homePaths.es} hreflang="es" lang="es">{t("en", "notFound.spanish")}</a></li>
+      </ul>
+      <p class="label not-found-search">{t("en", "notFound.search")}</p>
+    </section>
+  </main>
+  <Footer locale="en" />
+</BaseLayout>
+
+<style>
+  .not-found {
+    padding-top: calc(var(--spacing) * 16);
+  }
+
+  .not-found-title {
+    font-size: var(--text-h1);
+  }
+
+  .not-found-links {
+    display: grid;
+    gap: calc(var(--spacing) * 1);
+  }
+
+  .not-found-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+
+  .not-found-search {
+    margin-top: var(--spacing-component-lg);
+  }
+</style>

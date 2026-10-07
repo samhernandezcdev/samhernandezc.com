@@ -1,0 +1,50 @@
+# Verification only: type check, production build, content-model tests,
+# end-to-end product tests (interaction, axe, metadata) and the JS budget.
+# This repository has no deployment workflow; hosting is configured elsewhere.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # package.json "engines": node >=22.12.0
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - run: npm run check
+      - run: npm run build
+      - run: npm run test:content
+      - run: npm run test:e2e
+      - run: npm run test:budget
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
