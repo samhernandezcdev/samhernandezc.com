@@ -142,10 +142,23 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 - Otherwise: "Selected experience", the three most recent roles from the experience collection. Consecutive roles at the same organization are grouped under one organization heading (the overall period is in the label column, each role's own period beside its title, separated by a dotted rule). This is a presentation-level grouping; the data stays one entry per role.
 - The hero's primary action uses the same label as the section.
 
-## BKODE handoff (implemented)
-- Appears once: a quiet full-width `surface` band with `border-strong` hairlines, in the same color scheme as the page (no inversion).
-- On `.axis`: "BKODE" (h2, sans 700) in the label column; then "Software engineering for businesses." at `h2` size; then a muted line "Need a product built?" with the accent link `bkode.lat ↗`.
-- Don't: inverted bands, gradients, card treatment, large buttons, mono labels, or more than one link.
+## BKODE interlude (implemented, `components/home/BkodeBanner.astro`)
+- Appears once on the homepage: an editorial break between the engineering portfolio and the separate studio for client work. Full-width `surface` band framed by `border-strong` hairlines, same color scheme as the page.
+- On `.axis`: the label column holds the BKODE mark (sans 700, slight tracking) and a mono `/ Client work`; the content column holds the statement as the section `h2` ("Independent software work has its own home."), one muted explanatory line, and a single destination: "Visit BKODE ↗" (link, weight 600) followed by a muted mono `bkode.lat`.
+- Interaction: only the link is interactive. Hovering or focusing it fades in a 2px text-colored top rule on the band (`--motion-section`) and nudges the ↗; the link's own underline strengthens. No scale, glow or background animation.
+- Mobile: the mark and `/ Client work` share one line above the statement; padding shrinks so the band never reads as an empty panel.
+- Don't: inverted bands, gradients, card treatment, large buttons, a whole-band click target, or more than one link.
+
+## Contact (implemented, `components/home/Contact.astro`; home and About)
+- Section head (title + availability line), then two `.axis` blocks, no row table:
+  - **Email**: label in the axis column; the address at `h2` size (selectable, breaks after "@" on narrow screens), then two buttons: "Copy address" and "Write an email" (plain `mailto:`, no ↗, no prefilled message; it opens whatever mail handler the visitor has).
+  - **Profiles / CV**: below a hairline, two quiet lists side by side (stacked under 40rem): LinkedIn ↗ and GitHub ↗ with their muted mono handles; English ↗ and Español ↗ (each named in its own language) with a mono `PDF`.
+- Copy feedback: the three labels ("Copy address", "✓ Copied", "Selected") share one grid cell, so the button never changes size. Success swaps to "✓ Copied" (accent check + word) with a text-colored border for ~1.8s; the incoming label fades and rises 2px (`--motion-ui`), the outgoing one leaves at once. A polite live region announces "Email address copied". If the Clipboard API is missing or refuses, the address is selected instead, the button reads "Selected" for ~4s and the live region explains how to copy by hand; it never claims "Copied". Without JS the button is hidden.
+
+## External links (`components/system/ExternalLink.astro`)
+- GitHub, LinkedIn, the CVs and BKODE open in a new tab everywhere (header icons, hero, contact, BKODE, About, footer, search): `target="_blank"`, `rel="noopener noreferrer"` (+ `me` for profiles), and a visually hidden "(opens in a new tab)" in the accessible name. The ↗ never carries that meaning alone.
+- The ↗ mark appears only on prominent links (hero buttons, contact lists, BKODE). There it nudges 2px right and 2px up on hover and on keyboard focus (`--motion-fast`); the text never moves; reduced motion keeps it still. Inline prose and footer links get no mark.
+- `mailto:` links are not external links: no target, no ↗.
 
 ## Search (implemented, `components/site/CommandPalette.astro`)
 - Native modal `<dialog>` on `surface-raised`, hairline border, no shadow; the backdrop is a translucent `bg` wash, not blur. Entrance: opacity + 4px drop in 160ms; no scale, no blur.

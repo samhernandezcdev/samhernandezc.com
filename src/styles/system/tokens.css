@@ -88,10 +88,13 @@
 
   --flow: 1.25em; /* prose rhythm between blocks */
   --border-hairline: 1px;
-  --duration-fast: 120ms; /* hover / color feedback */
-  --duration-ui: 200ms; /* opening, closing, expanding */
   --target-min: 2.5rem; /* 40px on fine pointers */
-  --duration-switch: 160ms; /* theme switch thumb, dialog/menu entrance */
+
+  /* Motion vocabulary: three durations, one curve (--ease-standard). Every
+     transition in the site uses these; all drop to 0 under reduced motion. */
+  --motion-fast: 120ms; /* hover, color, border, small glyph nudges */
+  --motion-ui: 160ms; /* controls changing state: switch thumb, menus, dialog, copy feedback, page cross-fade */
+  --motion-section: 220ms; /* larger regions: section ticks, Architecture Trace */
 
   /* Sticky geometry. The header is a fixed-height sticky bar: one 4rem row on
      desktop, two target-height rows (brand + tools, nav) below 48rem. Anything
@@ -124,8 +127,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --duration-fast: 0ms;
-    --duration-ui: 0ms;
-    --duration-switch: 0ms;
+    --motion-fast: 0ms;
+    --motion-section: 0ms;
+    --motion-ui: 0ms;
   }
 }

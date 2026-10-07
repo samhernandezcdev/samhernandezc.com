@@ -1,0 +1,35 @@
+---
+// A link that opens in a new browsing context: profiles, CVs, BKODE. Adds
+// target/rel and a visually hidden "opens in a new tab" note, so the behavior
+// never depends on the ↗ mark alone. `arrow` adds the decorative ↗ (prominent
+// links only); its 2px nudge on hover/focus is styled by `.external` in
+// primitives.css. Mail links are not external links: use a plain mailto.
+import External from "@/components/icons/External.astro";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  href: string;
+  locale: Locale;
+  class?: string;
+  /** Identity link to one of Samuel's own profiles (rel="me"). */
+  me?: boolean;
+  arrow?: boolean;
+  hreflang?: string;
+  type?: string;
+  /** Replaces the visible text as the accessible name (icon-only links). */
+  label?: string;
+  [key: `data-${string}`]: string | undefined;
+}
+
+const { href, locale, class: className, me = false, arrow = false, label, ...rest } = Astro.props;
+const note = t(locale, "external.newTab");
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel={me ? "me noopener noreferrer" : "noopener noreferrer"}
+  class:list={[className, arrow && "external"]}
+  aria-label={label ? `${label} (${note})` : undefined}
+  {...rest}
+><slot />{arrow && <External class="external-arrow" />}{!label && <span class="visually-hidden"> ({note})</span>}</a>

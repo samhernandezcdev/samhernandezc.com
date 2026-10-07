@@ -31,6 +31,7 @@ Built-in Shiki is used for code highlighting — no extra package.
 | cmdk / kbar / ninja-keys | 10–40 KB; native `<dialog>` + small TS instead |
 | Pagefind | Not worth it until ~15+ notes |
 | React / Vue / Preact islands | Nothing requires them |
+| Framer Motion / Motion One / GSAP or any animation library | Every motion on the site (fades, 2–4px drops, the switch thumb, the ↗ nudge, rule emphasis, page cross-fades) is CSS transitions, `@starting-style` and native view transitions. Framer Motion would also need a React runtime, multiplying the site's ~3 KB of JS |
 | ESLint / Prettier | Not requested; `astro check` covers types |
 | Any CMS | Content is MDX in the repo |
 

@@ -78,10 +78,14 @@
   navigation: auto;
 }
 
-/* Page and theme cross-fades stay short. */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 180ms;
+/* Page and theme cross-fades stay short: an opacity cross-fade only (no slide,
+   no overlay). The header has its own group so it holds still; every group
+   uses the same duration. */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: var(--motion-ui);
+  animation-timing-function: var(--ease-standard);
 }
 
 @media (prefers-reduced-motion: reduce) {

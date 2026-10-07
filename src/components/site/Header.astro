@@ -16,6 +16,7 @@ import GitHub from "@/components/icons/GitHub.astro";
 import LinkedIn from "@/components/icons/LinkedIn.astro";
 import ThemeIcons from "@/components/icons/ThemeIcons.astro";
 import CommandPalette from "@/components/site/CommandPalette.astro";
+import ExternalLink from "@/components/system/ExternalLink.astro";
 import { aboutPaths, homePaths, links, t, workPaths, type Locale } from "@/i18n/ui";
 
 interface Props {
@@ -159,12 +160,12 @@ const themes = [
       </div>
 
       <div class="util-group util-social">
-        <a class="util-button util-icon" href={links.github} rel="me noopener" aria-label="GitHub" data-tip="GitHub">
+        <ExternalLink class="util-button util-icon" href={links.github} locale={locale} me label="GitHub" data-tip="GitHub">
           <GitHub />
-        </a>
-        <a class="util-button util-icon" href={links.linkedin} rel="me noopener" aria-label="LinkedIn" data-tip="LinkedIn">
+        </ExternalLink>
+        <ExternalLink class="util-button util-icon" href={links.linkedin} locale={locale} me label="LinkedIn" data-tip="LinkedIn">
           <LinkedIn />
-        </a>
+        </ExternalLink>
       </div>
     </div>
   </div>
@@ -382,8 +383,8 @@ const themes = [
     list-style: none;
     cursor: pointer;
     transition:
-      color var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard);
+      color var(--motion-fast) var(--ease-standard),
+      border-color var(--motion-fast) var(--ease-standard);
   }
 
   .util-button::-webkit-details-marker {
@@ -412,7 +413,7 @@ const themes = [
 
   .util-menu :global(.util-chevron) {
     opacity: 0.7;
-    transition: opacity var(--duration-fast) var(--ease-standard);
+    transition: opacity var(--motion-fast) var(--ease-standard);
   }
 
   .util-menu[open] :global(.util-chevron) {
@@ -441,7 +442,7 @@ const themes = [
     border: var(--border-hairline) solid var(--color-border-strong);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
-    transition: border-color var(--duration-fast) var(--ease-standard);
+    transition: border-color var(--motion-fast) var(--ease-standard);
   }
 
   .theme-switch:hover .theme-track {
@@ -460,7 +461,7 @@ const themes = [
     border-radius: var(--radius-sm);
     background-color: var(--color-surface-raised);
     color: var(--color-text);
-    transition: transform var(--duration-switch) var(--ease-standard);
+    transition: transform var(--motion-ui) var(--ease-standard);
   }
 
   .theme-switch[aria-checked="true"] .theme-thumb {
@@ -469,7 +470,7 @@ const themes = [
 
   .theme-thumb :global(.theme-icon) {
     grid-area: 1 / 1;
-    transition: opacity var(--duration-switch) var(--ease-standard);
+    transition: opacity var(--motion-ui) var(--ease-standard);
   }
 
   .theme-switch[aria-checked="true"] .theme-thumb :global(.theme-icon-light),
@@ -540,8 +541,8 @@ const themes = [
   /* Entrance: fade plus a 3px drop. Closing is immediate. */
   .util-menu[open] > .util-panel {
     transition:
-      opacity var(--duration-switch) var(--ease-standard),
-      transform var(--duration-switch) var(--ease-standard);
+      opacity var(--motion-ui) var(--ease-standard),
+      transform var(--motion-ui) var(--ease-standard);
   }
 
   @starting-style {

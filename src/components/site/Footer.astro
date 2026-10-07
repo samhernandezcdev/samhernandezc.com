@@ -1,4 +1,5 @@
 ---
+import ExternalLink from "@/components/system/ExternalLink.astro";
 import { links, t, type Locale } from "@/i18n/ui";
 
 interface Props {
@@ -13,9 +14,9 @@ const year = new Date().getFullYear();
   <div class="page site-footer-row">
     <p class="meta">© {year} {t(locale, "footer.rights")}</p>
     <ul class="site-footer-links">
-      <li><a class="link-quiet" href={links.github} rel="me noopener">GitHub</a></li>
-      <li><a class="link-quiet" href={links.linkedin} rel="me noopener">LinkedIn</a></li>
-      <li><a class="link-quiet" href={links.cv[locale]}>{t(locale, "nav.resume")}</a></li>
+      <li><ExternalLink class="link-quiet" href={links.github} locale={locale} me>GitHub</ExternalLink></li>
+      <li><ExternalLink class="link-quiet" href={links.linkedin} locale={locale} me>LinkedIn</ExternalLink></li>
+      <li><ExternalLink class="link-quiet" href={links.cv[locale]} type="application/pdf" locale={locale}>{t(locale, "nav.resume")}</ExternalLink></li>
     </ul>
   </div>
 </footer>

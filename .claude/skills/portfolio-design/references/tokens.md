@@ -74,9 +74,11 @@ Line heights: `leading-tight` 1.12 (h1/display), `leading-heading` 1.3, `leading
 - No other radii and no shadows. Elevation comes from surface level plus a hairline, not from shadow.
 
 ## Motion and interaction
-- `--duration-fast` 120ms: hover and color feedback.
-- `--duration-ui` 200ms: opening, closing, expanding.
-- `--duration-switch` 160ms: the theme switch thumb, menu and search-dialog entrances (opacity + a 3–4px drop via `@starting-style`; closing is immediate).
+- One vocabulary, three durations, one curve (`--ease-standard`). No component declares its own duration or easing.
+  - `--motion-fast` 120ms: hover, color, border, small glyph nudges (the external-link ↗).
+  - `--motion-ui` 160ms: controls changing state: theme switch thumb, menu and search-dialog entrances (opacity + a 3–4px drop via `@starting-style`; closing is immediate), copy feedback, the page/theme cross-fade.
+  - `--motion-section` 220ms: larger regions: section-tick extension, Architecture Trace highlighting, the BKODE rule.
+- Allowed properties: opacity, color, border/rule, and translations of 4px or less. No scale, spring, bounce, blur or scroll-linked animation.
 - Easing: `--ease-standard`.
 - Durations drop to 0 under `prefers-reduced-motion`.
 - `--target-min`: 40px on fine pointers, 44px on coarse pointers.

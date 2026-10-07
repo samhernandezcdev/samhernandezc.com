@@ -23,7 +23,17 @@ const notes = await getPublishedNotes();
 const work = (await getPublishedWork()).filter((entry) => caseStudyPath(entry));
 
 type Kind = "page" | "work" | "note" | "action";
-type Item = { kind: Kind; label: string; secondary?: string; href: string; keywords?: string; lang?: string };
+type Item = {
+  kind: Kind;
+  label: string;
+  secondary?: string;
+  href: string;
+  keywords?: string;
+  lang?: string;
+  /** Profiles and CVs open in a new tab, like everywhere else on the site. */
+  external?: boolean;
+  me?: boolean;
+};
 
 const typeLabel: Record<Kind, UIKey> = {
   page: "search.typePage",
@@ -58,9 +68,9 @@ const items: Item[] = [
     lang: englishOnly ? "en" : undefined,
   })),
   { kind: "action", label: t(locale, "palette.email"), secondary: links.email, href: `mailto:${links.email}`, keywords: "email correo contact contacto" },
-  { kind: "action", label: "GitHub", secondary: bare(links.github), href: links.github, keywords: "code codigo repositories" },
-  { kind: "action", label: "LinkedIn", secondary: bare(links.linkedin), href: links.linkedin, keywords: "profile perfil" },
-  { kind: "action", label: t(locale, "palette.cv"), href: links.cv[locale], keywords: "cv resume curriculum pdf" },
+  { kind: "action", label: "GitHub", secondary: bare(links.github), href: links.github, keywords: "code codigo repositories", external: true, me: true },
+  { kind: "action", label: "LinkedIn", secondary: bare(links.linkedin), href: links.linkedin, keywords: "profile perfil", external: true, me: true },
+  { kind: "action", label: t(locale, "palette.cv"), href: links.cv[locale], keywords: "cv resume curriculum pdf", external: true },
   ...(alternatePath
     ? [{ kind: "action" as const, label: t(locale, "lang.switchLabel"), href: alternatePath, keywords: "language idioma english espanol", lang: htmlLang[other] }]
     : []),
@@ -131,7 +141,8 @@ const themeKeywords = normalize(
               class="palette-item"
               href={item.href}
               hreflang={item.lang}
-              rel={item.href.startsWith("http") ? "me noopener" : undefined}
+              target={item.external ? "_blank" : undefined}
+              rel={item.external ? `${item.me ? "me " : ""}noopener noreferrer` : undefined}
               role="option"
               aria-selected="false"
               tabindex="-1"
@@ -148,6 +159,7 @@ const themeKeywords = normalize(
                   {item.lang === "en" && englishOnly && <span class="meta palette-lang">EN</span>}
                 </span>
                 {item.secondary && <span class="meta palette-secondary">{item.secondary}</span>}
+                {item.external && <span class="visually-hidden">({t(locale, "external.newTab")})</span>}
               </span>
               <span class="palette-enter" aria-hidden="true">↵</span>
             </a>
@@ -321,7 +333,7 @@ const themeKeywords = normalize(
     color: var(--color-text-muted);
     font-size: var(--text-small);
     cursor: pointer;
-    transition: color var(--duration-fast) var(--ease-standard);
+    transition: color var(--motion-fast) var(--ease-standard);
   }
 
   .palette-trigger::before {
@@ -330,7 +342,7 @@ const themeKeywords = normalize(
     inset: 0;
     border: var(--border-hairline) solid transparent;
     border-radius: var(--radius-md);
-    transition: border-color var(--duration-fast) var(--ease-standard);
+    transition: border-color var(--motion-fast) var(--ease-standard);
   }
 
   .palette-trigger[hidden] {
@@ -429,8 +441,8 @@ const themeKeywords = normalize(
     display: flex;
     flex-direction: column;
     transition:
-      opacity var(--duration-switch) var(--ease-standard),
-      transform var(--duration-switch) var(--ease-standard);
+      opacity var(--motion-ui) var(--ease-standard),
+      transform var(--motion-ui) var(--ease-standard);
   }
 
   @starting-style {

@@ -2,6 +2,7 @@
 // Masthead composition: name, then a hairline-ruled body on the page's shared
 // metadata axis (role in the label column, thesis as the dominant statement),
 // closed by a datasheet strip of verified facts. Typography and rules only.
+import ExternalLink from "@/components/system/ExternalLink.astro";
 import { links, t, type Locale } from "@/i18n/ui";
 
 interface Props {
@@ -29,8 +30,8 @@ const facts = [
       <p class="hero-thesis">{t(locale, "hero.thesis")}</p>
       <div class="hero-actions">
         <a class="button" data-variant="primary" href="#work">{workLabel}</a>
-        <a class="button" href={links.github} rel="me noopener">{t(locale, "hero.cta.github")}</a>
-        <a class="button" href={links.cv[locale]}>{t(locale, "hero.cta.cv")}</a>
+        <ExternalLink class="button" href={links.github} locale={locale} me arrow>{t(locale, "hero.cta.github")}</ExternalLink>
+        <ExternalLink class="button" href={links.cv[locale]} type="application/pdf" locale={locale} arrow>{t(locale, "hero.cta.cv")}</ExternalLink>
       </div>
     </div>
   </div>
