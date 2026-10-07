@@ -67,11 +67,6 @@ Visual anatomy only. What text and claims may appear is governed by `engineering
 - Every diagram has a `<figcaption>` that explains it in one sentence. Labels are real text, never images.
 - Anything beyond layered layouts gets a hand-made SVG.
 
-## Header (Phase 3)
-- Wordmark (name), route nav `Work · Notes · About` built with `.link-quiet`, a GitHub `.icon-button`, the ES/EN text switch, the theme control and the `⌘K` button.
-- Mobile: native `popover`/`<dialog>` menu with targets of at least 44px.
-- Don't: scroll-spy, a blurred translucent bar, or a CTA selling services.
-
 ## WorkRow (home and /work)
 Built on `.row-link`. Order:
 1. Status chip and source
@@ -110,10 +105,15 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 - No portrait, quotes, skill pills, timeline graphics or cards.
 - `ExperienceList` (`components/experience/`): shared by About (all roles, all items) and the homepage fallback (3 roles, 2 items). Periods use `<time datetime>`.
 
-## Header (implemented)
-- Wordmark; nav Work, Notes (only when published), About; GitHub; language switch set apart by a hairline divider.
-- On Spanish pages, English-only Notes carries a muted superscript `EN` annotation (plus screen-reader text), so it doesn't read like a second language switch.
-- Narrow screens: the row wraps (wordmark, then the nav); the nav list may wrap again at 320px. No menu disclosure.
+## Header (implemented, `components/site/Header.astro`)
+- Wordmark; nav Work, Notes (only when published), About; then the utility cluster: command palette | language | theme | GitHub, LinkedIn. Groups are divided by short hairline separators. No container, background, glow or rounded toolbar shell.
+- Utility buttons are muted text with a transparent hairline border; hover and open states turn the text full color and show the border (120ms color/border). Drafting green appears only as the focus ring and the selected check mark. No scaling, rotation or animated separators.
+- Language: a native `<details>` showing the site language code (`EN ▾` / `ES ▾`) with options English / Español as plain links (`hreflang`, `lang`). The current language is marked by weight plus a check mark. On an English-only page the Spanish option reads "Español (página de inicio)" and leads to `/es`: it never implies a translation exists. The contextual `EN` markers on English-only Notes and case studies stay.
+- Theme: one icon summary (sun / half circle / moon for the stored choice) opening an explicit Light / System / Dark selector (`aria-pressed`, weight plus check mark). Hidden without JS; the OS theme applies. The palette's theme row and the menu stay in sync (`themechange` / `themerequest` events; `scripts/theme.ts` is imported only by the header).
+- GitHub and LinkedIn: monochrome inline SVG links, accessible names "GitHub" / "LinkedIn", conventional same-tab behavior. Concise CSS tooltips (icon-only controls) only on hover-capable fine pointers.
+- Mobile (<768px): row 1 is the wordmark plus palette and language (theme from 360px); row 2 is the nav, aligned with the wordmark. Social icons are hidden (they stay in the palette, contact and footer). The header is 89px at 390 and 320 in both languages; every visible control is at least 44px.
+- Menus close on outside click, Escape (focus returns to the summary) or when another menu opens. Panels open below the control, right-aligned, on `surface-raised` with a `border-strong` hairline and no shadow.
+- Don't: scroll-spy, a blurred translucent bar, a CTA selling services, email or chat links in the header.
 
 ## Measurement display
 - The value and unit in tabular mono, the label in body type, and the method/environment as a muted caption.

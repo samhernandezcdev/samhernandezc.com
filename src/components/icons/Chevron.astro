@@ -1,0 +1,11 @@
+---
+// Small disclosure indicator. Decorative.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<svg class={className} viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false">
+  <path d="m3 4.5 3 3 3-3"></path>
+</svg>

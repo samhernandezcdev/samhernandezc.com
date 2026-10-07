@@ -35,7 +35,6 @@ const en = {
   "nav.resume": "Resume",
   "nav.skipToContent": "Skip to content",
   "nav.home": "Samuel Hernández, home",
-  "lang.switch": "ES",
   "lang.switchLabel": "Ver el sitio en español",
   "lang.englishOnly": "Available in English only",
   "external.newTab": "opens in a new tab",
@@ -142,6 +141,13 @@ const en = {
   "palette.themeDark": "Dark",
   "palette.themeSystem": "System",
   "palette.hint": "Ctrl K",
+  "header.tools": "Site tools",
+  "lang.menu": "Language",
+  "lang.current": "EN",
+  "lang.english": "English",
+  "lang.spanish": "Español",
+  "lang.spanishHome": "Español (página de inicio)",
+  "theme.menu": "Theme",
 
   "footer.rights": "Samuel Hernández",
 } as const;
@@ -160,7 +166,6 @@ const es = {
   "nav.resume": "CV",
   "nav.skipToContent": "Saltar al contenido",
   "nav.home": "Samuel Hernández, inicio",
-  "lang.switch": "EN",
   "lang.switchLabel": "View the site in English",
   "lang.englishOnly": "Disponible solo en inglés",
   "external.newTab": "se abre en una pestaña nueva",
@@ -267,6 +272,13 @@ const es = {
   "palette.themeDark": "Oscuro",
   "palette.themeSystem": "Sistema",
   "palette.hint": "Ctrl K",
+  "header.tools": "Herramientas del sitio",
+  "lang.menu": "Idioma",
+  "lang.current": "ES",
+  "lang.english": "English",
+  "lang.spanish": "Español",
+  "lang.spanishHome": "Español (página de inicio)",
+  "theme.menu": "Tema",
 
   "footer.rights": "Samuel Hernández",
 } as const satisfies Record<UIKey, string>;

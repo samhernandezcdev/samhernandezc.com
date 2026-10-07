@@ -1,10 +1,19 @@
 ---
-// Static header, no client JS. The nav lists only routes that exist (Notes
-// appears once a note is published). On narrow screens the row wraps: the
-// wordmark, then the nav. No menu disclosure is needed for four links.
+// Site header: wordmark, section nav, and a utility cluster separated by
+// hairlines: command palette | language | theme | GitHub, LinkedIn.
+// Mobile: wordmark + palette + language (+ theme from 360px) on the first row,
+// the nav on the second; social links stay in the palette and the footer.
+// Language is a native <details> menu of plain links (works without JS). The
+// theme menu needs JS and stays hidden without it (the OS theme applies).
+// Client JS justification: closing menus on outside click/Escape and applying
+// the theme choice; well under 1 KB gz, inline module; no-JS fallback: the
+// language menu still works, the OS theme applies.
+import Chevron from "@/components/icons/Chevron.astro";
 import GitHub from "@/components/icons/GitHub.astro";
+import LinkedIn from "@/components/icons/LinkedIn.astro";
+import ThemeIcons from "@/components/icons/ThemeIcons.astro";
 import CommandPalette from "@/components/site/CommandPalette.astro";
-import { aboutPaths, homePaths, htmlLang, links, t, workPaths, type Locale } from "@/i18n/ui";
+import { aboutPaths, homePaths, links, t, workPaths, type Locale } from "@/i18n/ui";
 
 interface Props {
   locale: Locale;
@@ -16,7 +25,6 @@ interface Props {
 }
 
 const { locale, alternatePath, showNotes = false, current } = Astro.props;
-const other: Locale = locale === "en" ? "es" : "en";
 const home = homePaths[locale];
 
 // Notes are English-only: on Spanish pages the link is marked EN.
@@ -27,13 +35,33 @@ const nav = [
     : []),
   { id: "about", href: aboutPaths[locale], label: t(locale, "nav.about"), englishOnly: false },
 ];
+
+// Language menu: the site language of this page, and the other one. When this
+// page has no translation, the other option says it leads to that home page.
+const languages = [
+  {
+    code: "en" as const,
+    name: t(locale, "lang.english"),
+    href: locale === "en" ? undefined : (alternatePath ?? homePaths.en),
+  },
+  {
+    code: "es" as const,
+    name: locale === "en" && !alternatePath ? t(locale, "lang.spanishHome") : t(locale, "lang.spanish"),
+    href: locale === "es" ? undefined : (alternatePath ?? homePaths.es),
+  },
+];
+const currentLanguage = languages.find((language) => language.code === locale)!;
+
+const themes = [
+  { value: "light", label: t(locale, "palette.themeLight") },
+  { value: "system", label: t(locale, "palette.themeSystem") },
+  { value: "dark", label: t(locale, "palette.themeDark") },
+];
 ---
 
 <header class="site-header">
   <div class="page site-header-row">
     <a class="wordmark" href={home} aria-label={t(locale, "nav.home")}>Samuel Hernández</a>
-
-    <CommandPalette locale={locale} alternatePath={alternatePath} />
 
     <nav class="site-nav" aria-label={t(locale, "nav.label")}>
       <ul>
@@ -56,30 +84,124 @@ const nav = [
             </li>
           ))
         }
-        <li>
-          <a class="icon-button" href={links.github} rel="me noopener" aria-label="GitHub">
-            <GitHub />
-          </a>
-        </li>
-        {
-          alternatePath && (
-            <li class="lang-item">
-              <a
-                class="link-quiet nav-link lang-link"
-                href={alternatePath}
-                hreflang={htmlLang[other]}
-                lang={htmlLang[other]}
-                aria-label={t(locale, "lang.switchLabel")}
-              >
-                {t(locale, "lang.switch")}
-              </a>
-            </li>
-          )
-        }
       </ul>
     </nav>
+
+    <div class="utilities" role="group" aria-label={t(locale, "header.tools")}>
+      <div class="util-group util-palette">
+        <CommandPalette locale={locale} alternatePath={alternatePath} />
+      </div>
+
+      <div class="util-group">
+        <details class="util-menu" data-util-menu>
+          <summary class="util-button" aria-label={`${t(locale, "lang.menu")}: ${currentLanguage.name}`}>
+            <span class="util-code">{t(locale, "lang.current")}</span>
+            <Chevron class="util-chevron" />
+          </summary>
+          <ul class="util-panel">
+            {
+              languages.map((language) => (
+                <li>
+                  {language.href ? (
+                    <a class="util-option" href={language.href} hreflang={language.code} lang={language.code}>
+                      <span>{language.name}</span>
+                      <span class="util-check" aria-hidden="true">✓</span>
+                    </a>
+                  ) : (
+                    <span class="util-option" aria-current="true" lang={language.code}>
+                      <span>{language.name}</span>
+                      <span class="util-check" aria-hidden="true">✓</span>
+                    </span>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </details>
+      </div>
+
+      <div class="util-group util-theme" data-theme-wrap hidden>
+        <details class="util-menu" data-util-menu data-theme-menu data-theme-choice="system">
+          <summary class="util-button" aria-label={t(locale, "theme.menu")} data-theme-label={t(locale, "theme.menu")} data-tip={t(locale, "theme.menu")}>
+            <ThemeIcons />
+            <Chevron class="util-chevron" />
+          </summary>
+          <div class="util-panel" role="group" aria-label={t(locale, "theme.menu")}>
+            {
+              themes.map((theme) => (
+                <button type="button" class="util-option" data-theme-option={theme.value} aria-pressed="false">
+                  <span>{theme.label}</span>
+                  <span class="util-check" aria-hidden="true">✓</span>
+                </button>
+              ))
+            }
+          </div>
+        </details>
+      </div>
+
+      <div class="util-group util-social">
+        <a class="util-button util-icon" href={links.github} rel="me noopener" aria-label="GitHub" data-tip="GitHub">
+          <GitHub />
+        </a>
+        <a class="util-button util-icon" href={links.linkedin} rel="me noopener" aria-label="LinkedIn" data-tip="LinkedIn">
+          <LinkedIn />
+        </a>
+      </div>
+    </div>
   </div>
 </header>
+
+<script>
+  import { readTheme, setTheme, type ThemeChoice } from "@/scripts/theme";
+
+  const menus = [...document.querySelectorAll<HTMLDetailsElement>("[data-util-menu]")];
+
+  // One menu open at a time; a click outside or Escape closes it.
+  for (const menu of menus) {
+    menu.addEventListener("toggle", () => {
+      if (menu.open) for (const other of menus) if (other !== menu) other.open = false;
+    });
+  }
+  document.addEventListener("click", (event) => {
+    for (const menu of menus) if (menu.open && !menu.contains(event.target as Node)) menu.open = false;
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    for (const menu of menus) {
+      if (!menu.open) continue;
+      menu.open = false;
+      menu.querySelector("summary")?.focus();
+    }
+  });
+
+  const themeMenu = document.querySelector<HTMLDetailsElement>("[data-theme-menu]");
+  const themeWrap = document.querySelector<HTMLElement>("[data-theme-wrap]");
+  if (themeMenu && themeWrap) {
+    const summary = themeMenu.querySelector("summary")!;
+    const options = [...themeMenu.querySelectorAll<HTMLButtonElement>("[data-theme-option]")];
+    const sync = () => {
+      const choice = readTheme();
+      themeMenu.dataset.themeChoice = choice;
+      for (const option of options) {
+        const selected = option.dataset.themeOption === choice;
+        option.setAttribute("aria-pressed", String(selected));
+        if (selected) summary.setAttribute("aria-label", `${summary.dataset.themeLabel}: ${option.textContent!.replace("✓", "").trim()}`);
+      }
+    };
+    themeWrap.hidden = false;
+    sync();
+    document.addEventListener("themechange", sync);
+    // The command palette's theme row asks the header to apply a choice.
+    document.addEventListener("themerequest", (event) => setTheme((event as CustomEvent<ThemeChoice>).detail));
+    for (const option of options) {
+      option.addEventListener("click", () => {
+        setTheme(option.dataset.themeOption as ThemeChoice);
+        themeMenu.open = false;
+        summary.focus();
+      });
+    }
+  }
+</script>
 
 <style>
   .site-header {
@@ -90,18 +212,15 @@ const nav = [
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
     gap: 0 var(--spacing-component);
     min-height: 4rem;
   }
 
-  /* Mobile: the palette trigger shares the first row with the wordmark; the nav
-     wraps to the next row. Desktop: wordmark, nav, then the trigger. */
   .wordmark {
-    margin-right: auto;
     display: inline-flex;
     align-items: center;
     min-height: var(--target-min);
+    margin-right: auto;
     color: var(--color-text);
     font-weight: 600;
     letter-spacing: -0.01em;
@@ -109,12 +228,24 @@ const nav = [
     white-space: nowrap;
   }
 
+  /* Mobile: wordmark + utilities on the first row, the nav wraps to the second.
+     Desktop: wordmark, nav, utilities on one row. */
+  .utilities {
+    order: 1;
+  }
+
+  .site-nav {
+    order: 2;
+    flex-basis: 100%;
+  }
+
   @media (min-width: 48rem) {
     .site-nav {
       order: 1;
+      flex-basis: auto;
     }
 
-    :global(.palette-trigger) {
+    .utilities {
       order: 2;
     }
   }
@@ -126,11 +257,12 @@ const nav = [
     gap: 0 var(--spacing-inline);
   }
 
-  /* The language switch is set apart from the section links. */
-  .lang-item {
-    margin-left: var(--spacing-inline);
-    padding-left: var(--spacing-inline);
-    border-left: var(--border-hairline) solid var(--color-border);
+  /* On its own row the nav's first label lines up with the wordmark. */
+  @media (max-width: 47.99rem) {
+    .site-nav ul {
+      gap: 0;
+      margin-left: calc(var(--spacing-inline) * -1);
+    }
   }
 
   .nav-link {
@@ -150,19 +282,199 @@ const nav = [
     color: var(--color-text-muted);
   }
 
-  /* Narrow phones: tighter link padding so the row fits (it wraps below ~340px). */
-  @media (max-width: 26rem) {
-    .site-nav ul {
-      gap: 0;
-    }
+  /* Utility cluster ---------------------------------------------------------- */
+  .utilities,
+  .util-group {
+    display: flex;
+    align-items: center;
+  }
 
-    .nav-link {
-      padding-inline: calc(var(--spacing) * 1.5);
+  .util-group[hidden] {
+    display: none;
+  }
+
+  /* Hairline separators between groups. */
+  .util-group + .util-group::before {
+    content: "";
+    width: var(--border-hairline);
+    height: 1.25rem;
+    margin-inline: calc(var(--spacing) * 1);
+    background-color: var(--color-border);
+  }
+
+  /* Without JS the palette trigger is hidden: drop its group and the separator after it. */
+  .util-palette:has(.palette-trigger[hidden]) {
+    display: none;
+  }
+
+  .util-palette:has(.palette-trigger[hidden]) + .util-group::before {
+    display: none;
+  }
+
+  @media (max-width: 47.99rem) {
+    .util-social {
+      display: none;
     }
   }
 
-  .lang-link {
+  @media (max-width: 22.49rem) {
+    .util-theme {
+      display: none;
+    }
+  }
+
+  .util-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 1);
+    min-width: var(--target-min);
+    min-height: var(--target-min);
+    padding-inline: calc(var(--spacing) * 2);
+    border: var(--border-hairline) solid transparent;
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+    text-decoration: none;
+    list-style: none;
+    cursor: pointer;
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard);
+  }
+
+  .util-button::-webkit-details-marker {
+    display: none;
+  }
+
+  .util-button:hover,
+  .util-menu[open] > .util-button {
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+
+  .util-icon {
+    padding-inline: 0;
+  }
+
+  .util-icon :global(svg) {
+    width: 1.0625rem;
+    height: 1.0625rem;
+  }
+
+  .util-code {
     font-family: var(--font-mono);
     font-size: var(--text-meta);
+  }
+
+  .util-menu :global(.util-chevron) {
+    transition: opacity var(--duration-fast) var(--ease-standard);
+    opacity: 0.7;
+  }
+
+  .util-menu[open] :global(.util-chevron) {
+    opacity: 1;
+  }
+
+  /* The theme summary shows the icon for the stored choice. */
+  .util-menu :global(.theme-icon) {
+    display: none;
+  }
+
+  .util-menu[data-theme-choice="light"] :global(.theme-icon-light),
+  .util-menu[data-theme-choice="dark"] :global(.theme-icon-dark),
+  .util-menu[data-theme-choice="system"] :global(.theme-icon-system) {
+    display: block;
+  }
+
+  .util-menu {
+    position: relative;
+  }
+
+  .util-panel {
+    position: absolute;
+    top: calc(100% + var(--spacing) * 1);
+    right: 0;
+    z-index: 20;
+    display: grid;
+    min-width: 11rem;
+    padding: calc(var(--spacing) * 1);
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-raised);
+  }
+
+  .util-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-component);
+    width: 100%;
+    min-height: var(--target-min);
+    padding-inline: calc(var(--spacing) * 3);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--text-small);
+    text-align: left;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color var(--duration-fast) var(--ease-standard);
+  }
+
+  a.util-option:hover,
+  button.util-option:hover {
+    background-color: var(--color-surface);
+  }
+
+  .util-option:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
+
+  /* Selected: heavier label plus a check mark, never color alone. */
+  .util-option[aria-current="true"],
+  .util-option[aria-pressed="true"] {
+    font-weight: 600;
+    cursor: default;
+  }
+
+  .util-check {
+    visibility: hidden;
+    color: var(--color-accent);
+  }
+
+  .util-option[aria-current="true"] .util-check,
+  .util-option[aria-pressed="true"] .util-check {
+    visibility: visible;
+  }
+
+  /* Concise tooltips for icon-only controls, on hover-capable fine pointers. */
+  @media (hover: hover) and (pointer: fine) {
+    .util-button[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      top: calc(100% + var(--spacing) * 1);
+      right: 0;
+      z-index: 20;
+      padding: calc(var(--spacing) * 0.5) calc(var(--spacing) * 2);
+      border: var(--border-hairline) solid var(--color-border-strong);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-surface-raised);
+      color: var(--color-text);
+      font-family: var(--font-sans);
+      font-size: var(--text-meta);
+      font-weight: 400;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .util-menu[open] > .util-button[data-tip]::after {
+      display: none;
+    }
   }
 </style>
