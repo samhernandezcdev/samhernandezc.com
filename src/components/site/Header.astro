@@ -1,13 +1,16 @@
 ---
-// Site header: wordmark, section nav, and a utility cluster separated by
-// hairlines: command palette | language | theme | GitHub, LinkedIn.
-// Mobile: wordmark + palette + language (+ theme from 360px) on the first row,
-// the nav on the second; social links stay in the palette and the footer.
+// Global header: a fixed-height sticky bar (height token --header-height).
+// Wordmark, section nav, then a utility cluster separated by hairlines:
+// search | language | theme (switch + preference menu) | GitHub, LinkedIn.
+// Mobile (<48rem): wordmark + search + language + theme on the first row, the
+// nav on the second. The theme control there is one preference-menu button
+// (icon of the rendered theme); the switch appears from 48rem. Social links
+// appear from 64rem; below that they stay in search, Contact and footer.
 // Language is a native <details> menu of plain links (works without JS). The
-// theme menu needs JS and stays hidden without it (the OS theme applies).
-// Client JS justification: closing menus on outside click/Escape and applying
-// the theme choice; well under 1 KB gz, inline module; no-JS fallback: the
-// language menu still works, the OS theme applies.
+// theme controls need JS and stay hidden without it (the OS theme applies).
+// Client JS justification: closing menus on outside click/Escape, the theme
+// switch and preference menu; ~0.8 KB gz, inline module; no-JS fallback: the
+// language menu and all navigation still work, the OS theme applies.
 import Chevron from "@/components/icons/Chevron.astro";
 import GitHub from "@/components/icons/GitHub.astro";
 import LinkedIn from "@/components/icons/LinkedIn.astro";
@@ -88,12 +91,12 @@ const themes = [
     </nav>
 
     <div class="utilities" role="group" aria-label={t(locale, "header.tools")}>
-      <div class="util-group util-palette">
+      <div class="util-group util-search">
         <CommandPalette locale={locale} alternatePath={alternatePath} />
       </div>
 
       <div class="util-group">
-        <details class="util-menu" data-util-menu>
+        <details class="util-menu" data-util-menu data-lang-menu>
           <summary class="util-button" aria-label={`${t(locale, "lang.menu")}: ${currentLanguage.name}`}>
             <span class="util-code">{t(locale, "lang.current")}</span>
             <Chevron class="util-chevron" />
@@ -121,9 +124,25 @@ const themes = [
       </div>
 
       <div class="util-group util-theme" data-theme-wrap hidden>
-        <details class="util-menu" data-util-menu data-theme-menu data-theme-choice="system">
-          <summary class="util-button" aria-label={t(locale, "theme.menu")} data-theme-label={t(locale, "theme.menu")} data-tip={t(locale, "theme.menu")}>
-            <ThemeIcons />
+        <!-- Switch: flips the rendered theme (Light <-> Dark) immediately.
+             Menu: the stored preference, including System. -->
+        <button
+          type="button"
+          class="theme-switch"
+          role="switch"
+          aria-checked="false"
+          aria-label={t(locale, "theme.switch")}
+          aria-describedby="theme-note"
+          data-theme-switch
+        >
+          <span class="theme-track" aria-hidden="true">
+            <span class="theme-thumb"><ThemeIcons /></span>
+          </span>
+        </button>
+        <span id="theme-note" class="visually-hidden" data-theme-note data-following={t(locale, "theme.following")} data-fixed={t(locale, "theme.fixed")}></span>
+        <details class="util-menu" data-util-menu data-theme-menu>
+          <summary class="util-button theme-menu-button" aria-label={t(locale, "theme.menu")} data-theme-label={t(locale, "theme.menu")} data-tip={t(locale, "theme.menu")}>
+            <span class="theme-menu-icon" aria-hidden="true"><ThemeIcons /></span>
             <Chevron class="util-chevron" />
           </summary>
           <div class="util-panel" role="group" aria-label={t(locale, "theme.menu")}>
@@ -174,29 +193,43 @@ const themes = [
     }
   });
 
-  const themeMenu = document.querySelector<HTMLDetailsElement>("[data-theme-menu]");
-  const themeWrap = document.querySelector<HTMLElement>("[data-theme-wrap]");
-  if (themeMenu && themeWrap) {
-    const summary = themeMenu.querySelector("summary")!;
-    const options = [...themeMenu.querySelectorAll<HTMLButtonElement>("[data-theme-option]")];
+  const wrap = document.querySelector<HTMLElement>("[data-theme-wrap]");
+  if (wrap) {
+    const root = document.documentElement;
+    const toggle = wrap.querySelector<HTMLButtonElement>("[data-theme-switch]")!;
+    const note = wrap.querySelector<HTMLElement>("[data-theme-note]")!;
+    const menu = wrap.querySelector<HTMLDetailsElement>("[data-theme-menu]")!;
+    const summary = menu.querySelector("summary")!;
+    const options = [...menu.querySelectorAll<HTMLButtonElement>("[data-theme-option]")];
+    const osDark = matchMedia("(prefers-color-scheme: dark)");
+    // Stored preference: light | system | dark. Rendered theme: light | dark.
+    const rendered = () => root.dataset.theme ?? (osDark.matches ? "dark" : "light");
+
     const sync = () => {
       const choice = readTheme();
-      themeMenu.dataset.themeChoice = choice;
+      wrap.dataset.rendered = rendered();
+      toggle.setAttribute("aria-checked", String(rendered() === "dark"));
       for (const option of options) {
         const selected = option.dataset.themeOption === choice;
         option.setAttribute("aria-pressed", String(selected));
-        if (selected) summary.setAttribute("aria-label", `${summary.dataset.themeLabel}: ${option.textContent!.replace("✓", "").trim()}`);
+        if (!selected) continue;
+        const name = option.textContent!.replace("✓", "").trim();
+        summary.setAttribute("aria-label", `${summary.dataset.themeLabel}: ${name}`);
+        note.textContent = choice === "system" ? note.dataset.following! : `${note.dataset.fixed} ${name}`;
       }
     };
-    themeWrap.hidden = false;
+
     sync();
+    wrap.hidden = false;
     document.addEventListener("themechange", sync);
-    // The command palette's theme row asks the header to apply a choice.
+    osDark.addEventListener("change", sync);
+    // The search dialog's theme row asks the header to apply a choice.
     document.addEventListener("themerequest", (event) => setTheme((event as CustomEvent<ThemeChoice>).detail));
+    toggle.addEventListener("click", () => setTheme(rendered() === "dark" ? "light" : "dark"));
     for (const option of options) {
       option.addEventListener("click", () => {
         setTheme(option.dataset.themeOption as ThemeChoice);
-        themeMenu.open = false;
+        menu.open = false;
         summary.focus();
       });
     }
@@ -204,16 +237,24 @@ const themes = [
 </script>
 
 <style>
+  /* Sticky bar: solid page background, one hairline, fixed height. No shadow,
+     no blur, no movement while scrolling. */
   .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background-color: var(--color-bg);
     border-bottom: var(--border-hairline) solid var(--color-border);
+    view-transition-name: site-header;
   }
 
   .site-header-row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    align-content: center;
     gap: 0 var(--spacing-component);
-    min-height: 4rem;
+    min-height: calc(var(--header-height) - var(--border-hairline));
   }
 
   .wordmark {
@@ -293,7 +334,7 @@ const themes = [
     display: none;
   }
 
-  /* Hairline separators between groups. */
+  /* Short hairline separators between groups. */
   .util-group + .util-group::before {
     content: "";
     width: var(--border-hairline);
@@ -302,21 +343,22 @@ const themes = [
     background-color: var(--color-border);
   }
 
-  /* Without JS the palette trigger is hidden: drop its group and the separator after it. */
-  .util-palette:has(.palette-trigger[hidden]) {
+  /* Without JS the search trigger is hidden: drop its group and the separator after it. */
+  .util-search:has(.palette-trigger[hidden]) {
     display: none;
   }
 
-  .util-palette:has(.palette-trigger[hidden]) + .util-group::before {
+  .util-search:has(.palette-trigger[hidden]) + .util-group::before {
     display: none;
   }
 
-  @media (max-width: 47.99rem) {
+  @media (max-width: 63.99rem) {
     .util-social {
       display: none;
     }
   }
 
+  /* Narrow phones keep brand, search and language; theme stays in search. */
   @media (max-width: 22.49rem) {
     .util-theme {
       display: none;
@@ -369,25 +411,115 @@ const themes = [
   }
 
   .util-menu :global(.util-chevron) {
-    transition: opacity var(--duration-fast) var(--ease-standard);
     opacity: 0.7;
+    transition: opacity var(--duration-fast) var(--ease-standard);
   }
 
   .util-menu[open] :global(.util-chevron) {
     opacity: 1;
   }
 
-  /* The theme summary shows the icon for the stored choice. */
-  .util-menu :global(.theme-icon) {
+  /* Theme: switch + narrow preference-menu button, read as one control. */
+  .theme-switch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--target-min);
+    padding-inline: calc(var(--spacing) * 1);
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .theme-track {
+    position: relative;
+    display: block;
+    width: 2.625rem;
+    height: 1.5rem;
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    transition: border-color var(--duration-fast) var(--ease-standard);
+  }
+
+  .theme-switch:hover .theme-track {
+    border-color: var(--color-text-muted);
+  }
+
+  .theme-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    display: grid;
+    place-items: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface-raised);
+    color: var(--color-text);
+    transition: transform var(--duration-switch) var(--ease-standard);
+  }
+
+  .theme-switch[aria-checked="true"] .theme-thumb {
+    transform: translateX(1.125rem);
+  }
+
+  .theme-thumb :global(.theme-icon) {
+    grid-area: 1 / 1;
+    transition: opacity var(--duration-switch) var(--ease-standard);
+  }
+
+  .theme-switch[aria-checked="true"] .theme-thumb :global(.theme-icon-light),
+  .theme-switch[aria-checked="false"] .theme-thumb :global(.theme-icon-dark) {
+    opacity: 0;
+  }
+
+  .theme-menu-button {
+    min-width: 1.75rem;
+    padding-inline: 0;
+  }
+
+  @media (pointer: coarse) {
+    .theme-menu-button {
+      min-width: var(--target-min);
+    }
+  }
+
+  /* Mobile: no switch; the menu button carries the rendered theme's icon. */
+  .theme-menu-icon {
     display: none;
   }
 
-  .util-menu[data-theme-choice="light"] :global(.theme-icon-light),
-  .util-menu[data-theme-choice="dark"] :global(.theme-icon-dark),
-  .util-menu[data-theme-choice="system"] :global(.theme-icon-system) {
-    display: block;
+  @media (max-width: 47.99rem) {
+    .theme-switch,
+    .theme-menu-button :global(.util-chevron) {
+      display: none;
+    }
+
+    .theme-menu-button {
+      min-width: var(--target-min);
+    }
+
+    .theme-menu-icon {
+      display: grid;
+    }
+
+    .theme-menu-icon :global(.theme-icon) {
+      grid-area: 1 / 1;
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .util-theme[data-rendered="dark"] .theme-menu-icon :global(.theme-icon-light),
+    .util-theme[data-rendered="light"] .theme-menu-icon :global(.theme-icon-dark) {
+      visibility: hidden;
+    }
   }
 
+  /* Menus -------------------------------------------------------------------- */
   .util-menu {
     position: relative;
   }
@@ -396,13 +528,27 @@ const themes = [
     position: absolute;
     top: calc(100% + var(--spacing) * 1);
     right: 0;
-    z-index: 20;
+    z-index: 1;
     display: grid;
     min-width: 11rem;
     padding: calc(var(--spacing) * 1);
     border: var(--border-hairline) solid var(--color-border-strong);
     border-radius: var(--radius-md);
     background-color: var(--color-surface-raised);
+  }
+
+  /* Entrance: fade plus a 3px drop. Closing is immediate. */
+  .util-menu[open] > .util-panel {
+    transition:
+      opacity var(--duration-switch) var(--ease-standard),
+      transform var(--duration-switch) var(--ease-standard);
+  }
+
+  @starting-style {
+    .util-menu[open] > .util-panel {
+      opacity: 0;
+      transform: translateY(-3px);
+    }
   }
 
   .util-option {
@@ -423,7 +569,6 @@ const themes = [
     text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
-    transition: color var(--duration-fast) var(--ease-standard);
   }
 
   a.util-option:hover,
@@ -460,7 +605,7 @@ const themes = [
       position: absolute;
       top: calc(100% + var(--spacing) * 1);
       right: 0;
-      z-index: 20;
+      z-index: 1;
       padding: calc(var(--spacing) * 0.5) calc(var(--spacing) * 2);
       border: var(--border-hairline) solid var(--color-border-strong);
       border-radius: var(--radius-sm);

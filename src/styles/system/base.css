@@ -8,6 +8,8 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     scrollbar-color: var(--color-border-strong) transparent;
+    /* Anchors and focus land below the sticky header. */
+    scroll-padding-top: var(--sticky-offset);
   }
 
   body {

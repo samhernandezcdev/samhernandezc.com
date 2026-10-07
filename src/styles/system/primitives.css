@@ -18,7 +18,6 @@
   /* Page sections: heading block + content, separated by section rhythm. */
   .page-section {
     margin-top: var(--spacing-section);
-    scroll-margin-top: var(--spacing-component-lg);
   }
 
   /* Section head: starts on a hairline marked by a short drafting-green tick,
@@ -72,7 +71,7 @@
     position: absolute;
     top: var(--spacing-inline);
     left: var(--spacing-inline);
-    z-index: 10;
+    z-index: calc(var(--z-header) + 1);
     padding: var(--spacing-inline) var(--spacing-component);
     border: var(--border-hairline) solid var(--color-border-strong);
     border-radius: var(--radius-md);

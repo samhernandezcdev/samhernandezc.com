@@ -91,6 +91,21 @@
   --duration-fast: 120ms; /* hover / color feedback */
   --duration-ui: 200ms; /* opening, closing, expanding */
   --target-min: 2.5rem; /* 40px on fine pointers */
+  --duration-switch: 160ms; /* theme switch thumb, dialog/menu entrance */
+
+  /* Sticky geometry. The header is a fixed-height sticky bar: one 4rem row on
+     desktop, two target-height rows (brand + tools, nav) below 48rem. Anything
+     sticky or anchored sits under it via --sticky-offset; nothing else
+     hardcodes a top offset. */
+  --header-height: calc(4rem + var(--border-hairline));
+  --sticky-offset: calc(var(--header-height) + var(--spacing-component-lg));
+  --z-header: 30;
+}
+
+@media (max-width: 47.99rem) {
+  :root {
+    --header-height: calc(2 * var(--target-min) + var(--border-hairline));
+  }
 }
 
 :root[data-theme="light"] {
@@ -111,5 +126,6 @@
   :root {
     --duration-fast: 0ms;
     --duration-ui: 0ms;
+    --duration-switch: 0ms;
   }
 }

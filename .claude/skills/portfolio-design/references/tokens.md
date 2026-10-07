@@ -63,7 +63,8 @@ Line heights: `leading-tight` 1.12 (h1/display), `leading-heading` 1.3, `leading
 - `container-page`: 70rem (1120px) content width. The `.page` primitive adds the gutters.
 - `container-prose`: 68ch reading measure.
 - `container-label`: 11rem, the shared label/metadata column (`.axis`).
-- `container-rail`: 15rem, reserved for the future case-study metadata/TOC rail. The rail sits beside the prose at `lg`; below that everything is one column.
+- `container-rail`: 15rem, the article rail (case-study spec + "On this page", or the note's contents). It sits beside the prose at `lg`; below that everything is one column.
+- Sticky geometry (`:root`, not Tailwind tokens): `--header-height` is the sticky header's fixed height (4rem + hairline from 48rem; two `--target-min` rows + hairline below). `--sticky-offset` = header height + `spacing-component-lg`; `html` uses it as `scroll-padding-top`, and every sticky element below the header uses it as `top`. Never hardcode a top offset or a per-element `scroll-margin`. `--z-header` (30) is the only z-index scale step; the skip link sits one above it.
 - Breakpoints are Tailwind's defaults (`sm` 640, `md` 768, `lg` 1024, `xl` 1280). Mobile-first; layouts change at `md` (two columns of metadata) and `lg` (rail + prose).
 - Wide content (code, tables, figures) stays within the measure and scrolls inside its own box. The page itself never scrolls sideways.
 
@@ -75,6 +76,7 @@ Line heights: `leading-tight` 1.12 (h1/display), `leading-heading` 1.3, `leading
 ## Motion and interaction
 - `--duration-fast` 120ms: hover and color feedback.
 - `--duration-ui` 200ms: opening, closing, expanding.
+- `--duration-switch` 160ms: the theme switch thumb, menu and search-dialog entrances (opacity + a 3–4px drop via `@starting-style`; closing is immediate).
 - Easing: `--ease-standard`.
 - Durations drop to 0 under `prefers-reduced-motion`.
 - `--target-min`: 40px on fine pointers, 44px on coarse pointers.
