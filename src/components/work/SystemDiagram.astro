@@ -154,12 +154,14 @@ const nodeId = (name: string) => (routeNames.has(name) ? name : undefined);
     let mode: string | null = null;
     let svg: SVGSVGElement | undefined;
 
-    const all = [...figure.querySelectorAll<HTMLElement>(".diagram-node")];
+    // Obstacles: other nodes and the diagram's labels (labels sit on a
+    // page-colored ground, so a route behind one would vanish into a stub).
+    const all = [...figure.querySelectorAll<HTMLElement>(".diagram-node, .diagram-label, .diagram-group-label")];
 
     // Orthogonal route between two nodes: leave the source, turn once in the
     // nearest gap, enter the target from above or below. The long vertical
-    // never crosses another node: if one is in the way, the route detours
-    // through a lane beside the blockers (the side closer to the line).
+    // never crosses another node or label: if one is in the way, the route
+    // detours through a lane beside the blockers (the side closer to the line).
     const route = (from: HTMLElement, to: HTMLElement, box: DOMRect) => {
       const a = from.getBoundingClientRect();
       const b = to.getBoundingClientRect();
@@ -172,22 +174,35 @@ const nodeId = (name: string) => (routeNames.has(name) ? name : undefined);
       const turn = down ? Math.min(y0 + 14, (y0 + y1) / 2) : Math.min(y1 + 14, (y0 + y1) / 2);
       // The long vertical: at bx (turn → y1) going down, at ax (y0 → turn) going up.
       const x = down ? bx : ax;
-      const [top, bottom] = down ? [turn, y1 - 14] : [turn, y0 - 14];
+      const [top, bottom] = down ? [turn, y1 - 14] : [turn, y0];
       const blockers = all
         .filter((n) => n !== from && n !== to)
         .map((n) => n.getBoundingClientRect())
         .map((r) => ({ l: r.left - box.left, r: r.right - box.left, t: r.top - box.top, b: r.bottom - box.top }))
         .filter((r) => r.l - 6 < x && x < r.r + 6 && r.t < bottom && top < r.b);
       let d = `M${ax} ${y0}V${turn}H${bx}V${y1}`;
+      let end = bx;
       if (blockers.length) {
         const left = Math.min(...blockers.map((r) => r.l)) - 14;
         const right = Math.max(...blockers.map((r) => r.r)) + 14;
         const lane = x - left < right - x ? left : right;
+        // Going up, leave the source straight at the lane: from its top edge
+        // when the lane is within its width, otherwise from the facing side.
+        const al = a.left - box.left;
+        const ar = a.right - box.left;
+        const up =
+          al < lane && lane < ar
+            ? `M${lane} ${y0}`
+            : `M${lane < al ? al : ar} ${(a.top + a.bottom) / 2 - box.top}H${lane}`;
+        // Going down, enter the target straight at the lane when it is within
+        // the target's width; otherwise step across just above it.
+        const inTarget = b.left - box.left < lane && lane < b.right - box.left;
+        if (down && inTarget) end = lane;
         d = down
-          ? `M${ax} ${y0}V${turn}H${lane}V${y1 - 14}H${bx}V${y1}`
-          : `M${ax} ${y0}V${y0 - 14}H${lane}V${turn}H${bx}V${y1}`;
+          ? `M${ax} ${y0}V${turn}H${lane}` + (inTarget ? `V${y1}` : `V${y1 - 14}H${bx}V${y1}`)
+          : `${up}V${turn}H${bx}V${y1}`;
       }
-      return { d, x: bx, y: y1, down };
+      return { d, x: end, y: y1, down };
     };
 
     const draw = (animate: boolean) => {
