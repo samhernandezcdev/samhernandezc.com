@@ -88,7 +88,7 @@ const en = {
   "engineer.data.title": "Data & persistence",
   "engineer.data.body": "Relational models that keep data consistent as the rules change.",
   "engineer.ai.title": "Applied AI",
-  "engineer.ai.body": "Checking what AI systems produce against reference answers before trusting it.",
+  "engineer.ai.body": "Where my work is heading: checking what AI systems produce against reference answers before trusting it.",
   "engineer.reliability.title": "Reliability & delivery",
   "engineer.reliability.body": "Reproducible builds, tests and deployments that behave the same everywhere.",
 
@@ -238,7 +238,7 @@ const es = {
   "engineer.data.title": "Datos y persistencia",
   "engineer.data.body": "Modelos relacionales que mantienen los datos consistentes cuando cambian las reglas.",
   "engineer.ai.title": "IA aplicada",
-  "engineer.ai.body": "Comparar lo que producen los sistemas de IA contra respuestas de referencia antes de confiar en ello.",
+  "engineer.ai.body": "Hacia dónde va mi trabajo: comparar lo que producen los sistemas de IA contra respuestas de referencia antes de confiar en ello.",
   "engineer.reliability.title": "Confiabilidad y entrega",
   "engineer.reliability.body": "Builds, pruebas y despliegues reproducibles que se comportan igual en todos los entornos.",
 
@@ -330,7 +330,8 @@ export function t(locale: Locale, key: UIKey): string {
 /**
  * "What I engineer": technologies are limited to what the CV and content model
  * support. `used` = production or working experience; `exploring` = current
- * direction, not yet claimed as experience.
+ * direction, not yet claimed as experience. Applied AI has no `used` entries
+ * until a public project provides the evidence.
  */
 export const capabilities = [
   {
@@ -339,15 +340,15 @@ export const capabilities = [
   },
   {
     id: "data",
-    used: ["PostgreSQL", "SQL Server", "Relational modeling", "Multi-tenant schemas"],
+    used: ["PostgreSQL", "SQL Server", "Relational modeling"],
   },
   {
     id: "ai",
-    used: ["Evaluation harnesses"],
-    exploring: ["Retrieval", "Agents", "Structured outputs"],
+    used: [],
+    exploring: ["Evaluation", "Retrieval", "Agents", "Structured outputs"],
   },
   {
     id: "reliability",
-    used: ["Docker", "Automated tests", "Database migrations"],
+    used: ["Docker", "Automated tests"],
   },
 ] as const;

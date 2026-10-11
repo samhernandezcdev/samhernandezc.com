@@ -13,6 +13,7 @@
     "test:content": "node --test scripts/validate-content-model.ts",
     "test:e2e": "playwright test",
     "test:budget": "node scripts/check-js-budget.mjs",
+    "cv": "node cv/build.mjs",
     "astro": "astro"
   },
   "dependencies": {

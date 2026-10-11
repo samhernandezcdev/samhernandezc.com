@@ -34,7 +34,8 @@ Portafolio personal de Samuel Hernández (samhernandezc.bkode.lat). Está en red
 - `src/i18n/ui.ts` — textos de UI/home EN/ES (paridad de claves por tipos). `src/lib/content.ts` — único acceso a colecciones (filtra borradores). `src/scripts/theme.ts` — estado del tema; solo lo importa `Header` (un segundo importador lo sacaría del script inline).
 - `src/styles/system.css` + `src/styles/system/` — nuevo design system (tokens light/dark con `light-dark()`, primitivas, prose, código, diagramas). Reglas en el skill `portfolio-design`.
 - `src/dev/` — páginas solo de desarrollo (`/dev/design-system`), inyectadas por la integración `dev-pages` únicamente en `astro dev`.
-- `src/assets/` — imágenes importadas (optimizadas por Astro). `public/` — favicon y PDFs de CV, con nombres exactos `Samuel-Hernandez-CV-EN.pdf` y `Samuel-Hernandez-CV-ES.pdf` (el sitio los enlaza directamente; no se generan en el build).
+- `src/assets/` — imágenes importadas (optimizadas por Astro). `public/` — favicon y PDFs de CV, con nombres exactos `Samuel-Hernandez-CV-EN.pdf` y `Samuel-Hernandez-CV-ES.pdf` (el sitio los enlaza directamente; se generan con `npm run cv -- --publish`, no en el build).
+- `cv/` — fuente editable de los CVs: `data/{en,es}.json` (copy independiente por idioma), `template/` (HTML + CSS compartidos, una columna, apto para ATS), `build.mjs` (Playwright → PDF). `cv/output/` es gitignored. Los hechos del rol industrial siguen la misma evidencia que el case study.
 - `scripts/screenshot.mjs` — herramienta dev de `visual-review` (Playwright). No es parte del sitio.
 - `scripts/hero-artifact.mjs` — generador dev del artefacto del Hero (three.js en Chromium headless). Escribe `src/assets/hero/artifact-{light,dark}.png` y `public/media/hero-artifact-{light,dark}.webm`. `three` y `webm-muxer` son devDependencies solo de este script; nada en `src/` las importa.
 - `tests/e2e/` — pruebas de producto versionadas. Las capturas y scripts de `visual-review` viven en `.claude/review/` (gitignored) y no forman parte de la suite.
@@ -50,6 +51,7 @@ Portafolio personal de Samuel Hernández (samhernandezc.bkode.lat). Está en red
 - `npm run test:e2e` — Playwright sobre el build (`tests/e2e/`: interacción, axe en todas las rutas light/dark, metadata/SEO). Requiere `npm run build` antes y, la primera vez, `npx playwright install chromium`.
 - `npm run test:budget` — falla si alguna página de `dist/` supera 6 KB gzip de JS propio.
 - Secuencia de release (igual que CI en `.github/workflows/ci.yml`, solo verificación, sin deploy): `npm ci` → `check` → `build` → `test:content` → `test:e2e` → `test:budget`.
+- `npm run cv` — genera los CVs en `cv/output/` y falla si alguno pasa de 2 páginas, desborda o no carga Geist. `npm run cv -- --publish` además copia los PDFs a `public/` con los nombres exactos. Nunca editar los PDFs a mano.
 - `node scripts/og-image.mjs` — regenera `public/og-default.png` (1200×630) solo si cambian nombre, rol o dominio.
 - `node scripts/hero-artifact.mjs` — regenera stills y loops del Hero (`--posters` solo stills; `--scene case` regenera la imagen del case study industrial en `src/assets/work/`). Solo si cambian la escena o los tokens de color; editar el script, nunca los archivos a mano.
 - No existen `lint`, `test` ni `format`. No inventes comandos que no estén en `package.json`.
@@ -71,7 +73,7 @@ Portafolio personal de Samuel Hernández (samhernandezc.bkode.lat). Está en red
 
 ## Estado de release (Fase 8)
 - Diseño e interacciones congelados: solo se corrigen defectos, accesibilidad, rendimiento, metadata/SEO y contradicciones factuales.
-- Bloqueador abierto: los PDFs de CV en `public/` dicen "(CPQ software)" (EN) y "CI/CD" en el rol industrial (EN y ES). No hay fuente editable en el repo; Samuel debe reemplazarlos con los mismos nombres de archivo. El CI de este repo no valida esa afirmación del rol industrial.
+- CVs: generados desde `cv/` (`npm run cv -- --publish`). No contienen proyectos personales sin evidencia de código ni IA aplicada como habilidad demostrada (solo como dirección en el resumen). Se publican junto con el sitio; no distribuirlos antes del despliegue (sus enlaces apuntan a rutas del rediseño).
 - `/en` → `/` necesita un 301 real en el host (fuera del repo); el build solo emite un fallback noindex.
 
 ## Restricciones — qué NO hacer

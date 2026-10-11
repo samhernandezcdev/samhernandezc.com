@@ -1,0 +1,136 @@
+{
+  "lang": "es",
+  "file": "Samuel-Hernandez-CV-ES.pdf",
+  "title": "Samuel Hernández — Ingeniero de Software — CV",
+  "name": "Samuel Hernández",
+  "headline": "Ingeniero de Software",
+  "location": "Villahermosa, México · Disponible para trabajo remoto",
+  "contacts": [
+    {
+      "text": "sam.hernandezc103@gmail.com",
+      "href": "mailto:sam.hernandezc103@gmail.com"
+    },
+    {
+      "text": "samhernandezc.bkode.lat/es",
+      "href": "https://samhernandezc.bkode.lat/es"
+    },
+    {
+      "text": "linkedin.com/in/samueldhernandezc",
+      "href": "https://www.linkedin.com/in/samueldhernandezc"
+    },
+    {
+      "text": "github.com/samhernandezcdev",
+      "href": "https://github.com/samhernandezcdev"
+    }
+  ],
+  "labels": {
+    "summary": "Perfil",
+    "experience": "Experiencia profesional",
+    "projects": "Caso de estudio de ingeniería",
+    "skills": "Habilidades técnicas",
+    "education": "Formación e idiomas"
+  },
+  "summary": [
+    "Ingeniero de software con más de 4 años construyendo servicios backend y aplicaciones internas para operaciones industriales y empresariales. Me enfoco en sistemas con reglas de dominio complejas, donde la exactitud importa: cálculos de ingeniería, reglas de negocio, validación y datos que deben mantenerse consistentes entre sistemas. Actualmente soy el implementador principal de una plataforma interna de cálculo y configuración de ingeniería en Python, FastAPI, PostgreSQL y React/TypeScript.",
+    "Hoy llevo ese mismo trabajo de backend y exactitud hacia sistemas de IA aplicada, con énfasis en evaluación, observabilidad e infraestructura confiable. Busco roles remotos de Software Engineer y Backend Engineer."
+  ],
+  "experience": [
+    {
+      "role": "Desarrollador de Software",
+      "org": "Cables del Golfo MX",
+      "period": "nov. 2025 – actualidad",
+      "intro": "Implementador principal de una plataforma interna de cálculo y configuración de ingeniería para equipos de izaje industrial, en uso dentro del flujo técnico y comercial de la empresa.",
+      "bullets": [
+        "Diseñé la arquitectura de la plataforma e implementé sus límites de integración con los sistemas ERP y CRM.",
+        "Construí el backend en Python/FastAPI, sus contratos de API REST y el flujo de configuración en React/TypeScript.",
+        "Implementé cálculos deterministas, validación del lado del servidor y la lógica de compatibilidad y selección de componentes a partir de fórmulas y reglas técnicas que definen y validan los especialistas de ingeniería.",
+        "Analicé con las áreas de ingeniería, comercial y operaciones las calculadoras existentes en hojas de cálculo (entradas, salidas, fórmulas y dependencias) y convertí sus reglas en lógica de dominio en el backend.",
+        "Diseñé la persistencia en PostgreSQL para configuraciones técnicas guardadas y su estado calculado, de modo que el trabajo guardado no se recalcule en silencio con datos actuales.",
+        "Escribí pruebas automatizadas de cálculo y comportamiento de dominio, reglas de validación, casos de regresión y comportamiento de la API, contrastadas con calculadoras de referencia y casos conocidos. Configuré Docker para desarrollo y despliegue; mantengo y evoluciono la aplicación."
+      ]
+    },
+    {
+      "role": "Consultor de TI y Desarrollador de Software",
+      "org": "Heavy-Lift Rigging Services & Consulting Mexico",
+      "period": "dic. 2024 – sep. 2025",
+      "bullets": [
+        "Conduje proyectos de TI desde los talleres de requerimientos hasta la entrega: evaluación de proveedores, arquitectura de software, registros de decisiones de arquitectura (ADRs) y reportes de arquitectura de soluciones.",
+        "Redacté una evaluación de GraphQL frente a REST para microservicios en ASP.NET Core y diseñé una arquitectura orientada a eventos para una plataforma híbrida de afiliados."
+      ]
+    },
+    {
+      "role": "Desarrollador de Software",
+      "org": "Heavy-Lift Rigging Services & Consulting Mexico",
+      "period": "may. 2023 – jul. 2024",
+      "bullets": [
+        "Desarrollé y mantuve aplicaciones web internas con ASP.NET Core (C#), Angular y SQL Server, además de dashboards de Power BI para finanzas y operaciones.",
+        "Desarrollé una app móvil de inspección en Flutter (BLoC) para captura de datos en campo, con sincronización entre sitios."
+      ]
+    },
+    {
+      "role": "Desarrollador de Software",
+      "org": "GUMEC Soluciones Tecnológicas",
+      "period": "dic. 2022 – mar. 2024",
+      "bullets": [
+        "Responsable del ciclo completo de un sistema de gestión documental para el sector oil & energía (Laravel, Vue.js, MySQL), incluidos sus despliegues en producción.",
+        "Implementé módulos de procesamiento de datos para el análisis de desempeño de pozos petroleros, con cifrado y control de acceso basado en roles para documentos confidenciales."
+      ]
+    },
+    {
+      "role": "Programador / Desarrollador de Investigación",
+      "org": "Tecnológico Nacional de México — Instituto Tecnológico de Villahermosa",
+      "period": "mar. 2022 – dic. 2022",
+      "bullets": [
+        "Desarrollé una aplicación web geoespacial con PostgreSQL, Django y React (Remix)."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Plataforma de cálculo y configuración de ingeniería industrial",
+      "meta": "En producción, uso interno · Python, FastAPI, PostgreSQL, React, TypeScript, Docker",
+      "links": [
+        {
+          "text": "Caso de estudio (en inglés): samhernandezc.bkode.lat/work/industrial-engineering-platform",
+          "href": "https://samhernandezc.bkode.lat/work/industrial-engineering-platform"
+        }
+      ],
+      "bullets": [
+        "Hice del backend la única autoridad de cálculo y validación: el frontend valida para facilitar el uso y el backend hace cumplir las reglas, así que una solicitud que no pasa por la interfaz también debe cumplirlas.",
+        "Separé los cálculos de ingeniería deterministas de los datos operativos que cambian: la disponibilidad y el catálogo provenientes del ERP orientan la selección de componentes, mientras que el CRM sigue siendo la fuente autoritativa de la cotización y los precios."
+      ],
+      "after": [
+        {
+          "text": "Nota técnica (en inglés): samhernandezc.bkode.lat/notes/deterministic-rules-changing-data",
+          "href": "https://samhernandezc.bkode.lat/notes/deterministic-rules-changing-data"
+        }
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "group": "Backend",
+      "items": "Python, FastAPI, diseño de APIs REST, C# / ASP.NET Core, Django, PHP / Laravel"
+    },
+    {
+      "group": "Datos",
+      "items": "PostgreSQL, SQL Server, MySQL, modelado relacional, diseño de persistencia, Power BI"
+    },
+    {
+      "group": "Frontend",
+      "items": "TypeScript, JavaScript, React, Angular, Vue.js"
+    },
+    {
+      "group": "Pruebas y entrega",
+      "items": "Pruebas automatizadas (dominio, validación, regresión y API), Docker, Git, fundamentos de AWS"
+    }
+  ],
+  "education": [
+    {
+      "title": "Ingeniería en Sistemas Computacionales",
+      "detail": "Tecnológico Nacional de México — Instituto Tecnológico de Villahermosa",
+      "period": "2019 – 2024"
+    }
+  ],
+  "languages": "Español — Nativo · Inglés — Intermedio"
+}

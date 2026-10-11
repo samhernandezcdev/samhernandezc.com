@@ -20,7 +20,7 @@ const { locale } = Astro.props;
           <h3 class="capability-title">{t(locale, `engineer.${area.id}.title` as UIKey)}</h3>
           <div class="capability-content">
             <p class="capability-body">{t(locale, `engineer.${area.id}.body` as UIKey)}</p>
-            <p class="meta capability-used">{area.used.join(", ")}</p>
+            {area.used.length > 0 && <p class="meta capability-used">{area.used.join(", ")}</p>}
             {"exploring" in area && (
               <p class="meta capability-exploring">
                 <span class="capability-exploring-label">{t(locale, "engineer.exploring")}:</span>{" "}
