@@ -6,6 +6,9 @@
 // inline module, runs on click. If copying fails the address is selected
 // instead (never a false "Copied"). No-JS fallback: the copy button stays
 // hidden; the address is selectable text and "Write an email" is a mailto link.
+import GitHub from "@/components/icons/GitHub.astro";
+import Icon from "@/components/icons/Icon.astro";
+import LinkedIn from "@/components/icons/LinkedIn.astro";
 import ExternalLink from "@/components/system/ExternalLink.astro";
 import { links, t, type Locale } from "@/i18n/ui";
 
@@ -26,16 +29,16 @@ const [user, domain] = links.email.split("@");
   </div>
 
   <div class="axis contact-email">
-    <p class="label contact-label">{t(locale, "contact.email")}</p>
+    <p class="label contact-label"><Icon name="mail" />{t(locale, "contact.email")}</p>
     <div>
       <p class="contact-address" data-copy-source>{user}@<wbr />{domain}</p>
       <div class="contact-actions">
         <button type="button" class="button contact-copy" data-copy={links.email} data-state="idle" hidden>
-          <span class="copy-label" data-for="idle">{t(locale, "contact.copy")}</span>
-          <span class="copy-label" data-for="copied"><span class="copy-check" aria-hidden="true">✓</span>{t(locale, "contact.copiedShort")}</span>
+          <span class="copy-label" data-for="idle"><Icon name="copy" />{t(locale, "contact.copy")}</span>
+          <span class="copy-label" data-for="copied"><Icon name="check" class="copy-check" />{t(locale, "contact.copiedShort")}</span>
           <span class="copy-label" data-for="failed">{t(locale, "contact.copyFailedShort")}</span>
         </button>
-        <a class="button" href={`mailto:${links.email}`}>{t(locale, "contact.write")}</a>
+        <a class="button" href={`mailto:${links.email}`}><Icon name="send" />{t(locale, "contact.write")}</a>
       </div>
       <p
         class="visually-hidden"
@@ -55,10 +58,12 @@ const [user, domain] = links.email.split("@");
         <h3 class="label contact-group-title">{t(locale, "contact.profiles")}</h3>
         <ul class="contact-links">
           <li>
+            <span class="contact-icon"><LinkedIn /></span>
             <ExternalLink class="link contact-link" href={links.linkedin} locale={locale} me arrow>LinkedIn</ExternalLink>
             <span class="meta contact-detail">{bare(links.linkedin)}</span>
           </li>
           <li>
+            <span class="contact-icon"><GitHub /></span>
             <ExternalLink class="link contact-link" href={links.github} locale={locale} me arrow>GitHub</ExternalLink>
             <span class="meta contact-detail">{bare(links.github)}</span>
           </li>
@@ -68,16 +73,18 @@ const [user, domain] = links.email.split("@");
         <h3 class="label contact-group-title">{t(locale, "contact.cv")}</h3>
         <ul class="contact-links">
           <li>
+            <span class="contact-icon"><Icon name="file-text" /></span>
             <ExternalLink class="link contact-link" href={links.cv.en} hreflang="en" type="application/pdf" locale={locale} arrow>
               <span lang="en">{t("en", "lang.english")}</span>
             </ExternalLink>
-            <span class="meta contact-detail">PDF</span>
+            <span class="badge">PDF</span>
           </li>
           <li>
+            <span class="contact-icon"><Icon name="file-text" /></span>
             <ExternalLink class="link contact-link" href={links.cv.es} hreflang="es" type="application/pdf" locale={locale} arrow>
               <span lang="es">{t("es", "lang.spanish")}</span>
             </ExternalLink>
-            <span class="meta contact-detail">PDF</span>
+            <span class="badge">PDF</span>
           </li>
         </ul>
       </div>
@@ -94,6 +101,10 @@ const [user, domain] = links.email.split("@");
   }
 
   .contact-label {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    align-self: start;
     padding-top: 0.6rem;
   }
 
@@ -160,9 +171,8 @@ const [user, domain] = links.email.split("@");
     border-color: var(--color-text);
   }
 
-  .copy-check {
+  .contact-copy :global(.copy-check) {
     color: var(--color-accent);
-    font-weight: 600;
   }
 
   .contact-more {
@@ -191,6 +201,20 @@ const [user, domain] = links.email.split("@");
   .contact-group-title {
     margin-bottom: calc(var(--spacing) * 1);
     font-weight: 400;
+  }
+
+  /* A small leading mark per destination: brand marks for profiles (the same
+     as the header), a document for the CVs. Decorative; the link names it. */
+  .contact-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 1rem;
+    color: var(--color-text-muted);
+  }
+
+  .contact-icon :global(svg) {
+    width: 0.9375rem;
+    height: 0.9375rem;
   }
 
   .contact-links li {

@@ -1,0 +1,83 @@
+---
+// A rendered still per theme (light/dark), composited onto the page.
+// Renders from scripts/hero-artifact.mjs sit on pure white (light) or pure
+// black (dark): multiply / screen make that background disappear exactly
+// into the page, whatever the encoder does, and the render's colors are
+// pre-inverted for the blend so the composite lands on the design tokens.
+// CSS shows the still for the rendered theme (OS preference or data-theme);
+// the other is display:none and lazy, so it is never fetched. A slot can
+// overlay extra media in the same blended layer (the Hero's loop).
+import { Picture } from "astro:assets";
+
+interface Props {
+  light: ImageMetadata;
+  dark: ImageMetadata;
+  /** Empty for a decorative image. */
+  alt: string;
+  sizes: string;
+  widths?: number[];
+  class?: string;
+}
+
+const { light, dark, alt, sizes, widths = [480, 720, 960, 1440], class: className } = Astro.props;
+const picture = {
+  alt,
+  widths,
+  sizes,
+  formats: ["avif", "webp"] as ("avif" | "webp")[],
+  loading: "lazy" as const,
+  decoding: "async" as const,
+};
+---
+
+<div class:list={["theme-image", className]}>
+  <Picture src={light} {...picture} class="theme-image-still theme-image-light" />
+  <Picture src={dark} {...picture} class="theme-image-still theme-image-dark" />
+  <slot />
+</div>
+
+<style>
+  .theme-image {
+    position: relative;
+    mix-blend-mode: multiply;
+  }
+
+  :global(:root[data-theme="dark"]) .theme-image {
+    mix-blend-mode: screen;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) .theme-image {
+      mix-blend-mode: screen;
+    }
+  }
+
+  .theme-image :global(.theme-image-still) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .theme-image :global(.theme-image-dark) {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"] .theme-image .theme-image-light) {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"] .theme-image .theme-image-dark) {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"]) .theme-image .theme-image-light) {
+      display: none;
+    }
+
+    :global(:root:not([data-theme="light"]) .theme-image .theme-image-dark) {
+      display: block;
+    }
+  }
+</style>

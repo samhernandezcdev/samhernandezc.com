@@ -63,7 +63,9 @@
   }
 
   .section-intro {
+    max-width: 60ch;
     color: var(--color-text-muted);
+    text-wrap: pretty;
   }
 
   /* Skip link: hidden until focused, then pinned top-left. */
@@ -227,8 +229,11 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Labels name things (Email, Profiles, Role…): a medium weight separates
+     them from the values they introduce without raising their contrast. */
   .label {
     font-size: var(--text-small);
+    font-weight: 500;
     line-height: var(--leading-meta);
     color: var(--color-text-muted);
   }
@@ -240,7 +245,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4em;
-    padding: 0.05em 0.45em;
+    padding: 0.1em 0.5em;
     border: var(--border-hairline) solid var(--color-border);
     border-radius: var(--radius-sm);
     font-family: var(--font-mono);
@@ -270,6 +275,35 @@
 
   .status[data-status="archived"] {
     color: var(--color-text-muted);
+  }
+
+  /* Metadata badge: dates, reading time, file type. Same metrics as the status
+     chip, quieter: hairline border, muted mono text, an optional leading icon.
+     Never colored, never a wall: one or two per line at most. */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.1em 0.5em;
+    border: var(--border-hairline) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    line-height: var(--leading-meta);
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .badge > .icon {
+    flex: none;
+    width: 0.95em;
+    height: 0.95em;
+  }
+
+  /* Interface icons sit on the text's optical center. */
+  .icon {
+    flex: none;
   }
 
   /* Source is plain metadata, visually separate from lifecycle. */

@@ -20,10 +20,9 @@
 //   Motion lasts longer than 5 s, so a Pause/Play button (aria-pressed) appears
 //   whenever the loop is active; the choice is remembered. The loop also stops
 //   when the figure leaves the viewport and never runs under reduced motion.
-import { Picture } from "astro:assets";
-
 import dark from "@/assets/hero/artifact-dark.png";
 import light from "@/assets/hero/artifact-light.png";
+import ThemeImage from "@/components/system/ThemeImage.astro";
 import { t, type Locale } from "@/i18n/ui";
 
 interface Props {
@@ -31,20 +30,10 @@ interface Props {
 }
 
 const { locale } = Astro.props;
-const picture = {
-  alt: "",
-  widths: [480, 720, 960, 1440],
-  sizes: "(min-width: 64rem) 24rem, 100vw",
-  formats: ["avif", "webp"] as ("avif" | "webp")[],
-  loading: "lazy" as const,
-  decoding: "async" as const,
-};
 ---
 
 <figure class="artifact" data-artifact>
-  <div class="artifact-media">
-    <Picture src={light} {...picture} class="artifact-still artifact-still-light" />
-    <Picture src={dark} {...picture} class="artifact-still artifact-still-dark" />
+  <ThemeImage class="artifact-media" light={light} dark={dark} alt="" sizes="(min-width: 64rem) 24rem, 100vw">
     <video
     class="artifact-loop"
     muted
@@ -58,7 +47,7 @@ const picture = {
     data-src-dark="/media/hero-artifact-dark.webm"
     >
     </video>
-  </div>
+  </ThemeImage>
   <button
     type="button"
     class="icon-button artifact-toggle"
@@ -152,23 +141,10 @@ const picture = {
     position: relative;
   }
 
-  /* The render's white (light) or black (dark) background disappears exactly
-     into the page through the blend; the render script pre-inverts colors so
-     the composite lands on the design tokens. */
-  .artifact-media {
-    position: relative;
+  /* Stills and the blend come from ThemeImage; this adds the frame and the
+     loop layered over the still. */
+  .artifact :global(.artifact-media) {
     aspect-ratio: 4 / 3;
-    mix-blend-mode: multiply;
-  }
-
-  :global(:root[data-theme="dark"]) .artifact-media {
-    mix-blend-mode: screen;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme="light"])) .artifact-media {
-      mix-blend-mode: screen;
-    }
   }
 
   .artifact :global(img),
@@ -178,30 +154,6 @@ const picture = {
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  /* One poster per theme, following the site's theme model. The classes sit
-     on <Picture>'s <img>, outside this component's scope, hence :global. */
-  .artifact :global(.artifact-still-dark) {
-    display: none;
-  }
-
-  :global(:root[data-theme="dark"] .artifact .artifact-still-light) {
-    display: none;
-  }
-
-  :global(:root[data-theme="dark"] .artifact .artifact-still-dark) {
-    display: block;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme="light"]) .artifact .artifact-still-light) {
-      display: none;
-    }
-
-    :global(:root:not([data-theme="light"]) .artifact .artifact-still-dark) {
-      display: block;
-    }
   }
 
   .artifact-loop {

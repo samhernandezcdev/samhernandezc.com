@@ -104,7 +104,7 @@ test("search dialog", async ({ browser, baseURL: base }) => {
     await page.click('[data-palette] [data-theme-value="dark"]');
     await page.waitForTimeout(300);
     check("search theme row: Dark", await page.evaluate(() => document.documentElement.dataset.theme === "dark" && localStorage.getItem("theme") === "dark"));
-    check("search -> header sync", await page.evaluate(() => document.querySelector('[data-theme-option="dark"]').getAttribute("aria-pressed") === "true" && document.querySelector("[data-theme-switch]").getAttribute("aria-checked") === "true"));
+    check("search -> header sync", await page.evaluate(() => document.querySelector("[data-theme-switch]").getAttribute("aria-checked") === "true" && /Dark|Oscuro/.test(document.querySelector("[data-theme-note]").textContent)));
     await page.click('[data-palette] [data-theme-value="system"]');
     await page.waitForTimeout(300);
     check("search theme row: System resets", await page.evaluate(() => !document.documentElement.dataset.theme && localStorage.getItem("theme") === null));
@@ -130,7 +130,7 @@ test("search dialog", async ({ browser, baseURL: base }) => {
   }
 });
 
-test("theme switch and preference menu", async ({ browser, baseURL: base }) => {
+test("theme switch", async ({ browser, baseURL: base }) => {
   const desktop = (extra = {}) => browser.newContext({ viewport: { width: 1440, height: 900 }, ...extra });
   for (const scheme of ["light", "dark"]) {
     const ctx = await desktop({ colorScheme: scheme });
@@ -140,40 +140,30 @@ test("theme switch and preference menu", async ({ browser, baseURL: base }) => {
       attr: document.documentElement.dataset.theme ?? null,
       stored: localStorage.getItem("theme"),
       checked: document.querySelector("[data-theme-switch]").getAttribute("aria-checked"),
-      pressed: [...document.querySelectorAll("[data-theme-option]")].filter((b) => b.getAttribute("aria-pressed") === "true").map((b) => b.dataset.themeOption).join(),
-      menuLabel: document.querySelector("[data-theme-menu] summary").getAttribute("aria-label"),
       note: document.querySelector("[data-theme-note]").textContent,
+      menu: document.querySelectorAll("[data-theme-menu], [data-theme-option]").length,
       bg: getComputedStyle(document.documentElement).backgroundColor,
     }));
-    let t0 = await th();
-    check(`[${scheme} OS] System default: switch shows rendered theme, menu shows System`, t0.attr === null && t0.checked === String(scheme === "dark") && t0.pressed === "system" && /System/.test(t0.menuLabel) && /System/.test(t0.note), JSON.stringify(t0));
+    const t0 = await th();
+    check(`[${scheme} OS] one control: no preference menu; System default shows the rendered theme`, t0.menu === 0 && t0.attr === null && t0.checked === String(scheme === "dark") && /System/.test(t0.note), JSON.stringify(t0));
     await p.click("[data-theme-switch]");
     await p.waitForTimeout(300);
     const t1 = await th();
     const flipped = scheme === "dark" ? "light" : "dark";
-    check(`[${scheme} OS] switch flips immediately to ${flipped}`, t1.attr === flipped && t1.stored === flipped && t1.checked === String(flipped === "dark") && t1.pressed === flipped && t1.bg !== t0.bg, JSON.stringify(t1));
+    check(`[${scheme} OS] switch flips immediately to ${flipped} and stores it`, t1.attr === flipped && t1.stored === flipped && t1.checked === String(flipped === "dark") && t1.bg !== t0.bg && !/System/.test(t1.note), JSON.stringify(t1));
     await p.focus("[data-theme-switch]");
     await p.keyboard.press("Space");
     await p.waitForTimeout(300);
     check(`[${scheme} OS] switch works from keyboard`, (await th()).attr === scheme);
     await p.reload({ waitUntil: "networkidle" });
     check(`[${scheme} OS] explicit choice persists`, (await th()).attr === scheme && (await th()).stored === scheme);
-    await p.click("[data-theme-menu] summary");
-    await p.click('[data-theme-option="system"]');
+    // System stays reachable without a header menu: the search Theme row.
+    await p.keyboard.press("Control+k");
+    await p.click('[data-palette] [data-theme-value="system"]');
     await p.waitForTimeout(300);
     const t2 = await th();
-    check(`[${scheme} OS] menu System clears preference`, t2.attr === null && t2.stored === null && t2.pressed === "system" && !(await p.evaluate(() => document.querySelector("[data-theme-menu]").open)), JSON.stringify(t2));
-    check(`[${scheme} OS] focus returns to menu button`, await p.evaluate(() => document.activeElement?.matches("[data-theme-menu] summary")));
-    await p.reload({ waitUntil: "networkidle" });
-    check(`[${scheme} OS] System persists`, (await th()).pressed === "system");
-    // Palette reflects header changes
-    await p.click("[data-theme-menu] summary");
-    await p.click('[data-theme-option="light"]');
-    await p.waitForTimeout(300);
-    await p.keyboard.press("Control+k");
-    check(`[${scheme} OS] header -> search sync`, await p.evaluate(() => document.querySelector('[data-palette] [data-theme-value="light"]').getAttribute("aria-pressed") === "true"));
+    check(`[${scheme} OS] search Theme row returns to System`, t2.attr === null && t2.stored === null && /System/.test(t2.note) && t2.checked === String(scheme === "dark"), JSON.stringify(t2));
     await p.keyboard.press("Escape");
-    // Reduced motion: thumb has no transition
     await ctx.close();
   }
   {
@@ -182,15 +172,24 @@ test("theme switch and preference menu", async ({ browser, baseURL: base }) => {
     await p.goto(`${base}/`, { waitUntil: "networkidle" });
     const d = await p.evaluate(() => ({
       thumb: getComputedStyle(document.querySelector(".theme-thumb")).transitionDuration,
-      panel: getComputedStyle(document.querySelector(".util-panel")).transitionDuration,
+      icon: getComputedStyle(document.querySelector(".theme-thumb .theme-icon")).transitionDuration,
+      track: getComputedStyle(document.querySelector(".theme-track")).transitionDuration,
     }));
-    check("reduced motion: thumb/menu transitions 0", d.thumb.split(",").every((x) => parseFloat(x) === 0), JSON.stringify(d));
+    check("reduced motion: switch thumb, glyphs and track do not animate", Object.values(d).every((v) => v.split(",").every((x) => parseFloat(x) === 0)), JSON.stringify(d));
     await ctx.close();
     const c2 = await desktop();
     const p2 = await c2.newPage();
     await p2.goto(`${base}/`, { waitUntil: "networkidle" });
-    const d2 = await p2.evaluate(() => getComputedStyle(document.querySelector(".theme-thumb")).transitionDuration);
-    check("thumb transition 140-180ms", parseFloat(d2) * 1000 >= 140 && parseFloat(d2) * 1000 <= 180, d2);
+    const d2 = await p2.evaluate(() => {
+      const icons = [...document.querySelectorAll(".theme-thumb .theme-icon")].map((i) => getComputedStyle(i));
+      return {
+        thumb: getComputedStyle(document.querySelector(".theme-thumb")).transitionDuration,
+        hidden: icons.filter((c) => c.opacity === "0").map((c) => c.transform),
+        prop: icons[0].transitionProperty,
+      };
+    });
+    check("thumb slides on the section duration (220ms)", parseFloat(d2.thumb) * 1000 === 220, d2.thumb);
+    check("outgoing glyph shrinks and fades (opacity + scale, no rotation)", d2.hidden.length === 1 && /matrix\(0\.5, 0, 0, 0\.5/.test(d2.hidden[0]) && /opacity/.test(d2.prop) && /transform/.test(d2.prop), JSON.stringify(d2));
     await c2.close();
   }
 });
@@ -213,8 +212,11 @@ test("language menu", async ({ browser, baseURL: base }) => {
     await p.keyboard.press("Escape");
     check("Escape closes menu, focus to summary", await p.evaluate(() => !document.querySelector(".util-menu[open]") && document.activeElement?.matches("[data-lang-menu] summary")));
     await p.click("[data-lang-menu] summary");
-    await p.click("[data-theme-menu] summary");
-    check("one menu open at a time", await p.evaluate(() => document.querySelectorAll(".util-menu[open]").length === 1));
+    const flags = await p.evaluate(() => ({
+      summary: document.querySelector("[data-lang-menu] summary .flag")?.getAttribute("aria-hidden"),
+      options: [...document.querySelectorAll("[data-lang-menu] .util-option")].map((o) => ({ flag: o.querySelector(".flag")?.getAttribute("aria-hidden"), text: o.textContent.replace("✓", "").trim() })),
+    }));
+    check("language menu: decorative flag beside each name (never the only cue)", flags.summary === "true" && flags.options.length === 2 && flags.options.every((o) => o.flag === "true" && o.text.length > 0), JSON.stringify(flags));
     await p.mouse.click(700, 600);
     check("outside click closes", await p.evaluate(() => !document.querySelector(".util-menu[open]")));
     await ctx.close();
@@ -378,7 +380,8 @@ test("contact, copy and external links", async ({ browser, baseURL: base }) => {
     const clip = await p.evaluate(() => navigator.clipboard.readText());
     const es = route.startsWith("/es");
     check(`${route}: copy writes the address`, clip === "sam.hernandezc103@gmail.com", clip);
-    check(`${route}: copied state shows ✓ + text, live message, same width`, s1.state === "copied" && s1.visible.length === 1 && s1.visible[0] === (es ? "✓Copiado" : "✓Copied") && s1.status === (es ? "Correo copiado" : "Email address copied") && s1.width === s0.width, JSON.stringify({ s0, s1 }));
+    const checkIcon = await p.evaluate(() => !!document.querySelector('[data-copy] .copy-label[data-for="copied"] svg.copy-check'));
+    check(`${route}: copied state shows a check icon + text, live message, same width`, s1.state === "copied" && s1.visible.length === 1 && s1.visible[0] === (es ? "Copiado" : "Copied") && checkIcon && s1.status === (es ? "Correo copiado" : "Email address copied") && s1.width === s0.width, JSON.stringify({ s0, s1, checkIcon }));
     await p.waitForTimeout(1900);
     const s2 = await copyState();
     check(`${route}: copied state returns to idle (~1.8s)`, s2.state === "idle" && s2.visible[0] === (es ? "Copiar correo" : "Copy address"), JSON.stringify(s2));
@@ -523,7 +526,7 @@ test("mobile widths: overflow, targets, header, dialog", async ({ browser, baseU
         });
         check(`search mobile ${w} ${route}`, pr.open && pr.right <= w && pr.bottom <= h && pr.sw === w && pr.fs >= 16 && pr.scrolls && pr.footer === "none", JSON.stringify(pr));
         await p.keyboard.press("Escape");
-        for (const sel of ["[data-lang-menu] summary", "[data-theme-menu] summary"]) {
+        for (const sel of ["[data-lang-menu] summary"]) {
           if (!(await p.isVisible(sel))) continue;
           await p.click(sel);
           const m = await p.evaluate(() => { const b = document.querySelector(".util-menu[open] .util-panel").getBoundingClientRect(); return { l: Math.round(b.left), r: Math.round(b.right), sw: document.documentElement.scrollWidth }; });
@@ -535,16 +538,19 @@ test("mobile widths: overflow, targets, header, dialog", async ({ browser, baseU
     }
     check(`mobile ${w}: no overflow, targets >= 44, header 89, menus fit`, issues.length === 0, issues.join(" || "));
   }
-  // Mobile theme menu (no switch below 48rem)
-  {
-    const c = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, colorScheme: "dark" });
+  // Mobile: the same switch, from 360px; below that, theme stays in search.
+  for (const [w, visible] of [[390, true], [360, true], [320, false]]) {
+    const c = await browser.newContext({ viewport: { width: w, height: 844 }, hasTouch: true, colorScheme: "dark" });
     const p = await c.newPage();
     await p.goto(`${base}/`, { waitUntil: "networkidle" });
-    check("390: switch hidden, menu button visible", !(await p.isVisible("[data-theme-switch]")) && (await p.isVisible("[data-theme-menu] summary")));
-    await p.click("[data-theme-menu] summary");
-    await p.click('[data-theme-option="light"]');
-    await p.waitForTimeout(300);
-    check("390: menu sets Light, icon follows", await p.evaluate(() => document.documentElement.dataset.theme === "light" && document.querySelector("[data-theme-wrap]").dataset.rendered === "light"));
+    const shown = await p.isVisible("[data-theme-switch]");
+    check(`${w}: theme switch ${visible ? "visible" : "hidden (search keeps theme)"}`, shown === visible);
+    if (visible) {
+      await p.tap("[data-theme-switch]");
+      await p.waitForTimeout(300);
+      const s = await p.evaluate(() => ({ attr: document.documentElement.dataset.theme, h: Math.round(document.querySelector("[data-theme-switch]").getBoundingClientRect().height), sw: document.documentElement.scrollWidth }));
+      check(`${w}: tap sets Light, 44px target, no overflow`, s.attr === "light" && s.h >= 44 && s.sw === w, JSON.stringify(s));
+    }
     await c.close();
   }
 });

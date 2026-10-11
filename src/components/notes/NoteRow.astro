@@ -4,6 +4,7 @@
 // Notes are English-only; Spanish pages mark the link EN.
 import type { CollectionEntry } from "astro:content";
 
+import Icon from "@/components/icons/Icon.astro";
 import NoteCover from "@/components/notes/NoteCover.astro";
 import { t, type Locale } from "@/i18n/ui";
 import { readingMinutes } from "@/lib/content";
@@ -24,9 +25,9 @@ const englishOnly = locale !== "en";
 
 <article class:list={["axis note-row", level === 2 && "note-row-journal"]}>
   <div class="note-row-aside">
-    <p class="meta note-row-meta">
-      <time class="note-row-date" datetime={iso}>{iso}</time>
-      <span>{readingMinutes(note.body)} {t(locale, "notes.readingTime")}</span>
+    <p class="note-row-meta">
+      <time class="badge note-row-date" datetime={iso}><Icon name="calendar" />{iso}</time>
+      <span class="badge"><Icon name="clock" />{readingMinutes(note.body)} {t(locale, "notes.readingTime")}</span>
     </p>
     {level === 2 && <div class="note-row-cover"><NoteCover slug={note.id} motif={data.cover?.motif} /></div>}
   </div>
@@ -65,13 +66,14 @@ const englishOnly = locale !== "en";
   .note-row-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+    gap: calc(var(--spacing) * 2);
     padding-top: 0.2rem;
   }
 
   @media (min-width: 48rem) {
     .note-row-meta {
       flex-direction: column;
+      align-items: flex-start;
     }
   }
 

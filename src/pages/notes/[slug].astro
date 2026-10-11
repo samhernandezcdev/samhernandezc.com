@@ -5,6 +5,7 @@
 import { render, type CollectionEntry } from "astro:content";
 
 import ArticleShell from "@/components/article/ArticleShell.astro";
+import Icon from "@/components/icons/Icon.astro";
 import NoteCover from "@/components/notes/NoteCover.astro";
 import Footer from "@/components/site/Footer.astro";
 import Header from "@/components/site/Header.astro";
@@ -67,11 +68,11 @@ const jsonLd = {
         </p>
         <h1 id="note-title" class="note-title">{data.title}</h1>
         <p class="note-description">{data.description}</p>
-        <p class="meta note-meta">
-          <span>{t("en", "notes.published")} <time datetime={iso(data.pubDate)}>{iso(data.pubDate)}</time></span>
-          {data.updated && <span>{t("en", "notes.updated")} <time datetime={iso(data.updated)}>{iso(data.updated)}</time></span>}
-          <span>{readingMinutes(note.body)} {t("en", "notes.readingTime")}</span>
-          {data.tags.length > 0 && <span><span class="visually-hidden">{t("en", "notes.tags")}: </span>{data.tags.join(", ")}</span>}
+        <p class="note-meta">
+          <span class="badge"><Icon name="calendar" />{t("en", "notes.published")} <time datetime={iso(data.pubDate)}>{iso(data.pubDate)}</time></span>
+          {data.updated && <span class="badge"><Icon name="calendar" />{t("en", "notes.updated")} <time datetime={iso(data.updated)}>{iso(data.updated)}</time></span>}
+          <span class="badge"><Icon name="clock" />{readingMinutes(note.body)} {t("en", "notes.readingTime")}</span>
+          {data.tags.length > 0 && <span class="meta note-tags"><span class="visually-hidden">{t("en", "notes.tags")}: </span>{data.tags.join(", ")}</span>}
         </p>
         <div class="note-cover">
           <NoteCover slug={note.id} motif={data.cover?.motif} variant="band" />
@@ -131,7 +132,12 @@ const jsonLd = {
   .note-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 6);
+    align-items: center;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 2);
+  }
+
+  .note-tags {
+    margin-left: calc(var(--spacing) * 2);
   }
 
   /* The note's cover plate closes the header: a drafting band across the

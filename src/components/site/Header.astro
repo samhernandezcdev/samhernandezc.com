@@ -1,20 +1,24 @@
 ---
 // Global header: a fixed-height sticky bar (height token --header-height).
 // Wordmark, section nav, then a utility cluster separated by hairlines:
-// search | language | theme (switch + preference menu) | GitHub, LinkedIn.
-// Mobile (<48rem): wordmark + search + language + theme on the first row, the
-// nav on the second. The theme control there is one preference-menu button
-// (icon of the rendered theme); the switch appears from 48rem. Social links
-// appear from 64rem; below that they stay in search, Contact and footer.
-// Language is a native <details> menu of plain links (works without JS). The
-// theme controls need JS and stay hidden without it (the OS theme applies).
-// Client JS justification: closing menus on outside click/Escape, the theme
-// switch and preference menu; ~0.8 KB gz, inline module; no-JS fallback: the
-// language menu and all navigation still work, the OS theme applies.
+// search | language | theme switch | GitHub, LinkedIn.
+// Mobile (<48rem): wordmark + search + language + theme switch on the first
+// row, the nav on the second (the switch from 360px; below that, theme stays
+// in search). Social links appear from 64rem; below that they stay in search,
+// Contact and footer.
+// Language is a native <details> menu of plain links, each with a small flag
+// secondary to its name (works without JS). Theme is one switch: it flips the
+// rendered theme and stores that choice. With nothing stored the OS theme
+// applies ("System"); the search dialog's Theme row can return to System.
+// The switch needs JS and stays hidden without it (the OS theme applies).
+// Client JS justification: closing menus on outside click/Escape and the theme
+// switch; ~0.6 KB gz, inline module; no-JS fallback: the language menu and all
+// navigation still work, the OS theme applies.
 import Chevron from "@/components/icons/Chevron.astro";
+import Flag from "@/components/icons/Flag.astro";
 import GitHub from "@/components/icons/GitHub.astro";
 import LinkedIn from "@/components/icons/LinkedIn.astro";
-import ThemeIcons from "@/components/icons/ThemeIcons.astro";
+import Icon from "@/components/icons/Icon.astro";
 import CommandPalette from "@/components/site/CommandPalette.astro";
 import ExternalLink from "@/components/system/ExternalLink.astro";
 import { aboutPaths, homePaths, links, t, workPaths, type Locale } from "@/i18n/ui";
@@ -55,12 +59,6 @@ const languages = [
   },
 ];
 const currentLanguage = languages.find((language) => language.code === locale)!;
-
-const themes = [
-  { value: "light", label: t(locale, "palette.themeLight") },
-  { value: "system", label: t(locale, "palette.themeSystem") },
-  { value: "dark", label: t(locale, "palette.themeDark") },
-];
 ---
 
 <header class="site-header">
@@ -99,6 +97,7 @@ const themes = [
       <div class="util-group">
         <details class="util-menu" data-util-menu data-lang-menu>
           <summary class="util-button" aria-label={`${t(locale, "lang.menu")}: ${currentLanguage.name}`}>
+            <Flag code={locale} />
             <span class="util-code">{t(locale, "lang.current")}</span>
             <Chevron class="util-chevron" />
           </summary>
@@ -108,12 +107,12 @@ const themes = [
                 <li>
                   {language.href ? (
                     <a class="util-option" href={language.href} hreflang={language.code} lang={language.code}>
-                      <span>{language.name}</span>
+                      <span class="util-option-label"><Flag code={language.code} />{language.name}</span>
                       <span class="util-check" aria-hidden="true">✓</span>
                     </a>
                   ) : (
                     <span class="util-option" aria-current="true" lang={language.code}>
-                      <span>{language.name}</span>
+                      <span class="util-option-label"><Flag code={language.code} />{language.name}</span>
                       <span class="util-check" aria-hidden="true">✓</span>
                     </span>
                   )}
@@ -125,8 +124,7 @@ const themes = [
       </div>
 
       <div class="util-group util-theme" data-theme-wrap hidden>
-        <!-- Switch: flips the rendered theme (Light <-> Dark) immediately.
-             Menu: the stored preference, including System. -->
+        <!-- One switch: flips the rendered theme (Light <-> Dark) and stores it. -->
         <button
           type="button"
           class="theme-switch"
@@ -137,26 +135,21 @@ const themes = [
           data-theme-switch
         >
           <span class="theme-track" aria-hidden="true">
-            <span class="theme-thumb"><ThemeIcons /></span>
+            <span class="theme-thumb">
+              <Icon name="sun" class="theme-icon theme-icon-light" size={12} />
+              <Icon name="moon" class="theme-icon theme-icon-dark" size={12} />
+            </span>
           </span>
         </button>
-        <span id="theme-note" class="visually-hidden" data-theme-note data-following={t(locale, "theme.following")} data-fixed={t(locale, "theme.fixed")}></span>
-        <details class="util-menu" data-util-menu data-theme-menu>
-          <summary class="util-button theme-menu-button" aria-label={t(locale, "theme.menu")} data-theme-label={t(locale, "theme.menu")} data-tip={t(locale, "theme.menu")}>
-            <span class="theme-menu-icon" aria-hidden="true"><ThemeIcons /></span>
-            <Chevron class="util-chevron" />
-          </summary>
-          <div class="util-panel" role="group" aria-label={t(locale, "theme.menu")}>
-            {
-              themes.map((theme) => (
-                <button type="button" class="util-option" data-theme-option={theme.value} aria-pressed="false">
-                  <span>{theme.label}</span>
-                  <span class="util-check" aria-hidden="true">✓</span>
-                </button>
-              ))
-            }
-          </div>
-        </details>
+        <span
+          id="theme-note"
+          class="visually-hidden"
+          data-theme-note
+          data-following={t(locale, "theme.following")}
+          data-fixed={t(locale, "theme.fixed")}
+          data-light={t(locale, "palette.themeLight")}
+          data-dark={t(locale, "palette.themeDark")}
+        ></span>
       </div>
 
       <div class="util-group util-social">
@@ -199,25 +192,16 @@ const themes = [
     const root = document.documentElement;
     const toggle = wrap.querySelector<HTMLButtonElement>("[data-theme-switch]")!;
     const note = wrap.querySelector<HTMLElement>("[data-theme-note]")!;
-    const menu = wrap.querySelector<HTMLDetailsElement>("[data-theme-menu]")!;
-    const summary = menu.querySelector("summary")!;
-    const options = [...menu.querySelectorAll<HTMLButtonElement>("[data-theme-option]")];
     const osDark = matchMedia("(prefers-color-scheme: dark)");
-    // Stored preference: light | system | dark. Rendered theme: light | dark.
+    // Stored choice: light | system | dark. Rendered theme: light | dark.
     const rendered = () => root.dataset.theme ?? (osDark.matches ? "dark" : "light");
 
     const sync = () => {
+      const dark = rendered() === "dark";
+      toggle.setAttribute("aria-checked", String(dark));
       const choice = readTheme();
-      wrap.dataset.rendered = rendered();
-      toggle.setAttribute("aria-checked", String(rendered() === "dark"));
-      for (const option of options) {
-        const selected = option.dataset.themeOption === choice;
-        option.setAttribute("aria-pressed", String(selected));
-        if (!selected) continue;
-        const name = option.textContent!.replace("✓", "").trim();
-        summary.setAttribute("aria-label", `${summary.dataset.themeLabel}: ${name}`);
-        note.textContent = choice === "system" ? note.dataset.following! : `${note.dataset.fixed} ${name}`;
-      }
+      note.textContent =
+        choice === "system" ? note.dataset.following! : `${note.dataset.fixed} ${dark ? note.dataset.dark : note.dataset.light}`;
     };
 
     sync();
@@ -227,13 +211,6 @@ const themes = [
     // The search dialog's theme row asks the header to apply a choice.
     document.addEventListener("themerequest", (event) => setTheme((event as CustomEvent<ThemeChoice>).detail));
     toggle.addEventListener("click", () => setTheme(rendered() === "dark" ? "light" : "dark"));
-    for (const option of options) {
-      option.addEventListener("click", () => {
-        setTheme(option.dataset.themeOption as ThemeChoice);
-        menu.open = false;
-        summary.focus();
-      });
-    }
   }
 </script>
 
@@ -420,11 +397,16 @@ const themes = [
     opacity: 1;
   }
 
-  /* Theme: switch + narrow preference-menu button, read as one control. */
+  /* Theme switch: a track with a square thumb carrying sun/moon. The thumb
+     slides on the section duration; the outgoing glyph shrinks and fades as
+     the incoming one grows in; the track settles to the theme's surface. A
+     press nudges the thumb (feedback). No glow, bounce or spin; under reduced
+     motion every duration is 0. */
   .theme-switch {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    min-width: var(--target-min);
     min-height: var(--target-min);
     padding-inline: calc(var(--spacing) * 1);
     border: 0;
@@ -442,11 +424,17 @@ const themes = [
     border: var(--border-hairline) solid var(--color-border-strong);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
-    transition: border-color var(--motion-fast) var(--ease-standard);
+    transition:
+      border-color var(--motion-fast) var(--ease-standard),
+      background-color var(--motion-section) var(--ease-standard);
   }
 
   .theme-switch:hover .theme-track {
     border-color: var(--color-text-muted);
+  }
+
+  .theme-switch[aria-checked="true"] .theme-track {
+    background-color: var(--color-bg);
   }
 
   .theme-thumb {
@@ -461,63 +449,32 @@ const themes = [
     border-radius: var(--radius-sm);
     background-color: var(--color-surface-raised);
     color: var(--color-text);
-    transition: transform var(--motion-ui) var(--ease-standard);
+    transition: transform var(--motion-section) var(--ease-standard);
   }
 
   .theme-switch[aria-checked="true"] .theme-thumb {
     transform: translateX(1.125rem);
   }
 
+  .theme-switch:active .theme-thumb {
+    transform: scale(0.92);
+  }
+
+  .theme-switch[aria-checked="true"]:active .theme-thumb {
+    transform: translateX(1.125rem) scale(0.92);
+  }
+
   .theme-thumb :global(.theme-icon) {
     grid-area: 1 / 1;
-    transition: opacity var(--motion-ui) var(--ease-standard);
+    transition:
+      opacity var(--motion-ui) var(--ease-standard),
+      transform var(--motion-ui) var(--ease-standard);
   }
 
   .theme-switch[aria-checked="true"] .theme-thumb :global(.theme-icon-light),
   .theme-switch[aria-checked="false"] .theme-thumb :global(.theme-icon-dark) {
     opacity: 0;
-  }
-
-  .theme-menu-button {
-    min-width: 1.75rem;
-    padding-inline: 0;
-  }
-
-  @media (pointer: coarse) {
-    .theme-menu-button {
-      min-width: var(--target-min);
-    }
-  }
-
-  /* Mobile: no switch; the menu button carries the rendered theme's icon. */
-  .theme-menu-icon {
-    display: none;
-  }
-
-  @media (max-width: 47.99rem) {
-    .theme-switch,
-    .theme-menu-button :global(.util-chevron) {
-      display: none;
-    }
-
-    .theme-menu-button {
-      min-width: var(--target-min);
-    }
-
-    .theme-menu-icon {
-      display: grid;
-    }
-
-    .theme-menu-icon :global(.theme-icon) {
-      grid-area: 1 / 1;
-      width: 1rem;
-      height: 1rem;
-    }
-
-    .util-theme[data-rendered="dark"] .theme-menu-icon :global(.theme-icon-light),
-    .util-theme[data-rendered="light"] .theme-menu-icon :global(.theme-icon-dark) {
-      visibility: hidden;
-    }
+    transform: scale(0.5);
   }
 
   /* Menus -------------------------------------------------------------------- */
@@ -550,6 +507,12 @@ const themes = [
       opacity: 0;
       transform: translateY(-3px);
     }
+  }
+
+  .util-option-label {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
   }
 
   .util-option {

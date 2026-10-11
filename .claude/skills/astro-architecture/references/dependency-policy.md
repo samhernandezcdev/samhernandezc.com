@@ -37,6 +37,9 @@ Built-in Shiki is used for code highlighting — no extra package.
 | ESLint / Prettier | Not requested; `astro check` covers types |
 | Any CMS | Content is MDX in the repo |
 
+## Icons
+Lucide path data is copied into `src/components/icons/Icon.astro` (ISC license, credited in the file): no `lucide` / `@lucide/astro` package, no client JS. Add a glyph by copying its paths into the map.
+
 ## Removed in Phase 3
 `react`, `react-dom`, `@astrojs/react`, `@types/react*`, `radix-ui`, `shadcn`, `class-variance-authority`, `clsx`, `tailwind-merge`, `tw-animate-css`, `lucide-react`, `lucide-astro`, `astro-icon`, `@iconify-json/simple-icons`. Icons are inline SVG components in `src/components/icons/` (`@lucide/astro` was not needed).
 

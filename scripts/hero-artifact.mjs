@@ -14,8 +14,16 @@
 // onto the graphite. Each material color is pre-inverted for that blend, so the
 // composite lands on the intended token color.
 //
-// Usage: node scripts/hero-artifact.mjs            (posters + loops)
-//        node scripts/hero-artifact.mjs --posters  (posters only)
+// A second scene, `--scene case`, renders the industrial case study's header
+// image (stills only): a generic lifting assembly (load, slings, spreader beam,
+// hook block) beside the software that configures it (input panel, engine,
+// two validation gates, store, routed conduits), in the same visual system.
+// It shows the domain and the architecture's shape; no product, dimension or
+// rule detail (the beam's dimension line carries no numbers).
+//
+// Usage: node scripts/hero-artifact.mjs               (hero posters + loops)
+//        node scripts/hero-artifact.mjs --posters     (hero posters only)
+//        node scripts/hero-artifact.mjs --scene case  (case-study stills)
 // Requires the dev dependencies `three` and `webm-muxer` and Playwright's Chromium.
 import { mkdir, writeFile, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -24,8 +32,9 @@ import { pathToFileURL } from "node:url";
 import { chromium } from "@playwright/test";
 
 const root = process.cwd();
-const postersOnly = process.argv.includes("--posters");
-const POSTER = { width: 1440, height: 1080 };
+const caseScene = process.argv.includes("--scene") && process.argv[process.argv.indexOf("--scene") + 1] === "case";
+const postersOnly = process.argv.includes("--posters") || caseScene;
+const POSTER = caseScene ? { width: 1600, height: 1000 } : { width: 1440, height: 1080 };
 const VIDEO = { width: 960, height: 720, fps: 30, seconds: 8, bitrate: 180_000 };
 
 // Token values (OKLCH) for each theme. Keep in sync with tokens.css.
@@ -101,7 +110,7 @@ const pageScript = `
 import * as THREE from "${threeUrl}";
 import { Muxer, ArrayBufferTarget } from "${muxerUrl}";
 
-window.build = (pal, size) => {
+window.build = (pal, size, sceneName = "hero") => {
   const canvas = document.createElement("canvas");
   canvas.width = size.width; canvas.height = size.height;
   document.body.append(canvas);
@@ -117,9 +126,11 @@ window.build = (pal, size) => {
 
   const aspect = size.width / size.height;
   const view = 6.1;
-  const camera = new THREE.OrthographicCamera(-view * aspect, view * aspect, view, -view, 0.1, 100);
+  const span = sceneName === "case" ? 4.9 : view;
+  const camera = new THREE.OrthographicCamera(-span * aspect, span * aspect, span, -span, 0.1, 100);
   camera.position.set(-14, 12.5, 14);
-  camera.lookAt(-0.9, -0.2, 1.3);
+  if (sceneName === "case") camera.lookAt(-0.2, 1.5, 0.5);
+  else camera.lookAt(-0.9, -0.2, 1.3);
 
   scene.add(new THREE.HemisphereLight(0xffffff, new THREE.Color(pal.plate), 1.55));
   const key = new THREE.DirectionalLight(0xffffff, 1.35);
@@ -152,6 +163,102 @@ window.build = (pal, size) => {
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: pal.shadow }));
   ground.rotation.x = -Math.PI / 2; ground.position.y = -0.34; ground.receiveShadow = true;
   scene.add(ground);
+
+
+  if (sceneName === "case") {
+    const plate = mat(pal.plate), module = mat(pal.module), ring = mat(pal.ring);
+    const conduitMat = mat(pal.conduit), jointMat = mat(pal.joint);
+    const packetMat = new THREE.MeshLambertMaterial({ color: new THREE.Color(pal.packet), emissive: new THREE.Color(pal.packet), emissiveIntensity: 0.25 });
+    // A rod between two points (slings, rope, dimension lines).
+    const rod = (a, b, r, material) => {
+      const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b);
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, A.distanceTo(B), 12), material);
+      m.position.copy(A).add(B).multiplyScalar(0.5);
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize());
+      m.castShadow = true;
+      scene.add(m);
+    };
+
+    // Drafting plate with its one-unit grid.
+    box(11, 0.3, 7, plate, 0, 0, -0.3);
+    const grid = [];
+    for (let x = -5; x <= 5; x++) grid.push(x, 0.003, -3.5, x, 0.003, 3.5);
+    for (let z = -3; z <= 3; z++) grid.push(-5.5, 0.003, z, 5.5, 0.003, z);
+    const gridGeo = new THREE.BufferGeometry();
+    gridGeo.setAttribute("position", new THREE.Float32BufferAttribute(grid, 3));
+    scene.add(new THREE.LineSegments(gridGeo, new THREE.LineBasicMaterial({ color: new THREE.Color(pal.ring) })));
+
+    // Lifting assembly: load with four corner lugs, four lower slings to a
+    // spreader beam, two upper slings to a hook block, rope out of frame.
+    const lx = -3, lz = 0.4;
+    box(2.8, 1.0, 1.8, module, lx, lz);
+    box(2.2, 0.04, 1.2, plate, lx, lz, 1.0);
+    const lugs = [[-1.25, -0.75], [1.25, -0.75], [-1.25, 0.75], [1.25, 0.75]].map(([dx, dz]) => [lx + dx, 1.12, lz + dz]);
+    for (const [x, y, z] of lugs) add(new THREE.CylinderGeometry(0.11, 0.11, 0.24, 16), ring, x, y, z, false);
+    const by = 2.75;
+    box(3.4, 0.24, 0.26, module, lx, lz, by - 0.12);
+    const ends = [[lx - 1.55, by - 0.12, lz], [lx + 1.55, by - 0.12, lz]];
+    for (const [x, y, z] of ends) add(new THREE.CylinderGeometry(0.1, 0.1, 0.34, 16), jointMat, x, y - 0.12, z, false);
+    rod(lugs[0], ends[0], 0.035, conduitMat); rod(lugs[2], ends[0], 0.035, conduitMat);
+    rod(lugs[1], ends[1], 0.035, conduitMat); rod(lugs[3], ends[1], 0.035, conduitMat);
+    // Hook: an open J below the block, its throat turned toward the viewer.
+    const hook = [lx, 4.3, lz];
+    rod([ends[0][0], by + 0.12, lz], hook, 0.035, conduitMat);
+    rod([ends[1][0], by + 0.12, lz], hook, 0.035, conduitMat);
+    const hookMesh = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.07, 12, 40, Math.PI * 1.45), jointMat);
+    hookMesh.position.set(lx, 4.56, lz);
+    hookMesh.rotation.set(0, -Math.PI / 4, Math.PI * 0.62);
+    hookMesh.castShadow = true;
+    scene.add(hookMesh);
+    rod([lx, 4.8, lz], [lx, 5.02, lz], 0.07, jointMat);
+    box(0.66, 0.78, 0.44, module, lx, lz, 5.0);
+    add(new THREE.CylinderGeometry(0.09, 0.09, 0.52, 16).rotateX(Math.PI / 2), jointMat, lx, 5.42, lz, false);
+    rod([lx, 5.78, lz], [lx, 7.2, lz], 0.03, conduitMat);
+    // Drafting dimension line along the beam: extension ticks, no numbers.
+    const dy = by + 0.55;
+    rod([ends[0][0], dy, lz], [ends[1][0], dy, lz], 0.012, conduitMat);
+    for (const [x] of ends) rod([x, by + 0.25, lz], [x, dy + 0.18, lz], 0.012, conduitMat);
+
+    // Software that configures it: input panel (rows), engine, two gates, store.
+    box(1.8, 1.25, 0.1, module, 1.5, -1.7);
+    for (let i = 0; i < 4; i++) box(1.3, 0.07, 0.04, plate, 1.4, -1.63, 0.28 + i * 0.24, false);
+    box(1.7, 0.95, 1.7, module, 3.7, -0.3);
+    box(1.2, 0.05, 1.2, plate, 3.7, -0.3, 0.95);
+    add(new THREE.CylinderGeometry(0.72, 0.72, 0.8, 48), module, 3.7, 0.4, 2.45);
+    for (const y of [0.28, 0.54]) add(new THREE.CylinderGeometry(0.735, 0.735, 0.03, 48), ring, 3.7, y, 2.45, false);
+    for (const gz of [0.95, 1.35]) {
+      box(0.1, 0.8, 0.1, module, 3.36, gz);
+      box(0.1, 0.8, 0.1, module, 4.04, gz);
+      box(0.78, 0.09, 0.1, module, 3.7, gz, 0.8);
+    }
+
+    // Conduits with corner joints; two packets (the accent).
+    const H = 0.11;
+    const routes = [
+      [[-1.6, 0.4], [0.9, 0.4], [0.9, -1.6]],
+      [[2.4, -1.7], [2.6, -1.7], [2.6, -0.6], [2.85, -0.6]],
+      [[3.7, 0.55], [3.7, 1.73]],
+    ];
+    for (const r of routes) {
+      for (let i = 1; i < r.length; i++) {
+        const [x0, z0] = r[i - 1], [x1, z1] = r[i];
+        const len = Math.hypot(x1 - x0, z1 - z0);
+        const horizontal = Math.abs(x1 - x0) > Math.abs(z1 - z0);
+        box(horizontal ? len : 0.09, 0.09, horizontal ? 0.09 : len, conduitMat, (x0 + x1) / 2, (z0 + z1) / 2, H - 0.045, false);
+      }
+      for (const [x, z] of r.slice(1, -1)) add(new THREE.CylinderGeometry(0.14, 0.14, 0.12, 32), jointMat, x, H, z, false);
+    }
+    for (const [x, z] of [[-0.4, 0.4], [3.7, 1.15]]) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.22), packetMat);
+      m.position.set(x, H + 0.13, z);
+      m.castShadow = true;
+      scene.add(m);
+    }
+
+    window.frame = () => renderer.render(scene, camera);
+    window.png = () => canvas.toDataURL("image/png");
+    return;
+  }
 
   // Drafting plate with an engraved one-unit grid.
   const plate = mat(pal.plate), module = mat(pal.module), ring = mat(pal.ring);
@@ -266,7 +373,7 @@ await writeFile(html, `<!doctype html><meta charset="utf-8"><body style="margin:
 const browser = await chromium.launch({
   args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--allow-file-access-from-files"],
 });
-await mkdir(path.join(root, "src/assets/hero"), { recursive: true });
+await mkdir(path.join(root, caseScene ? "src/assets/work" : "src/assets/hero"), { recursive: true });
 await mkdir(path.join(root, "public/media"), { recursive: true });
 
 for (const [name, pal] of Object.entries(palettes)) {
@@ -275,12 +382,12 @@ for (const [name, pal] of Object.entries(palettes)) {
     page.on("pageerror", (e) => console.error(e));
     await page.goto(pathToFileURL(html).href);
     await page.waitForFunction(() => typeof window.build === "function");
-    await page.evaluate(([p, s]) => window.build(p, s), [pal, size]);
+    await page.evaluate(([p, s, n]) => window.build(p, s, n), [pal, size, caseScene ? "case" : "hero"]);
     if (kind === "poster") {
       // The still is the loop's first frame, so the poster-to-video swap never jumps.
       await page.evaluate(() => window.frame(0));
       const data = await page.evaluate(() => window.png());
-      const file = path.join(root, `src/assets/hero/artifact-${name}.png`);
+      const file = path.join(root, caseScene ? `src/assets/work/industrial-platform-${name}.png` : `src/assets/hero/artifact-${name}.png`);
       await writeFile(file, Buffer.from(data.split(",")[1], "base64"));
       console.log("poster", path.relative(root, file));
     } else {

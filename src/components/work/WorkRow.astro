@@ -4,6 +4,7 @@
 // the case study. On Spanish pages, English-only case studies are marked EN.
 import type { CollectionEntry } from "astro:content";
 
+import Icon from "@/components/icons/Icon.astro";
 import { t, type Locale, type UIKey } from "@/i18n/ui";
 import { verifiedOnly } from "@/lib/work";
 
@@ -62,6 +63,7 @@ const englishOnly = locale !== "en";
       href && (
         <p class="work-row-link">
           <a class="link" href={href} hreflang={englishOnly ? "en" : undefined}>
+            <Icon name="file-text" />
             {t(locale, "work.caseStudy")}
           </a>
           {englishOnly && (
@@ -191,6 +193,7 @@ const englishOnly = locale !== "en";
   .work-row-link .link {
     display: inline-flex;
     align-items: center;
+    gap: 0.4em;
     min-height: var(--target-min);
   }
 </style>

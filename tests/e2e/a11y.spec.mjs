@@ -32,7 +32,7 @@ for (const scheme of ["light", "dark"]) {
 
     test("open header menus", async ({ page }) => {
       await page.goto("/work", { waitUntil: "networkidle" });
-      for (const menu of ["[data-lang-menu]", "[data-theme-menu]"]) {
+      for (const menu of ["[data-lang-menu]"]) {
         await page.click(`${menu} summary`);
         const { violations } = await new AxeBuilder({ page }).include(menu).withTags(TAGS).analyze();
         expect(summarize(violations), menu).toEqual([]);

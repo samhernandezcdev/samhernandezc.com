@@ -70,6 +70,13 @@ export const workSchema = z
     stack: z.array(nonEmpty).default([]),
     org: nonEmpty.optional(),
     links: z.object({ github: z.url().optional(), demo: z.url().optional() }).strict().optional(),
+    /** Case-study header image: `asset` names a light/dark pair rendered into
+     * src/assets/work/<asset>-{light,dark}.png (scripts/hero-artifact.mjs).
+     * Abstract illustration only: never a screenshot or product detail. */
+    visual: z
+      .object({ asset: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), alt: nonEmpty })
+      .strict()
+      .optional(),
 
     // Narrative (all optional: missing information is omitted, never padded)
     problem: nonEmpty.optional(),

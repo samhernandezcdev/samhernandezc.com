@@ -222,3 +222,35 @@ test("note covers", async ({ browser, baseURL: base }) => {
   check("notes index mobile: plate hidden, no overflow", s.plate === "none" && s.sw === s.iw, JSON.stringify(s));
   await m.close();
 });
+
+test("case-study header image", async ({ browser, baseURL: base }) => {
+  for (const scheme of ["light", "dark"]) {
+    const c = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: scheme });
+    const p = await c.newPage();
+    const imgs = [];
+    p.on("request", (r) => /industrial-platform-(light|dark)/.test(r.url()) && imgs.push(r.url()));
+    await p.goto(`${base}${CASE}`, { waitUntil: "networkidle" });
+    const s = await p.evaluate(() => {
+      const box = document.querySelector(".case-visual");
+      const shown = [...box.querySelectorAll("img")].filter((i) => getComputedStyle(i).display !== "none");
+      const title = document.querySelector("#case-title");
+      return {
+        shown: shown.map((i) => (/industrial-platform-dark/.test(i.currentSrc) ? "dark" : "light")),
+        alt: shown[0]?.alt ?? "",
+        afterTitle: !!(title.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING),
+        beside: box.getBoundingClientRect().left > title.getBoundingClientRect().left + 200,
+      };
+    });
+    check(`case visual ${scheme}: one still for the theme, described, after the title, beside it on desktop`, s.shown.join() === scheme && /lifting|spreader|hook/i.test(s.alt) && s.afterTitle && s.beside, JSON.stringify(s));
+    check(`case visual ${scheme}: other theme's still never requested`, !imgs.some((u) => u.includes(scheme === "light" ? "-dark" : "-light")), imgs.join(" "));
+    await c.close();
+  }
+  for (const width of [390, 320]) {
+    const c = await browser.newContext({ viewport: { width, height: 844 } });
+    const p = await c.newPage();
+    await p.goto(`${base}${CASE}`, { waitUntil: "networkidle" });
+    const s = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: innerWidth, below: document.querySelector(".case-visual").getBoundingClientRect().top > document.querySelector(".case-lifecycle").getBoundingClientRect().bottom - 1 }));
+    check(`case visual ${width}: below the status line, no overflow`, s.below && s.sw === s.iw, JSON.stringify(s));
+    await c.close();
+  }
+});
