@@ -1,0 +1,184 @@
+---
+// Masthead composition: name, then a hairline-ruled body on the page's shared
+// metadata axis (role in the label column, thesis as the dominant statement),
+// closed by a datasheet strip of verified facts. From 64rem the body gains a
+// third column: the rendered identity artifact (HeroArtifact); below 64rem the
+// artifact follows the actions at full content width.
+import HeroArtifact from "@/components/home/HeroArtifact.astro";
+import ExternalLink from "@/components/system/ExternalLink.astro";
+import { links, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  /** Label of the evidence section the primary action points to. */
+  workLabel: string;
+}
+
+const { locale, workLabel } = Astro.props;
+const stack = ["Python", "FastAPI", "PostgreSQL", "TypeScript"];
+const facts = [
+  { term: t(locale, "hero.spec.experience"), value: t(locale, "hero.spec.experienceValue") },
+  { term: t(locale, "hero.spec.stack"), value: stack.join(", "), mono: true },
+  { term: t(locale, "hero.spec.focus"), value: t(locale, "hero.spec.focusValue") },
+  { term: t(locale, "hero.spec.location"), value: t(locale, "hero.spec.locationValue") },
+];
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <h1 id="hero-title" class="hero-name">{t(locale, "hero.name")}</h1>
+
+  <div class="axis hero-body">
+    <p class="hero-role">{t(locale, "hero.role")}</p>
+    <div class="hero-main">
+      <div>
+        <p class="hero-thesis">{t(locale, "hero.thesis")}</p>
+        <div class="hero-actions">
+          <a class="button" data-variant="primary" href="#work">{workLabel}</a>
+          <ExternalLink class="button" href={links.github} locale={locale} me arrow>{t(locale, "hero.cta.github")}</ExternalLink>
+          <ExternalLink class="button" href={links.cv[locale]} type="application/pdf" locale={locale} arrow>{t(locale, "hero.cta.cv")}</ExternalLink>
+        </div>
+      </div>
+      <HeroArtifact locale={locale} />
+    </div>
+  </div>
+
+  <dl class="hero-facts" aria-label={t(locale, "hero.spec.label")}>
+    {
+      facts.map(({ term, value, mono }) => (
+        <div class="hero-fact">
+          <dt class="label">{term}</dt>
+          <dd class:list={[mono && "meta hero-fact-mono"]}>{value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</section>
+
+<style>
+  .hero {
+    padding-top: calc(var(--spacing) * 16);
+  }
+
+  @media (min-width: 64rem) {
+    .hero {
+      padding-top: calc(var(--spacing) * 24);
+    }
+  }
+
+  /* The page's one typographic peak: the name at masthead scale. */
+  .hero-name {
+    font-size: var(--text-masthead);
+    line-height: var(--text-masthead--line-height);
+    letter-spacing: -0.035em;
+  }
+
+  /* The strong rule carries the drafting-green tick, so the section-head
+     motif starts in the first viewport. */
+  .hero-body {
+    position: relative;
+    margin-top: calc(var(--spacing) * 8);
+    padding-top: calc(var(--spacing) * 6);
+    border-top: var(--border-hairline) solid var(--color-border-strong);
+  }
+
+  .hero-body::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 1.5rem;
+    border-top: 2px solid var(--color-accent);
+  }
+
+  /* Thesis and actions, then the artifact: stacked below 64rem, side by side
+     above it. The artifact column grows with the viewport up to 26rem. */
+  .hero-main {
+    display: grid;
+    gap: calc(var(--spacing) * 8);
+  }
+
+  @media (min-width: 64rem) {
+    .hero-main {
+      grid-template-columns: minmax(0, 1fr) clamp(16rem, 26vw, 24rem);
+      align-items: start;
+    }
+  }
+
+  .hero-role {
+    padding-top: 0.35rem;
+    color: var(--color-text-muted);
+  }
+
+  /* The thesis is the statement of the page: larger than lead, regular weight. */
+  .hero-thesis {
+    max-width: 34ch;
+    font-size: var(--text-h2);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 3);
+    margin-top: calc(var(--spacing) * 8);
+  }
+
+  /* Datasheet strip: four verified facts, hairline-separated. */
+  .hero-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: calc(var(--spacing) * 12);
+    border-top: var(--border-hairline) solid var(--color-border);
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  @media (min-width: 64rem) {
+    .hero-facts {
+      grid-template-columns: var(--container-label) repeat(3, minmax(0, 1fr));
+      column-gap: calc(var(--spacing) * 8);
+    }
+  }
+
+  .hero-fact {
+    display: grid;
+    align-content: start;
+    gap: calc(var(--spacing) * 1);
+    padding-block: var(--spacing-component);
+  }
+
+  /* Datasheet: small muted labels, values at reading size. */
+  .hero-fact dt {
+    font-size: var(--text-small);
+  }
+
+  .hero-fact dd {
+    font-size: var(--text-body);
+    line-height: var(--leading-heading);
+  }
+
+  @media (max-width: 63.99rem) {
+    .hero-fact:nth-child(n + 3) {
+      border-top: var(--border-hairline) solid var(--color-border);
+    }
+
+    .hero-fact:nth-child(even) {
+      padding-left: var(--spacing-component);
+      border-left: var(--border-hairline) solid var(--color-border);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .hero-fact + .hero-fact {
+      padding-left: var(--spacing-component-lg);
+      border-left: var(--border-hairline) solid var(--color-border);
+    }
+  }
+
+  .hero-fact dd.hero-fact-mono {
+    font-size: var(--text-small);
+    line-height: var(--leading-body);
+    color: var(--color-text);
+  }
+</style>

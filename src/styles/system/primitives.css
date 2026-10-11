@@ -1,0 +1,400 @@
+@layer components {
+  /* Layout ---------------------------------------------------------------- */
+  .page {
+    width: 100%;
+    max-width: calc(var(--container-page) + 2 * var(--spacing-gutter));
+    margin-inline: auto;
+    padding-inline: var(--spacing-gutter);
+  }
+
+  .measure {
+    max-width: var(--container-prose);
+  }
+
+  .section + .section {
+    margin-top: var(--spacing-section);
+  }
+
+  /* Page sections: heading block + content, separated by section rhythm. */
+  .page-section {
+    margin-top: var(--spacing-section);
+  }
+
+  /* Section head: starts on a hairline marked by a short drafting-green tick,
+     the one structural use of the accent. */
+  .section-head {
+    position: relative;
+    display: grid;
+    gap: calc(var(--spacing) * 3);
+    margin-bottom: calc(var(--spacing) * 8);
+    padding-top: var(--spacing-component-lg);
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .section-head::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 1.5rem;
+    border-top: 2px solid var(--color-accent);
+    transition: width var(--motion-section) var(--ease-standard);
+  }
+
+  /* Arriving at a section through a link: its tick lengthens (no scroll-spy). */
+  .page-section:target > .section-head::before {
+    width: 3rem;
+  }
+
+  .section-head > * {
+    max-width: var(--container-prose);
+  }
+
+  /* Shared two-column axis: metadata/label column + content. */
+  .axis {
+    display: grid;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 8);
+  }
+
+  @media (min-width: 48rem) {
+    .axis {
+      grid-template-columns: var(--container-label) minmax(0, 1fr);
+    }
+  }
+
+  .section-intro {
+    max-width: 60ch;
+    color: var(--color-text-muted);
+    text-wrap: pretty;
+  }
+
+  /* Skip link: hidden until focused, then pinned top-left. */
+  .skip-link {
+    position: absolute;
+    top: var(--spacing-inline);
+    left: var(--spacing-inline);
+    z-index: calc(var(--z-header) + 1);
+    padding: var(--spacing-inline) var(--spacing-component);
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-raised);
+    color: var(--color-text);
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus-visible {
+    transform: none;
+  }
+
+  /* Links ------------------------------------------------------------------- */
+  .link {
+    color: var(--color-text);
+    text-decoration-line: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    transition:
+      color var(--motion-fast) var(--ease-standard),
+      text-decoration-thickness var(--motion-fast) var(--ease-standard);
+  }
+
+  .link:hover {
+    color: var(--color-accent-hover);
+    text-decoration-thickness: 2px;
+  }
+
+  .link-quiet {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--motion-fast) var(--ease-standard);
+  }
+
+  .link-quiet:hover,
+  .link-quiet[aria-current="page"] {
+    color: var(--color-text);
+  }
+
+  /* External links (ExternalLink with `arrow`): the ↗ mark follows the text and
+     nudges 2px toward its direction on hover or keyboard focus. The text never
+     moves; reduced motion leaves the mark still. */
+  .external {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+  }
+
+  .external-arrow {
+    flex: none;
+    transition: transform var(--motion-fast) var(--ease-standard);
+  }
+
+  .external:hover .external-arrow,
+  .external:focus-visible .external-arrow {
+    transform: translate(2px, -2px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .external:hover .external-arrow,
+    .external:focus-visible .external-arrow {
+      transform: none;
+    }
+  }
+
+  /* Buttons ----------------------------------------------------------------- */
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-inline);
+    min-height: var(--target-min);
+    padding-inline: var(--spacing-component);
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    color: var(--color-text);
+    font-size: var(--text-small);
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color var(--motion-fast) var(--ease-standard),
+      border-color var(--motion-fast) var(--ease-standard),
+      color var(--motion-fast) var(--ease-standard);
+  }
+
+  .button:hover {
+    background-color: var(--color-surface);
+    border-color: var(--color-text-muted);
+  }
+
+  /* Primary is monochrome: the accent stays rare. */
+  .button[data-variant="primary"] {
+    background-color: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  .button[data-variant="primary"]:hover {
+    background-color: color-mix(in oklab, var(--color-text) 85%, var(--color-bg));
+  }
+
+  .button:disabled,
+  .button[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .icon-button {
+    display: inline-grid;
+    place-items: center;
+    width: var(--target-min);
+    height: var(--target-min);
+    border: var(--border-hairline) solid transparent;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition:
+      color var(--motion-fast) var(--ease-standard),
+      border-color var(--motion-fast) var(--ease-standard);
+  }
+
+  .icon-button:hover {
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+
+  .icon-button svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  /* Selected (persistent) state: surface fill, bold label and a 2px bottom
+     edge in text color. Deliberately unlike focus, which is an outer accent ring. */
+  [aria-pressed="true"].button,
+  [aria-current="true"].button {
+    background-color: var(--color-surface);
+    border-color: var(--color-border-strong);
+    border-bottom: 2px solid var(--color-text);
+    font-weight: 600;
+  }
+
+  /* Metadata ---------------------------------------------------------------- */
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    line-height: var(--leading-meta);
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Labels name things (Email, Profiles, Role…): a medium weight separates
+     them from the values they introduce without raising their contrast. */
+  .label {
+    font-size: var(--text-small);
+    font-weight: 500;
+    line-height: var(--leading-meta);
+    color: var(--color-text-muted);
+  }
+
+  /* Lifecycle status: the lowercase word is the signal; the square marker is a
+     secondary cue. production: filled text color · building: filled accent ·
+     archived: hollow, muted. */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.1em 0.5em;
+    border: var(--border-hairline) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    line-height: var(--leading-meta);
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+
+  .status::before {
+    content: "";
+    flex: none;
+    width: 0.625em;
+    height: 0.625em;
+    border: 1.5px solid currentColor;
+    border-radius: 1px;
+  }
+
+  .status[data-status="production"]::before {
+    background-color: currentColor;
+  }
+
+  .status[data-status="building"]::before {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+  }
+
+  .status[data-status="archived"] {
+    color: var(--color-text-muted);
+  }
+
+  /* Metadata badge: dates, reading time, file type. Same metrics as the status
+     chip, quieter: hairline border, muted mono text, an optional leading icon.
+     Never colored, never a wall: one or two per line at most. */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.1em 0.5em;
+    border: var(--border-hairline) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    line-height: var(--leading-meta);
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .badge > .icon {
+    flex: none;
+    width: 0.95em;
+    height: 0.95em;
+  }
+
+  /* Interface icons sit on the text's optical center. */
+  .icon {
+    flex: none;
+  }
+
+  /* Source is plain metadata, visually separate from lifecycle. */
+  .source {
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    color: var(--color-text-muted);
+  }
+
+  /* Spec sheet: label/value rows with hairlines (case-study headers, About). */
+  .spec {
+    display: grid;
+    grid-template-columns: minmax(7rem, max-content) 1fr;
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .spec > dt,
+  .spec > dd {
+    padding-block: 0.6rem;
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  .spec > dt {
+    padding-inline-end: var(--spacing-component-lg);
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  .spec > dd {
+    font-size: var(--text-small);
+  }
+
+  @media (max-width: 30rem) {
+    .spec {
+      grid-template-columns: 1fr;
+    }
+
+    .spec > dt {
+      padding-block-end: 0;
+      border-bottom: 0;
+    }
+
+    .spec > dd {
+      padding-block-start: 0.15rem;
+    }
+  }
+
+  /* Interactive row: the whole row is the link (Work index, notes list). */
+  .row-link {
+    display: block;
+    padding-block: var(--spacing-component-lg);
+    border-top: var(--border-hairline) solid var(--color-border);
+    color: inherit;
+    text-decoration: none;
+    transition: background-color var(--motion-fast) var(--ease-standard);
+  }
+
+  .row-link:hover {
+    background-color: var(--color-surface);
+  }
+
+  .row-link:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .row-link .row-title {
+    text-decoration-line: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    transition: text-decoration-color var(--motion-fast) var(--ease-standard);
+  }
+
+  .row-link:hover .row-title {
+    text-decoration-color: var(--color-accent);
+  }
+
+  /* Dashed border has one meaning: planned / not built. */
+  .planned {
+    border: var(--border-hairline) dashed var(--color-border-strong);
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}

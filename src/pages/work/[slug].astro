@@ -1,0 +1,216 @@
+---
+// Case study. English-only. Reading layout from ArticleShell (rail with the
+// project spec + "On this page"). Drafts are routed only in `astro dev` (see
+// getCaseStudyEntries) and carry a visible draft notice.
+import { render, type CollectionEntry } from "astro:content";
+
+import ArticleShell from "@/components/article/ArticleShell.astro";
+import ThemeImage from "@/components/system/ThemeImage.astro";
+import Footer from "@/components/site/Footer.astro";
+import Header from "@/components/site/Header.astro";
+import DataTable from "@/components/system/DataTable.astro";
+import { t, workPaths, type UIKey } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCaseStudyEntries, getPublishedNotes } from "@/lib/content";
+import { caseStudy, graph } from "@/lib/structured-data";
+import { isPublished } from "@/lib/work";
+import { siteUrl } from "@/lib/site";
+
+export async function getStaticPaths() {
+  const entries = await getCaseStudyEntries();
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<"work">;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const { Content, headings } = await render(entry);
+// Header image pair, named in frontmatter; optimized by astro:assets.
+const renders = import.meta.glob<{ default: ImageMetadata }>("/src/assets/work/*.png", { eager: true });
+const visual = data.visual && {
+  alt: data.visual.alt,
+  light: renders[`/src/assets/work/${data.visual.asset}-light.png`]?.default,
+  dark: renders[`/src/assets/work/${data.visual.asset}-dark.png`]?.default,
+};
+if (visual && (!visual.light || !visual.dark)) throw new Error(`Missing render pair for visual "${data.visual!.asset}"`);
+const hasNotes = (await getPublishedNotes()).length > 0;
+const isDraft = !isPublished(data);
+
+const title = `${data.title} — Case study · Samuel Hernández`;
+const description =
+  "Case study: backend architecture, deterministic calculations, validation, persistence and ERP/CRM integration for an industrial engineering configuration platform.";
+const site = siteUrl(Astro.site);
+const jsonLd = graph(
+  caseStudy(site, {
+    name: data.title,
+    description,
+    url: new URL(`/work/${entry.id}`, site).href,
+    keywords: data.stack,
+  }),
+);
+---
+
+<BaseLayout title={title} description={description} locale="en" noindex={isDraft}>
+  {!isDraft && <script slot="head" type="application/ld+json" set:html={jsonLd} />}
+  <Header locale="en" showNotes={hasNotes} current="work" />
+  <main id="main" tabindex="-1" class="page">
+    <article class="case-study" aria-labelledby="case-title">
+      {isDraft && <p class="planned case-draft label">{t("en", "caseStudy.draft")}</p>}
+
+      <header class:list={["case-header", visual && "case-header-visual"]}>
+        <div class="case-intro">
+        <p class="label">
+          <a class="link-quiet" href={workPaths.en}>{t("en", "workIndex.title")}</a>
+          <span aria-hidden="true"> / </span>
+          {t("en", "caseStudy.label")}
+        </p>
+        <h1 id="case-title" class="case-title">{data.title}</h1>
+        <p class="case-summary">{data.summary}</p>
+        <p class="case-lifecycle">
+          <span class="status" data-status={data.status}>{t("en", `status.${data.status}` as UIKey)}</span>
+          <span class="source">{t("en", `source.${data.source}` as UIKey)}</span>
+        </p>
+        </div>
+        {
+          visual && (
+            <ThemeImage
+              class="case-visual"
+              light={visual.light}
+              dark={visual.dark}
+              alt={visual.alt}
+              sizes="(min-width: 64rem) 30rem, 100vw"
+              widths={[480, 800, 1200, 1600]}
+            />
+          )
+        }
+      </header>
+
+      <ArticleShell headings={headings} railLabel="Project details" contentsLabel={t("en", "caseStudy.contents")}>
+        <dl slot="rail" class="spec case-spec">
+          {data.role && (<><dt>{t("en", "caseStudy.role")}</dt><dd>{data.role}</dd></>)}
+          {data.focus && (<><dt>{t("en", "caseStudy.focus")}</dt><dd>{data.focus}</dd></>)}
+          {data.stack.length > 0 && (<><dt>{t("en", "caseStudy.stack")}</dt><dd class="meta case-stack">{data.stack.join(", ")}</dd></>)}
+        </dl>
+        <Content components={{ table: DataTable }} />
+      </ArticleShell>
+
+      <footer class="case-footer">
+        <a class="link" href={workPaths.en}>{t("en", "caseStudy.allWork")}</a>
+      </footer>
+    </article>
+  </main>
+  <Footer locale="en" />
+</BaseLayout>
+
+<style>
+  .case-study {
+    padding-top: calc(var(--spacing) * 16);
+  }
+
+  .case-draft {
+    margin-bottom: calc(var(--spacing) * 8);
+    padding: var(--spacing-component);
+    border-radius: var(--radius-md);
+  }
+
+  .case-header {
+    display: grid;
+    gap: calc(var(--spacing) * 6);
+    max-width: 52rem;
+    padding-bottom: calc(var(--spacing) * 8);
+    border-bottom: var(--border-hairline) solid var(--color-border-strong);
+  }
+
+  .case-intro {
+    display: grid;
+    gap: calc(var(--spacing) * 4);
+  }
+
+  /* With a header image: full width, the text first; from 64rem the image
+     takes a right column beside the title and summary, never above them. */
+  .case-header-visual {
+    max-width: none;
+  }
+
+  .case-header :global(.case-visual) {
+    aspect-ratio: 16 / 10;
+    max-width: 36rem;
+  }
+
+  @media (min-width: 64rem) {
+    .case-header-visual {
+      grid-template-columns: minmax(0, 1fr) clamp(18rem, 32vw, 30rem);
+      align-items: center;
+      column-gap: calc(var(--spacing) * 8);
+    }
+
+    .case-header-visual .case-intro {
+      max-width: 52rem;
+    }
+  }
+
+  .case-header .link-quiet {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+
+  .case-title {
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    letter-spacing: -0.02em;
+  }
+
+  .case-summary {
+    max-width: 44rem;
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+    color: var(--color-text-muted);
+  }
+
+  .case-lifecycle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+  }
+
+  .case-spec {
+    grid-template-columns: 1fr;
+  }
+
+  /* Rail hierarchy: a small medium-weight label, then the value in text color
+     with reading leading, so each fact scans as label -> value. */
+  .case-spec > dt {
+    padding-block: 0.75rem 0;
+    border-bottom: 0;
+    font-size: var(--text-meta);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .case-spec > dd {
+    padding-block: 0.3rem 0.75rem;
+    color: var(--color-text);
+    line-height: 1.55;
+  }
+
+  .case-stack {
+    color: var(--color-text);
+  }
+
+  .case-footer {
+    margin-top: var(--spacing-section);
+    padding-top: var(--spacing-component-lg);
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .case-footer .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+</style>

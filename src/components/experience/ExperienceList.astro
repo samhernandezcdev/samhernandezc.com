@@ -1,0 +1,157 @@
+---
+// Experience ledger on the shared axis: overall period in the label column,
+// organization, then each role with its own period, what was built and the
+// stack. Consecutive roles at the same organization are grouped at
+// presentation level (the collection stays one entry per role).
+import { t, type Locale } from "@/i18n/ui";
+import { getExperience } from "@/lib/content";
+
+interface Props {
+  locale: Locale;
+  /** Most recent roles to include (all when omitted). */
+  roles?: number;
+  /** Built items per role (all when omitted). */
+  items?: number;
+  /** Show the "owned" scope line when an entry has one. */
+  showOwned?: boolean;
+  /** Heading level for organization names. */
+  level?: 2 | 3;
+}
+
+const { locale, roles, items, showOwned = false, level = 3 } = Astro.props;
+const Heading = level === 2 ? "h2" : "h3";
+
+type Role = Awaited<ReturnType<typeof getExperience>>[number]["data"];
+const groups: { org: string; roles: Role[] }[] = [];
+const entries = await getExperience();
+for (const { data } of roles === undefined ? entries : entries.slice(0, roles)) {
+  const last = groups.at(-1);
+  if (last?.org === data.org) last.roles.push(data);
+  else groups.push({ org: data.org, roles: [data] });
+}
+
+const present = t(locale, "work.present");
+---
+
+<ol class="experience-list">
+  {
+    groups.map((group) => {
+      const first = group.roles.at(-1)!.period.start;
+      const last = group.roles[0].period.end;
+      return (
+        <li class="axis org-row">
+          <p class="meta org-period">
+            <time datetime={first}>{first}</time> – {last ? <time datetime={last}>{last}</time> : present}
+          </p>
+          <div>
+            <Heading class="org-name">{group.org}</Heading>
+            <ol class="org-roles" reversed={group.roles.length > 1 || undefined}>
+              {group.roles.map((role) => {
+                const localized = locale === "es" ? role.es : undefined;
+                const built = localized?.built ?? role.built;
+                const owned = localized?.owned ?? role.owned;
+                return (
+                  <li class="role">
+                    <p class="role-head">
+                      <span class="role-title">{localized?.role ?? role.role}</span>
+                      {group.roles.length > 1 && (
+                        <span class="meta">
+                          <time datetime={role.period.start}>{role.period.start}</time> –{" "}
+                          {role.period.end ? <time datetime={role.period.end}>{role.period.end}</time> : present}
+                        </span>
+                      )}
+                    </p>
+                    {showOwned && owned && <p class="role-owned">{owned}</p>}
+                    {built.length > 0 && (
+                      <ul class="role-built">
+                        {(items === undefined ? built : built.slice(0, items)).map((item) => (
+                          <li>{item}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {role.stack.length > 0 && (
+                      <p class="meta role-stack">{role.stack.slice(0, 6).join(", ").toLowerCase()}</p>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        </li>
+      );
+    })
+  }
+</ol>
+
+<style>
+  .experience-list {
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  .org-row {
+    padding-block: var(--spacing-component-lg);
+  }
+
+  .org-row + .org-row {
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .org-period {
+    padding-top: 0.2rem;
+  }
+
+  .org-name {
+    font-size: var(--text-h3);
+  }
+
+  .role + .role {
+    margin-top: var(--spacing-component-lg);
+    padding-top: var(--spacing-component);
+    border-top: var(--border-hairline) dotted var(--color-border-strong);
+  }
+
+  .role-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 4);
+    max-width: var(--container-prose);
+  }
+
+  /* Mobile: every role date on its own line under the title. */
+  @media (max-width: 47.99rem) {
+    .role-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .role-title {
+    color: var(--color-text-muted);
+  }
+
+  .role-owned {
+    max-width: var(--container-prose);
+    margin-top: calc(var(--spacing) * 2);
+  }
+
+  .role-built {
+    max-width: var(--container-prose);
+    margin-top: calc(var(--spacing) * 3);
+    padding-left: 1.1em;
+    list-style: disc;
+  }
+
+  .role-built li + li {
+    margin-top: calc(var(--spacing) * 1);
+  }
+
+  .role-built li::marker {
+    color: var(--color-text-muted);
+  }
+
+  .role-stack {
+    margin-top: calc(var(--spacing) * 3);
+  }
+</style>

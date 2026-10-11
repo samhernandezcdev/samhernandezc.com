@@ -1,0 +1,163 @@
+---
+// One engineering note. English-only. ArticleShell provides the reading
+// layout; long notes get "On this page" (rail on desktop, collapsed disclosure
+// on mobile). Drafts are routed only in `astro dev`, with a visible notice.
+import { render, type CollectionEntry } from "astro:content";
+
+import ArticleShell from "@/components/article/ArticleShell.astro";
+import Icon from "@/components/icons/Icon.astro";
+import NoteCover from "@/components/notes/NoteCover.astro";
+import Footer from "@/components/site/Footer.astro";
+import Header from "@/components/site/Header.astro";
+import DataTable from "@/components/system/DataTable.astro";
+import { links, t } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getNoteEntries, getPublishedNotes, readingMinutes } from "@/lib/content";
+import { siteUrl } from "@/lib/site";
+
+export async function getStaticPaths() {
+  const notes = await getNoteEntries();
+  return notes.map((note) => ({ params: { slug: note.id }, props: { note } }));
+}
+
+interface Props {
+  note: CollectionEntry<"notes">;
+}
+
+const { note } = Astro.props;
+const { data } = note;
+const { Content, headings } = await render(note);
+const hasPublished = (await getPublishedNotes()).length > 0;
+const iso = (date: Date) => date.toISOString().slice(0, 10);
+const site = siteUrl(Astro.site);
+const url = new URL(`/notes/${note.id}`, site).href;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  headline: data.title,
+  description: data.description,
+  datePublished: iso(data.pubDate),
+  ...(data.updated && { dateModified: iso(data.updated) }),
+  inLanguage: "en",
+  url,
+  mainEntityOfPage: url,
+  keywords: data.tags.join(", "),
+  author: { "@type": "Person", name: "Samuel Hernández", url: site.href, sameAs: [links.github, links.linkedin] },
+};
+---
+
+<BaseLayout
+  title={`${data.title} · Samuel Hernández`}
+  description={data.description}
+  locale="en"
+  ogType="article"
+  published={data.pubDate}
+  modified={data.updated}
+  noindex={data.draft}
+>
+  {!data.draft && <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  <Header locale="en" showNotes={hasPublished} current="notes" />
+  <main id="main" tabindex="-1" class="page">
+    <article class="note" aria-labelledby="note-title">
+      {data.draft && <p class="planned note-draft label">Draft preview. This note is not published.</p>}
+
+      <header class="note-header">
+        <p class="label">
+          <a class="link-quiet" href="/notes">{t("en", "notes.title")}</a>
+        </p>
+        <h1 id="note-title" class="note-title">{data.title}</h1>
+        <p class="note-description">{data.description}</p>
+        <p class="note-meta">
+          <span class="badge"><Icon name="calendar" />{t("en", "notes.published")} <time datetime={iso(data.pubDate)}>{iso(data.pubDate)}</time></span>
+          {data.updated && <span class="badge"><Icon name="calendar" />{t("en", "notes.updated")} <time datetime={iso(data.updated)}>{iso(data.updated)}</time></span>}
+          <span class="badge"><Icon name="clock" />{readingMinutes(note.body)} {t("en", "notes.readingTime")}</span>
+          {data.tags.length > 0 && <span class="meta note-tags"><span class="visually-hidden">{t("en", "notes.tags")}: </span>{data.tags.join(", ")}</span>}
+        </p>
+        <div class="note-cover">
+          <NoteCover slug={note.id} motif={data.cover?.motif} variant="band" />
+        </div>
+      </header>
+
+      <ArticleShell headings={headings} railLabel="Note details" contentsLabel={t("en", "caseStudy.contents")}>
+        <Content components={{ table: DataTable }} />
+      </ArticleShell>
+
+      <footer class="note-footer">
+        <a class="link" href="/notes">{t("en", "notes.all")}</a>
+      </footer>
+    </article>
+  </main>
+  <Footer locale="en" />
+</BaseLayout>
+
+<style>
+  .note {
+    padding-top: calc(var(--spacing) * 16);
+  }
+
+  .note-draft {
+    margin-bottom: calc(var(--spacing) * 8);
+    padding: var(--spacing-component);
+    border-radius: var(--radius-md);
+  }
+
+  .note-header {
+    display: grid;
+    gap: calc(var(--spacing) * 4);
+    max-width: 52rem;
+    padding-bottom: calc(var(--spacing) * 8);
+    border-bottom: var(--border-hairline) solid var(--color-border-strong);
+  }
+
+  .note-header .link-quiet {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+
+  .note-title {
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    letter-spacing: -0.02em;
+  }
+
+  .note-description {
+    max-width: 44rem;
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+    color: var(--color-text-muted);
+  }
+
+  .note-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 2);
+  }
+
+  .note-tags {
+    margin-left: calc(var(--spacing) * 2);
+  }
+
+  /* The note's cover plate closes the header: a drafting band across the
+     reading width, never wider than the page's prose and rail. */
+  .note-cover {
+    max-width: 44rem;
+    margin-top: calc(var(--spacing) * 8);
+    padding-top: calc(var(--spacing) * 4);
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .note-footer {
+    margin-top: var(--spacing-section);
+    padding-top: var(--spacing-component-lg);
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .note-footer .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+</style>

@@ -22,3 +22,14 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Claude Code: local settings and visual-review screenshots
+.claude/settings.local.json
+.claude/review/
+
+# Playwright product tests
+test-results/
+playwright-report/
+
+# CV review builds (published copies live in public/)
+cv/output/

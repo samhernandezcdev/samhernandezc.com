@@ -1,0 +1,80 @@
+---
+// Isolated theme control primitive (system / light / dark). The final header
+// control is designed later; this one exists to exercise the theme system.
+// Client JS justification: persisting a manual theme needs storage + a click
+// handler; ~0.5 KB, deferred module; no-JS fallback: hidden, system theme applies.
+interface Props {
+  label?: string;
+}
+
+const { label = "Theme" } = Astro.props;
+const options = [
+  { value: "system", text: "System" },
+  { value: "light", text: "Light" },
+  { value: "dark", text: "Dark" },
+] as const;
+---
+
+<div class="theme-switch" role="group" aria-label={label} data-theme-switch hidden>
+  {
+    options.map((option) => (
+      <button type="button" class="button" data-theme-value={option.value} aria-pressed="false">
+        {option.text}
+      </button>
+    ))
+  }
+</div>
+
+<style>
+  .theme-switch {
+    display: inline-flex;
+    gap: var(--spacing-inline);
+  }
+
+  .theme-switch[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  type ThemeChoice = "system" | "light" | "dark";
+
+  function readChoice(): ThemeChoice {
+    try {
+      const stored = localStorage.getItem("theme");
+      return stored === "light" || stored === "dark" ? stored : "system";
+    } catch {
+      return "system";
+    }
+  }
+
+  function apply(choice: ThemeChoice) {
+    const root = document.documentElement;
+    if (choice === "system") delete root.dataset.theme;
+    else root.dataset.theme = choice;
+    try {
+      if (choice === "system") localStorage.removeItem("theme");
+      else localStorage.setItem("theme", choice);
+    } catch {
+      // Storage unavailable: the choice lasts for this page view only.
+    }
+  }
+
+  for (const group of document.querySelectorAll<HTMLElement>("[data-theme-switch]")) {
+    const buttons = [...group.querySelectorAll<HTMLButtonElement>("[data-theme-value]")];
+    const sync = (choice: ThemeChoice) =>
+      buttons.forEach((button) =>
+        button.setAttribute("aria-pressed", String(button.dataset.themeValue === choice)),
+      );
+
+    sync(readChoice());
+    group.hidden = false;
+    group.addEventListener("click", (event) => {
+      const button = (event.target as Element).closest<HTMLButtonElement>("[data-theme-value]");
+      if (!button) return;
+      const choice = button.dataset.themeValue as ThemeChoice;
+      apply(choice);
+      sync(choice);
+    });
+  }
+</script>

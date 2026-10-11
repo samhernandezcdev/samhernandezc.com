@@ -1,0 +1,36 @@
+/*
+  Code blocks: technical documentation, not an IDE. Shiki renders with
+  `defaultColor: false`, so every token carries --shiki-light / --shiki-dark;
+  light-dark() picks one from the active color-scheme.
+*/
+@layer components {
+  pre.astro-code,
+  .prose pre {
+    padding: var(--spacing-component) var(--spacing-component-lg);
+    border: var(--border-hairline) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface) !important;
+    font-size: var(--text-small);
+    line-height: 1.65;
+    overflow-x: auto;
+    tab-size: 2;
+  }
+
+  pre.astro-code:focus-visible,
+  .prose pre:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .astro-code,
+  .astro-code span {
+    color: light-dark(var(--shiki-light), var(--shiki-dark));
+  }
+
+  .prose pre code {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: inherit;
+  }
+}

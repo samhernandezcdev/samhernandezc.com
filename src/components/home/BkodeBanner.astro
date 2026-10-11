@@ -1,0 +1,240 @@
+---
+// BKODE brand band: the site's single branded surface exception. BKODE is the
+// separate home for Samuel's commercial software projects and client work.
+// The band keeps the portfolio's grammar (the 11rem axis, section rhythm,
+// Geist, hairlines, the focus ring, the page's theme) and differs only by
+// brand elements: the official logo (navy on the light theme, white on the
+// dark theme, both unmodified), the BKODE surface and BKODE blue, which never
+// leaves this component.
+// The two logos switch in CSS with the site's theme model (OS preference or
+// the data-theme override); the hidden one is display:none, so it is neither
+// announced nor fetched (lazy). No JS.
+// Composition: from 80rem a large construction drawing of the K-mark's own
+// node geometry (the ladder of six nodes and the two arms, taken from the
+// official logo's proportions) sits at the band's right, its construction
+// lines running out to the edges, in hairlines. It is decorative (aria-hidden) and static.
+// Only the link is interactive; hovering or focusing it draws the K's two arms
+// in BKODE blue (no JS: pathLength + stroke-dashoffset) and nudges the ↗.
+// Under reduced motion the arms appear in place.
+import ExternalLink from "@/components/system/ExternalLink.astro";
+import { links, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<aside class="bkode" aria-labelledby="bkode-title">
+  <svg class="bkode-geo" viewBox="120 0 260 236" aria-hidden="true" focusable="false">
+    <path class="bkode-geo-guide" d="M120 40H380M120 113H380M120 196H380M163 0V236M247 0V236M338 0V236"></path>
+    <path class="bkode-geo-edge" d="M163 40V196M247 40V196M163 40H247M163 113H247M163 196H247M247 113L338 30M247 113L338 196"></path>
+    <path class="bkode-geo-arm" pathLength="1" d="M247 113L338 30"></path>
+    <path class="bkode-geo-arm" pathLength="1" d="M247 113L338 196"></path>
+    <g class="bkode-geo-nodes">
+      <circle cx="163" cy="40" r="9"></circle>
+      <circle cx="247" cy="40" r="9"></circle>
+      <circle cx="163" cy="113" r="9"></circle>
+      <circle cx="247" cy="113" r="9"></circle>
+      <circle cx="163" cy="196" r="9"></circle>
+      <circle cx="247" cy="196" r="9"></circle>
+      <circle class="bkode-geo-end" cx="338" cy="30" r="9"></circle>
+      <circle class="bkode-geo-end" cx="338" cy="196" r="9"></circle>
+    </g>
+  </svg>
+  <div class="page axis bkode-row">
+    <div class="bkode-mark">
+      <img
+        class="bkode-logo bkode-logo-light"
+        src="/bkode-logo-stacked-navy-1x.png"
+        width="500"
+        height="358"
+        alt="BKODE"
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        class="bkode-logo bkode-logo-dark"
+        src="/bkode-logo-stacked-white-1x.png"
+        width="500"
+        height="358"
+        alt="BKODE"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+    <div class="bkode-body">
+      <h2 id="bkode-title" class="bkode-title">{t(locale, "bkode.title")}</h2>
+      <p class="bkode-text">{t(locale, "bkode.body")}</p>
+      <p class="bkode-action">
+        <ExternalLink class="button bkode-link" href={links.bkode} locale={locale} arrow>{t(locale, "bkode.cta")}</ExternalLink>
+        <span class="meta bkode-host">bkode.lat</span>
+      </p>
+    </div>
+  </div>
+</aside>
+
+<style>
+  .bkode {
+    position: relative;
+    margin-top: var(--spacing-section);
+    border-block: var(--border-hairline) solid var(--color-border-strong);
+    background-color: var(--color-bkode-surface);
+  }
+
+  /* Construction drawing of the K-mark, bleeding off the right edge. Only
+     where the text column leaves room for it. */
+  .bkode-geo {
+    display: none;
+  }
+
+  @media (min-width: 80rem) {
+    .bkode {
+      overflow: hidden;
+    }
+
+    .bkode-geo {
+      display: block;
+      position: absolute;
+      top: 50%;
+      right: 3vw;
+      width: clamp(18rem, 22vw, 26rem);
+      height: auto;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+  }
+
+  .bkode-geo :is(.bkode-geo-guide, .bkode-geo-edge, circle) {
+    vector-effect: non-scaling-stroke;
+    fill: none;
+    stroke-width: 1;
+  }
+
+  .bkode-geo-guide {
+    stroke: var(--color-border);
+  }
+
+  .bkode-geo-edge {
+    stroke: var(--color-border-strong);
+  }
+
+  .bkode-geo .bkode-geo-nodes circle {
+    fill: var(--color-bkode-surface);
+    stroke: var(--color-border-strong);
+    transition: fill var(--motion-section) var(--ease-standard),
+      stroke var(--motion-section) var(--ease-standard);
+  }
+
+  /* The arms draw in BKODE blue toward their end nodes while the destination
+     is hovered or focused. */
+  /* Scaled stroke on purpose: non-scaling-stroke would ignore pathLength. */
+  .bkode-geo-arm {
+    fill: none;
+    stroke: var(--color-bkode-accent);
+    stroke-width: 1.5;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset calc(var(--motion-section) * 2) var(--ease-standard);
+  }
+
+  .bkode:has(.bkode-link:hover, .bkode-link:focus-visible) .bkode-geo-arm {
+    stroke-dashoffset: 0;
+  }
+
+  .bkode:has(.bkode-link:hover, .bkode-link:focus-visible) .bkode-geo-end {
+    fill: var(--color-bkode-accent);
+    stroke: var(--color-bkode-accent);
+  }
+
+  .bkode-row {
+    position: relative;
+    align-items: start;
+    padding-block: calc(var(--spacing) * 24);
+  }
+
+  @media (max-width: 47.99rem) {
+    .bkode-row {
+      gap: calc(var(--spacing) * 8);
+      padding-block: calc(var(--spacing) * 12);
+    }
+  }
+
+  /* The logo fills the label column exactly (11rem, ≈2.8× the 1x asset's
+     density). The PNG has an 18/500 transparent inset; the negative margin
+     puts the drawn mark on the axis line. */
+  .bkode-logo {
+    display: block;
+    width: 8.5rem;
+    height: auto;
+    margin-inline-start: calc(-18 / 500 * 8.5rem);
+  }
+
+  /* Navy logo on the light theme, white logo on the dark theme. */
+  .bkode-logo-dark {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"]) .bkode-logo-light {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"]) .bkode-logo-dark {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) .bkode-logo-light {
+      display: none;
+    }
+
+    :global(:root:not([data-theme="light"])) .bkode-logo-dark {
+      display: block;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .bkode-logo {
+      width: var(--container-label);
+      margin-inline-start: calc(-18 / 500 * var(--container-label));
+      margin-top: calc(-18 / 500 * var(--container-label));
+    }
+  }
+
+  .bkode-body {
+    max-width: 44rem;
+  }
+
+  .bkode-title {
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .bkode-text {
+    max-width: 40rem;
+    margin-top: calc(var(--spacing) * 4);
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+    color: var(--color-text-muted);
+  }
+
+  .bkode-action {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+    margin-top: calc(var(--spacing) * 8);
+  }
+
+  .bkode-link:hover,
+  .bkode-link:focus-visible {
+    border-color: light-dark(var(--color-bkode-navy), var(--color-bkode-accent));
+  }
+
+  .bkode-host {
+    color: var(--color-text-muted);
+  }
+</style>

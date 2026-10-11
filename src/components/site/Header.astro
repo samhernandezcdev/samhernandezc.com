@@ -1,0 +1,589 @@
+---
+// Global header: a fixed-height sticky bar (height token --header-height).
+// Wordmark, section nav, then a utility cluster separated by hairlines:
+// search | language | theme switch | GitHub, LinkedIn.
+// Mobile (<48rem): wordmark + search + language + theme switch on the first
+// row, the nav on the second (the switch from 360px; below that, theme stays
+// in search). Social links appear from 64rem; below that they stay in search,
+// Contact and footer.
+// Language is a native <details> menu of plain links, each with a small flag
+// secondary to its name (works without JS). Theme is one switch: it flips the
+// rendered theme and stores that choice. With nothing stored the OS theme
+// applies ("System"); the search dialog's Theme row can return to System.
+// The switch needs JS and stays hidden without it (the OS theme applies).
+// Client JS justification: closing menus on outside click/Escape and the theme
+// switch; ~0.6 KB gz, inline module; no-JS fallback: the language menu and all
+// navigation still work, the OS theme applies.
+import Chevron from "@/components/icons/Chevron.astro";
+import Flag from "@/components/icons/Flag.astro";
+import GitHub from "@/components/icons/GitHub.astro";
+import LinkedIn from "@/components/icons/LinkedIn.astro";
+import Icon from "@/components/icons/Icon.astro";
+import CommandPalette from "@/components/site/CommandPalette.astro";
+import ExternalLink from "@/components/system/ExternalLink.astro";
+import { aboutPaths, homePaths, links, t, workPaths, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  /** Path of this page in the other language, when it exists. */
+  alternatePath?: string;
+  showNotes?: boolean;
+  /** Route section the current page belongs to (sets aria-current). */
+  current?: "work" | "notes" | "about";
+}
+
+const { locale, alternatePath, showNotes = false, current } = Astro.props;
+const home = homePaths[locale];
+
+// Notes are English-only: on Spanish pages the link is marked EN.
+const nav = [
+  { id: "work", href: workPaths[locale], label: t(locale, "nav.work"), englishOnly: false },
+  ...(showNotes
+    ? [{ id: "notes", href: "/notes", label: t(locale, "nav.notes"), englishOnly: locale !== "en" }]
+    : []),
+  { id: "about", href: aboutPaths[locale], label: t(locale, "nav.about"), englishOnly: false },
+];
+
+// Language menu: the site language of this page, and the other one. When this
+// page has no translation, the other option says it leads to that home page.
+const languages = [
+  {
+    code: "en" as const,
+    name: t(locale, "lang.english"),
+    href: locale === "en" ? undefined : (alternatePath ?? homePaths.en),
+  },
+  {
+    code: "es" as const,
+    name: locale === "en" && !alternatePath ? t(locale, "lang.spanishHome") : t(locale, "lang.spanish"),
+    href: locale === "es" ? undefined : (alternatePath ?? homePaths.es),
+  },
+];
+const currentLanguage = languages.find((language) => language.code === locale)!;
+---
+
+<header class="site-header">
+  <div class="page site-header-row">
+    <a class="wordmark" href={home} aria-label={t(locale, "nav.home")}>Samuel Hernández</a>
+
+    <nav class="site-nav" aria-label={t(locale, "nav.label")}>
+      <ul>
+        {
+          nav.map(({ id, href, label, englishOnly }) => (
+            <li>
+              <a
+                class="link-quiet nav-link"
+                href={href}
+                hreflang={englishOnly ? "en" : undefined}
+                aria-current={current === id ? "page" : undefined}
+              >
+                {label}
+                {englishOnly && (
+                  <span class="meta nav-lang">
+                    EN<span class="visually-hidden">, {t(locale, "lang.englishOnly")}</span>
+                  </span>
+                )}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="utilities" role="group" aria-label={t(locale, "header.tools")}>
+      <div class="util-group util-search">
+        <CommandPalette locale={locale} alternatePath={alternatePath} />
+      </div>
+
+      <div class="util-group">
+        <details class="util-menu" data-util-menu data-lang-menu>
+          <summary class="util-button" aria-label={`${t(locale, "lang.menu")}: ${currentLanguage.name}`}>
+            <Flag code={locale} />
+            <span class="util-code">{t(locale, "lang.current")}</span>
+            <Chevron class="util-chevron" />
+          </summary>
+          <ul class="util-panel">
+            {
+              languages.map((language) => (
+                <li>
+                  {language.href ? (
+                    <a class="util-option" href={language.href} hreflang={language.code} lang={language.code}>
+                      <span class="util-option-label"><Flag code={language.code} />{language.name}</span>
+                      <span class="util-check" aria-hidden="true">✓</span>
+                    </a>
+                  ) : (
+                    <span class="util-option" aria-current="true" lang={language.code}>
+                      <span class="util-option-label"><Flag code={language.code} />{language.name}</span>
+                      <span class="util-check" aria-hidden="true">✓</span>
+                    </span>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </details>
+      </div>
+
+      <div class="util-group util-theme" data-theme-wrap hidden>
+        <!-- One switch: flips the rendered theme (Light <-> Dark) and stores it. -->
+        <button
+          type="button"
+          class="theme-switch"
+          role="switch"
+          aria-checked="false"
+          aria-label={t(locale, "theme.switch")}
+          aria-describedby="theme-note"
+          data-theme-switch
+        >
+          <span class="theme-track" aria-hidden="true">
+            <span class="theme-thumb">
+              <Icon name="sun" class="theme-icon theme-icon-light" size={12} />
+              <Icon name="moon" class="theme-icon theme-icon-dark" size={12} />
+            </span>
+          </span>
+        </button>
+        <span
+          id="theme-note"
+          class="visually-hidden"
+          data-theme-note
+          data-following={t(locale, "theme.following")}
+          data-fixed={t(locale, "theme.fixed")}
+          data-light={t(locale, "palette.themeLight")}
+          data-dark={t(locale, "palette.themeDark")}
+        ></span>
+      </div>
+
+      <div class="util-group util-social">
+        <ExternalLink class="util-button util-icon" href={links.github} locale={locale} me label="GitHub" data-tip="GitHub">
+          <GitHub />
+        </ExternalLink>
+        <ExternalLink class="util-button util-icon" href={links.linkedin} locale={locale} me label="LinkedIn" data-tip="LinkedIn">
+          <LinkedIn />
+        </ExternalLink>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  import { readTheme, setTheme, type ThemeChoice } from "@/scripts/theme";
+
+  const menus = [...document.querySelectorAll<HTMLDetailsElement>("[data-util-menu]")];
+
+  // One menu open at a time; a click outside or Escape closes it.
+  for (const menu of menus) {
+    menu.addEventListener("toggle", () => {
+      if (menu.open) for (const other of menus) if (other !== menu) other.open = false;
+    });
+  }
+  document.addEventListener("click", (event) => {
+    for (const menu of menus) if (menu.open && !menu.contains(event.target as Node)) menu.open = false;
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    for (const menu of menus) {
+      if (!menu.open) continue;
+      menu.open = false;
+      menu.querySelector("summary")?.focus();
+    }
+  });
+
+  const wrap = document.querySelector<HTMLElement>("[data-theme-wrap]");
+  if (wrap) {
+    const root = document.documentElement;
+    const toggle = wrap.querySelector<HTMLButtonElement>("[data-theme-switch]")!;
+    const note = wrap.querySelector<HTMLElement>("[data-theme-note]")!;
+    const osDark = matchMedia("(prefers-color-scheme: dark)");
+    // Stored choice: light | system | dark. Rendered theme: light | dark.
+    const rendered = () => root.dataset.theme ?? (osDark.matches ? "dark" : "light");
+
+    const sync = () => {
+      const dark = rendered() === "dark";
+      toggle.setAttribute("aria-checked", String(dark));
+      const choice = readTheme();
+      note.textContent =
+        choice === "system" ? note.dataset.following! : `${note.dataset.fixed} ${dark ? note.dataset.dark : note.dataset.light}`;
+    };
+
+    sync();
+    wrap.hidden = false;
+    document.addEventListener("themechange", sync);
+    osDark.addEventListener("change", sync);
+    // The search dialog's theme row asks the header to apply a choice.
+    document.addEventListener("themerequest", (event) => setTheme((event as CustomEvent<ThemeChoice>).detail));
+    toggle.addEventListener("click", () => setTheme(rendered() === "dark" ? "light" : "dark"));
+  }
+</script>
+
+<style>
+  /* Sticky bar: solid page background, one hairline, fixed height. No shadow,
+     no blur, no movement while scrolling. */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background-color: var(--color-bg);
+    border-bottom: var(--border-hairline) solid var(--color-border);
+    view-transition-name: site-header;
+  }
+
+  .site-header-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+    gap: 0 var(--spacing-component);
+    min-height: calc(var(--header-height) - var(--border-hairline));
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+    margin-right: auto;
+    color: var(--color-text);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  /* Mobile: wordmark + utilities on the first row, the nav wraps to the second.
+     Desktop: wordmark, nav, utilities on one row. */
+  .utilities {
+    order: 1;
+  }
+
+  .site-nav {
+    order: 2;
+    flex-basis: 100%;
+  }
+
+  @media (min-width: 48rem) {
+    .site-nav {
+      order: 1;
+      flex-basis: auto;
+    }
+
+    .utilities {
+      order: 2;
+    }
+  }
+
+  .site-nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--spacing-inline);
+  }
+
+  /* On its own row the nav's first label lines up with the wordmark. */
+  @media (max-width: 47.99rem) {
+    .site-nav ul {
+      gap: 0;
+      margin-left: calc(var(--spacing-inline) * -1);
+    }
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+    padding-inline: var(--spacing-inline);
+    font-size: var(--text-small);
+  }
+
+  /* "EN" on an English-only destination: a muted superscript annotation, so it
+     reads as part of the link, not as a second language switch. */
+  .nav-lang {
+    margin-left: 0.15em;
+    font-size: 0.625rem;
+    vertical-align: super;
+    color: var(--color-text-muted);
+  }
+
+  /* Utility cluster ---------------------------------------------------------- */
+  .utilities,
+  .util-group {
+    display: flex;
+    align-items: center;
+  }
+
+  .util-group[hidden] {
+    display: none;
+  }
+
+  /* Short hairline separators between groups. */
+  .util-group + .util-group::before {
+    content: "";
+    width: var(--border-hairline);
+    height: 1.25rem;
+    margin-inline: calc(var(--spacing) * 1);
+    background-color: var(--color-border);
+  }
+
+  /* Without JS the search trigger is hidden: drop its group and the separator after it. */
+  .util-search:has(.palette-trigger[hidden]) {
+    display: none;
+  }
+
+  .util-search:has(.palette-trigger[hidden]) + .util-group::before {
+    display: none;
+  }
+
+  @media (max-width: 63.99rem) {
+    .util-social {
+      display: none;
+    }
+  }
+
+  /* Narrow phones keep brand, search and language; theme stays in search. */
+  @media (max-width: 22.49rem) {
+    .util-theme {
+      display: none;
+    }
+  }
+
+  .util-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 1);
+    min-width: var(--target-min);
+    min-height: var(--target-min);
+    padding-inline: calc(var(--spacing) * 2);
+    border: var(--border-hairline) solid transparent;
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+    text-decoration: none;
+    list-style: none;
+    cursor: pointer;
+    transition:
+      color var(--motion-fast) var(--ease-standard),
+      border-color var(--motion-fast) var(--ease-standard);
+  }
+
+  .util-button::-webkit-details-marker {
+    display: none;
+  }
+
+  .util-button:hover,
+  .util-menu[open] > .util-button {
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+
+  .util-icon {
+    padding-inline: 0;
+  }
+
+  .util-icon :global(svg) {
+    width: 1.0625rem;
+    height: 1.0625rem;
+  }
+
+  .util-code {
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+  }
+
+  .util-menu :global(.util-chevron) {
+    opacity: 0.7;
+    transition: opacity var(--motion-fast) var(--ease-standard);
+  }
+
+  .util-menu[open] :global(.util-chevron) {
+    opacity: 1;
+  }
+
+  /* Theme switch: a track with a square thumb carrying sun/moon. The thumb
+     slides on the section duration; the outgoing glyph shrinks and fades as
+     the incoming one grows in; the track settles to the theme's surface. A
+     press nudges the thumb (feedback). No glow, bounce or spin; under reduced
+     motion every duration is 0. */
+  .theme-switch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--target-min);
+    min-height: var(--target-min);
+    padding-inline: calc(var(--spacing) * 1);
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .theme-track {
+    position: relative;
+    display: block;
+    width: 2.625rem;
+    height: 1.5rem;
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    transition:
+      border-color var(--motion-fast) var(--ease-standard),
+      background-color var(--motion-section) var(--ease-standard);
+  }
+
+  .theme-switch:hover .theme-track {
+    border-color: var(--color-text-muted);
+  }
+
+  .theme-switch[aria-checked="true"] .theme-track {
+    background-color: var(--color-bg);
+  }
+
+  .theme-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    display: grid;
+    place-items: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface-raised);
+    color: var(--color-text);
+    transition: transform var(--motion-section) var(--ease-standard);
+  }
+
+  .theme-switch[aria-checked="true"] .theme-thumb {
+    transform: translateX(1.125rem);
+  }
+
+  .theme-switch:active .theme-thumb {
+    transform: scale(0.92);
+  }
+
+  .theme-switch[aria-checked="true"]:active .theme-thumb {
+    transform: translateX(1.125rem) scale(0.92);
+  }
+
+  .theme-thumb :global(.theme-icon) {
+    grid-area: 1 / 1;
+    transition:
+      opacity var(--motion-ui) var(--ease-standard),
+      transform var(--motion-ui) var(--ease-standard);
+  }
+
+  .theme-switch[aria-checked="true"] .theme-thumb :global(.theme-icon-light),
+  .theme-switch[aria-checked="false"] .theme-thumb :global(.theme-icon-dark) {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  /* Menus -------------------------------------------------------------------- */
+  .util-menu {
+    position: relative;
+  }
+
+  .util-panel {
+    position: absolute;
+    top: calc(100% + var(--spacing) * 1);
+    right: 0;
+    z-index: 1;
+    display: grid;
+    min-width: 11rem;
+    padding: calc(var(--spacing) * 1);
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-raised);
+  }
+
+  /* Entrance: fade plus a 3px drop. Closing is immediate. */
+  .util-menu[open] > .util-panel {
+    transition:
+      opacity var(--motion-ui) var(--ease-standard),
+      transform var(--motion-ui) var(--ease-standard);
+  }
+
+  @starting-style {
+    .util-menu[open] > .util-panel {
+      opacity: 0;
+      transform: translateY(-3px);
+    }
+  }
+
+  .util-option-label {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+  }
+
+  .util-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-component);
+    width: 100%;
+    min-height: var(--target-min);
+    padding-inline: calc(var(--spacing) * 3);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--text-small);
+    text-align: left;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  a.util-option:hover,
+  button.util-option:hover {
+    background-color: var(--color-surface);
+  }
+
+  .util-option:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
+
+  /* Selected: heavier label plus a check mark, never color alone. */
+  .util-option[aria-current="true"],
+  .util-option[aria-pressed="true"] {
+    font-weight: 600;
+    cursor: default;
+  }
+
+  .util-check {
+    visibility: hidden;
+    color: var(--color-accent);
+  }
+
+  .util-option[aria-current="true"] .util-check,
+  .util-option[aria-pressed="true"] .util-check {
+    visibility: visible;
+  }
+
+  /* Concise tooltips for icon-only controls, on hover-capable fine pointers. */
+  @media (hover: hover) and (pointer: fine) {
+    .util-button[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      top: calc(100% + var(--spacing) * 1);
+      right: 0;
+      z-index: 1;
+      padding: calc(var(--spacing) * 0.5) calc(var(--spacing) * 2);
+      border: var(--border-hairline) solid var(--color-border-strong);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-surface-raised);
+      color: var(--color-text);
+      font-family: var(--font-sans);
+      font-size: var(--text-meta);
+      font-weight: 400;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .util-menu[open] > .util-button[data-tip]::after {
+      display: none;
+    }
+  }
+</style>

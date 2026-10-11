@@ -1,0 +1,143 @@
+/*
+  Design tokens for the redesigned site. Meaning and rules live in the
+  portfolio-design skill (references/tokens.md); values live only here.
+
+  Declared in Tailwind's @theme so utilities exist (bg-surface, text-text-muted,
+  text-meta, max-w-prose…), `static` so every token is always emitted for the
+  plain-CSS primitives. Tailwind's default palette, type scale, radii and
+  shadows are removed to keep ad-hoc values out.
+
+  Theme model: `color-scheme` drives every color through light-dark().
+  - No data-theme  → follows the OS preference (works without JS).
+  - data-theme="light" | "dark" on <html> → manual override (ThemeScript).
+*/
+
+@theme static {
+  /* Color — semantic roles only */
+  --color-*: initial;
+  --color-bg: light-dark(oklch(0.972 0.004 95), oklch(0.205 0.006 75));
+  --color-surface: light-dark(oklch(0.945 0.005 95), oklch(0.245 0.006 75));
+  --color-surface-raised: light-dark(oklch(0.993 0.003 95), oklch(0.295 0.007 75));
+  --color-text: light-dark(oklch(0.24 0.008 80), oklch(0.93 0.008 85));
+  --color-text-muted: light-dark(oklch(0.47 0.01 80), oklch(0.74 0.01 85));
+  --color-border: light-dark(oklch(0.885 0.006 90), oklch(0.32 0.007 75));
+  --color-border-strong: light-dark(oklch(0.78 0.008 90), oklch(0.42 0.008 75));
+  /* Drafting green: the accent of engineering computation pads. Links, focus, `building`. */
+  --color-accent: light-dark(oklch(0.47 0.075 170), oklch(0.78 0.08 170));
+  --color-accent-hover: light-dark(oklch(0.4 0.07 170), oklch(0.85 0.07 170));
+  --color-accent-contrast: light-dark(oklch(0.985 0.004 95), oklch(0.2 0.01 170));
+  --color-focus: var(--color-accent);
+  /* BKODE brand band only (BkodeBanner.astro); never used outside .bkode.
+     Colors come from the official logos: a pale cool surface for the navy
+     logo (light) and BKODE ink for the white logo (dark); navy is the logo's
+     mark color (#0B1F3A); the blue is its accent bar (#4FA7FF). */
+  --color-bkode-surface: light-dark(oklch(0.945 0.014 255), oklch(0.17 0.012 255));
+  --color-bkode-navy: oklch(0.243 0.055 262.3);
+  --color-bkode-accent: oklch(0.714 0.154 250.9);
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Typography */
+  --font-*: initial;
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --text-*: initial;
+  --text-meta: 0.8125rem; /* 13px, mono metadata */
+  --text-meta--line-height: 1.5;
+  --text-small: 0.875rem; /* 14px */
+  --text-small--line-height: 1.5;
+  --text-body: clamp(1.0625rem, 1.03rem + 0.16vw, 1.125rem); /* 17 → 18px */
+  --text-body--line-height: 1.6;
+  --text-lead: clamp(1.1875rem, 1.12rem + 0.3vw, 1.3125rem); /* 19 → 21px */
+  --text-lead--line-height: 1.5;
+  --text-h3: clamp(1.125rem, 1.07rem + 0.25vw, 1.25rem); /* 18 → 20px */
+  --text-h3--line-height: 1.3;
+  --text-h2: clamp(1.375rem, 1.24rem + 0.6vw, 1.75rem); /* 22 → 28px */
+  --text-h2--line-height: 1.25;
+  --text-h1: clamp(1.875rem, 1.55rem + 1.4vw, 2.75rem); /* 30 → 44px */
+  --text-h1--line-height: 1.12;
+  --text-display: clamp(2.25rem, 1.8rem + 2vw, 3.25rem); /* 36 → 52px, one per page at most */
+  --text-display--line-height: 1.08;
+  --text-masthead: clamp(2.75rem, 1.6rem + 4.2vw, 5.5rem); /* 44 → 88px, the homepage name only */
+  --text-masthead--line-height: 1;
+
+  --leading-tight: 1.12;
+  --leading-heading: 1.3;
+  --leading-body: 1.6;
+  --leading-meta: 1.5;
+
+  /* Spacing: Tailwind's 4px steps (1 2 3 4 6 8 12 16 24) plus semantic tokens. */
+  --spacing-inline: 0.5rem; /* gap between inline items */
+  --spacing-component: 1rem; /* padding inside rows, blocks, controls */
+  --spacing-component-lg: 1.5rem;
+  --spacing-section: clamp(3rem, 2rem + 4vw, 6rem); /* between page sections */
+  --spacing-gutter: clamp(1rem, 0.6rem + 1.6vw, 2rem); /* page side padding */
+
+  /* Layout */
+  --container-page: 70rem; /* 1120px */
+  --container-prose: 68ch;
+  --container-rail: 15rem; /* future case-study metadata/TOC rail */
+  --container-label: 11rem; /* metadata column: the page's shared left axis */
+
+  /* Shape */
+  --radius-*: initial;
+  --radius-sm: 4px; /* chips, inline code, diagram nodes */
+  --radius-md: 6px; /* controls, code blocks, figures */
+  --shadow-*: initial;
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --default-transition-duration: 120ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root {
+  color-scheme: light dark;
+
+  --flow: 1.25em; /* prose rhythm between blocks */
+  --border-hairline: 1px;
+  --target-min: 2.5rem; /* 40px on fine pointers */
+
+  /* Motion vocabulary: three durations, one curve (--ease-standard). Every
+     transition in the site uses these; all drop to 0 under reduced motion. */
+  --motion-fast: 120ms; /* hover, color, border, small glyph nudges */
+  --motion-ui: 160ms; /* controls changing state: switch thumb, menus, dialog, copy feedback, page cross-fade */
+  --motion-section: 220ms; /* larger regions: section ticks, Architecture Trace */
+
+  /* Sticky geometry. The header is a fixed-height sticky bar: one 4rem row on
+     desktop, two target-height rows (brand + tools, nav) below 48rem. Anything
+     sticky or anchored sits under it via --sticky-offset; nothing else
+     hardcodes a top offset. */
+  --header-height: calc(4rem + var(--border-hairline));
+  --sticky-offset: calc(var(--header-height) + var(--spacing-component-lg));
+  --z-header: 30;
+}
+
+@media (max-width: 47.99rem) {
+  :root {
+    --header-height: calc(2 * var(--target-min) + var(--border-hairline));
+  }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@media (pointer: coarse) {
+  :root {
+    --target-min: 2.75rem; /* 44px touch targets */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-section: 0ms;
+    --motion-ui: 0ms;
+  }
+}

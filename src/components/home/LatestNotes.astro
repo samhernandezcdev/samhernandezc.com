@@ -1,0 +1,36 @@
+---
+// Renders nothing until at least one note is published (no placeholders).
+// At most three notes: date, reading time, title and description.
+import NoteRow from "@/components/notes/NoteRow.astro";
+import { t, type Locale } from "@/i18n/ui";
+import { getPublishedNotes } from "@/lib/content";
+
+interface Props {
+  locale: Locale;
+  limit?: number;
+}
+
+const { locale, limit = 3 } = Astro.props;
+const notes = (await getPublishedNotes()).slice(0, limit);
+---
+
+{
+  notes.length > 0 && (
+    <section class="page-section" aria-labelledby="notes-title">
+      <div class="section-head">
+        <h2 id="notes-title">{t(locale, "notes.title")}</h2>
+      </div>
+      <div class="notes-ledger">
+        {notes.map((note) => (
+          <NoteRow note={note} locale={locale} showTags={false} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .notes-ledger {
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+</style>

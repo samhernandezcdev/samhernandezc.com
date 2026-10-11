@@ -1,0 +1,15 @@
+---
+// Applies a saved manual theme before first paint (no flash). Without JS or a
+// saved choice, `color-scheme: light dark` follows the OS preference.
+// Client JS justification: prevents a wrong-theme flash; ~200 bytes, inline,
+// eager; no-JS fallback is the system theme.
+---
+
+<script is:inline>
+  (function () {
+    try {
+      var theme = localStorage.getItem("theme");
+      if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+    } catch (_) {}
+  })();
+</script>

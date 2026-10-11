@@ -1,0 +1,112 @@
+/*
+  Visual language for the future SystemDiagram: layered rows of nodes, real text.
+  Node kinds: service, store, queue, external. Edges between layers: sync (solid)
+  or async (dotted). Dashed stays reserved for "planned / not built".
+*/
+@layer components {
+  .diagram {
+    padding: var(--spacing-component-lg);
+    border: var(--border-hairline) solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .diagram-layers {
+    display: grid;
+    gap: 2rem;
+    list-style: none;
+    padding: 0;
+  }
+
+  .diagram-layer {
+    position: relative;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  /* Connector from the previous layer, centered. */
+  .diagram-layer + .diagram-layer::before {
+    content: "";
+    position: absolute;
+    top: -2rem;
+    left: 50%;
+    height: 2rem;
+    border-left: 2px solid var(--color-text-muted);
+    transform: translateX(-1px);
+  }
+
+  .diagram-layer[data-edge="async"]::before {
+    border-left-style: dotted;
+    border-left-width: 3px;
+    transform: translateX(-1.5px);
+  }
+
+  .diagram-layer + .diagram-layer::after {
+    content: "";
+    position: absolute;
+    top: -0.55rem;
+    left: calc(50% - 0.4rem);
+    border: 0.4rem solid transparent;
+    border-top-color: var(--color-text-muted);
+  }
+
+  .diagram-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  .diagram-nodes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    list-style: none;
+    padding: 0;
+  }
+
+  .diagram-node {
+    display: grid;
+    min-width: 9rem;
+    padding: 0.5rem 0.75rem;
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface-raised);
+    font-size: var(--text-small);
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  .diagram-node > .diagram-kind {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--color-text-muted);
+  }
+
+  /* store: heavier base, a nod to the cylinder */
+  .diagram-node[data-kind="store"] {
+    border-bottom: 3px double var(--color-border-strong);
+  }
+
+  /* queue: segmented left edge */
+  .diagram-node[data-kind="queue"] {
+    border-left: 4px double var(--color-border-strong);
+  }
+
+  /* external: outside our boundary — no surface, muted */
+  .diagram-node[data-kind="external"] {
+    background-color: var(--color-bg); /* page-colored: routes never show through */
+    border-color: var(--color-border);
+    color: var(--color-text-muted);
+  }
+
+  .diagram-node.planned {
+    border-style: dashed;
+  }
+
+  .diagram figcaption {
+    margin-top: var(--spacing-component);
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+}

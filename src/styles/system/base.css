@@ -1,0 +1,111 @@
+@layer base {
+  html {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    scrollbar-color: var(--color-border-strong) transparent;
+    /* Anchors and focus land below the sticky header. */
+    scroll-padding-top: var(--sticky-offset);
+  }
+
+  /* Column layout so <main> absorbs spare height and the footer sits at the
+     bottom of short pages. */
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    font-feature-settings: "ss01";
+  }
+
+  body > main {
+    flex: 1 0 auto;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    line-height: var(--leading-heading);
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: var(--text-h1);
+    line-height: var(--leading-tight);
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: var(--text-h2);
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: var(--text-h3);
+  }
+
+  p,
+  li,
+  figcaption {
+    text-wrap: pretty;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+    font-variant-ligatures: none;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-accent) 25%, transparent);
+    color: var(--color-text);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  hr {
+    border: 0;
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+}
+
+/* Native cross-document view transitions: a short cross-fade, no JS router. */
+@view-transition {
+  navigation: auto;
+}
+
+/* Page and theme cross-fades stay short: an opacity cross-fade only (no slide,
+   no overlay). The header has its own group so it holds still; every group
+   uses the same duration. */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: var(--motion-ui);
+  animation-timing-function: var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}

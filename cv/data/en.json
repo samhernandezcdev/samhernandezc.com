@@ -1,0 +1,136 @@
+{
+  "lang": "en",
+  "file": "Samuel-Hernandez-CV-EN.pdf",
+  "title": "Samuel Hernández — Software Engineer — CV",
+  "name": "Samuel Hernández",
+  "headline": "Software Engineer",
+  "location": "Villahermosa, Mexico · Open to remote",
+  "contacts": [
+    {
+      "text": "sam.hernandezc103@gmail.com",
+      "href": "mailto:sam.hernandezc103@gmail.com"
+    },
+    {
+      "text": "samhernandezc.bkode.lat",
+      "href": "https://samhernandezc.bkode.lat"
+    },
+    {
+      "text": "linkedin.com/in/samueldhernandezc",
+      "href": "https://www.linkedin.com/in/samueldhernandezc"
+    },
+    {
+      "text": "github.com/samhernandezcdev",
+      "href": "https://github.com/samhernandezcdev"
+    }
+  ],
+  "labels": {
+    "summary": "Summary",
+    "experience": "Professional Experience",
+    "projects": "Engineering Case Study",
+    "skills": "Technical Skills",
+    "education": "Education & Languages"
+  },
+  "summary": [
+    "Software engineer with 4+ years building backend services and internal applications for industrial and business operations. Focused on domain-heavy systems where correctness matters: engineering calculations, business rules, validation, and data that has to stay consistent across systems. Currently the primary implementer of an internal engineering calculation and configuration platform built with Python, FastAPI, PostgreSQL and React/TypeScript.",
+    "Extending the same backend and correctness work toward applied AI systems, with a focus on evaluation, observability and reliable infrastructure. Looking for remote Software Engineer and Backend Engineer roles."
+  ],
+  "experience": [
+    {
+      "role": "Software Developer",
+      "org": "Cables del Golfo MX",
+      "period": "Nov 2025 – Present",
+      "intro": "Primary implementer of an internal engineering calculation and configuration platform for industrial lifting equipment, in use as part of the company's technical and commercial workflow.",
+      "bullets": [
+        "Designed the platform architecture and implemented its integration boundaries with ERP and CRM systems.",
+        "Built the Python/FastAPI backend, its REST API contracts and the React/TypeScript configuration workflow.",
+        "Implemented deterministic calculations, server-side validation and component compatibility and selection logic from formulas and technical rules owned and validated by engineering specialists.",
+        "Analyzed the existing spreadsheet calculators (inputs, outputs, formulas and dependencies) with engineering, commercial and operations stakeholders, and translated their rules into backend domain logic.",
+        "Designed PostgreSQL persistence for saved technical configurations and their calculated state, so saved work is not silently recomputed against current data.",
+        "Wrote automated tests for calculation and domain behavior, validation rules, regression cases and API behavior, checked against reference calculators and known cases. Set up Docker for development and deployment; maintain and evolve the application."
+      ]
+    },
+    {
+      "role": "IT Consultant & Software Developer",
+      "org": "Heavy-Lift Rigging Services & Consulting Mexico",
+      "period": "Dec 2024 – Sep 2025",
+      "bullets": [
+        "Ran IT engagements from requirements workshops to delivery: vendor evaluation, software architecture, architecture decision records (ADRs) and solution architecture reports.",
+        "Wrote a GraphQL vs. REST evaluation for ASP.NET Core microservices and designed an event-driven architecture for a hybrid affiliate platform."
+      ]
+    },
+    {
+      "role": "Software Developer",
+      "org": "Heavy-Lift Rigging Services & Consulting Mexico",
+      "period": "May 2023 – Jul 2024",
+      "bullets": [
+        "Built and maintained internal web applications with ASP.NET Core (C#), Angular and SQL Server, and Power BI dashboards for the finance and operations teams.",
+        "Built a Flutter (BLoC) mobile inspection app for field data capture, with synchronization across sites."
+      ]
+    },
+    {
+      "role": "Software Developer",
+      "org": "GUMEC Soluciones Tecnológicas",
+      "period": "Dec 2022 – Mar 2024",
+      "bullets": [
+        "Owned the full development cycle of a document management system for the oil and energy sector (Laravel, Vue.js, MySQL), including its production deployments.",
+        "Implemented data-processing modules for oil-well performance analysis, with encryption and role-based access control for confidential documents."
+      ]
+    },
+    {
+      "role": "Programmer / Research Developer",
+      "org": "Tecnológico Nacional de México — Instituto Tecnológico de Villahermosa",
+      "period": "Mar 2022 – Dec 2022",
+      "bullets": [
+        "Built a geospatial web application with PostgreSQL, Django and React (Remix)."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Industrial engineering calculation and configuration platform",
+      "meta": "Production, internal · Python, FastAPI, PostgreSQL, React, TypeScript, Docker",
+      "links": [
+        {
+          "text": "Case study: samhernandezc.bkode.lat/work/industrial-engineering-platform",
+          "href": "https://samhernandezc.bkode.lat/work/industrial-engineering-platform"
+        }
+      ],
+      "bullets": [
+        "Made the backend the single authority for calculation and validation: the frontend validates for usability, the backend enforces, so requests that bypass the UI still meet the engineering rules.",
+        "Separated deterministic engineering calculations from changing operational data: ERP-derived availability and catalog data informed component selection, while CRM remained authoritative for commercial quotation and pricing."
+      ],
+      "after": [
+        {
+          "text": "Engineering note: samhernandezc.bkode.lat/notes/deterministic-rules-changing-data",
+          "href": "https://samhernandezc.bkode.lat/notes/deterministic-rules-changing-data"
+        }
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "group": "Backend",
+      "items": "Python, FastAPI, REST API design, C# / ASP.NET Core, Django, PHP / Laravel"
+    },
+    {
+      "group": "Data",
+      "items": "PostgreSQL, SQL Server, MySQL, relational data modeling, persistence design, Power BI"
+    },
+    {
+      "group": "Frontend",
+      "items": "TypeScript, JavaScript, React, Angular, Vue.js"
+    },
+    {
+      "group": "Testing & delivery",
+      "items": "Automated testing (domain, validation, regression and API tests), Docker, Git, AWS fundamentals"
+    }
+  ],
+  "education": [
+    {
+      "title": "B.Eng. in Computer Systems Engineering",
+      "detail": "Tecnológico Nacional de México — Instituto Tecnológico de Villahermosa",
+      "period": "2019 – 2024"
+    }
+  ],
+  "languages": "Spanish — Native · English — Intermediate"
+}

@@ -1,0 +1,264 @@
+---
+// Long-form reading layout shared by case studies and notes. Desktop (64rem+):
+// a rail (optional metadata slot + "On this page") that sticks under the global
+// header (--sticky-offset) beside a 68ch prose column. Mobile: rail content,
+// then "On this page" as a native disclosure collapsed by default, then the
+// prose; nothing sticky.
+// Client JS justification: marking the section being read in the desktop
+// contents list (IntersectionObserver, no scroll listener); ~0.4 KB gz, inline.
+// No-JS fallback: the contents list works as plain anchor links.
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+  /** Accessible name of the rail. */
+  railLabel: string;
+  /** Visible label of the contents list. */
+  contentsLabel: string;
+  /** Only long articles get a contents list. */
+  minSections?: number;
+}
+
+const { headings, railLabel, contentsLabel, minSections = 4 } = Astro.props;
+const toc = headings.filter((heading) => heading.depth === 2);
+const showToc = toc.length >= minSections;
+const hasRail = showToc || Astro.slots.has("rail");
+---
+
+<div class:list={["article-layout", hasRail && "article-layout-rail"]}>
+  {
+    hasRail && (
+      <aside class="article-rail" aria-label={railLabel}>
+        <slot name="rail" />
+        {showToc && (
+          <>
+            {/* Desktop: always-visible list in the sticky rail. */}
+            <nav class="article-toc article-toc-rail" aria-labelledby="toc-rail-title" data-toc-rail>
+              <p id="toc-rail-title" class="label article-toc-title">{contentsLabel}</p>
+              <ol>
+                {toc.map((heading) => (
+                  <li><a class="link-quiet" href={`#${heading.slug}`}>{heading.text}</a></li>
+                ))}
+              </ol>
+            </nav>
+            {/* Mobile: native disclosure, collapsed so the article starts right away. */}
+            <details class="article-toc article-toc-disclosure">
+              <summary class="label">{contentsLabel}</summary>
+              <nav aria-label={contentsLabel}>
+                <ol>
+                  {toc.map((heading) => (
+                    <li><a class="link-quiet" href={`#${heading.slug}`}>{heading.text}</a></li>
+                  ))}
+                </ol>
+              </nav>
+            </details>
+          </>
+        )}
+      </aside>
+    )
+  }
+
+  <div class="prose article-prose">
+    <slot />
+  </div>
+</div>
+
+<script>
+  // Scroll-spy for the desktop contents list. The observer's top edge sits on
+  // the sticky offset; thresholds 0 and 1 make the callback run when a
+  // heading's top or bottom crosses that line, never on every scroll event.
+  const nav = document.querySelector<HTMLElement>("[data-toc-rail]");
+  const rail = nav?.closest<HTMLElement>(".article-rail");
+  if (nav && rail && "IntersectionObserver" in window) {
+    const links = [...nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')];
+    const headings = links
+      .map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
+      .filter((heading) => heading !== null);
+    const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+
+    const mark = (id: string | undefined) => {
+      for (const link of links) {
+        if (link.hash.slice(1) !== id) {
+          link.removeAttribute("aria-current");
+          continue;
+        }
+        link.setAttribute("aria-current", "location");
+        // Keep the current entry visible when the rail itself scrolls.
+        const box = rail.getBoundingClientRect();
+        const item = link.getBoundingClientRect();
+        if (item.bottom > box.bottom) rail.scrollTop += item.bottom - box.bottom;
+        else if (item.top < box.top) rail.scrollTop -= box.top - item.top;
+      }
+    };
+
+    const update = () => {
+      let current: string | undefined;
+      // At the end of the page the last sections cannot reach the line: the
+      // lowest heading in view is the one being read.
+      const atEnd = innerHeight + scrollY >= document.documentElement.scrollHeight - 2;
+      for (const heading of headings) {
+        const top = heading.getBoundingClientRect().top;
+        if (top <= offset + 2 || (atEnd && top < innerHeight)) current = heading.id;
+      }
+      mark(current);
+    };
+
+    const observer = new IntersectionObserver(update, { rootMargin: `-${offset + 1}px 0px 0px 0px`, threshold: [0, 1] });
+    for (const heading of headings) observer.observe(heading);
+    // A short last section may never reach the line: a click marks it directly.
+    for (const link of links) link.addEventListener("click", () => requestAnimationFrame(() => mark(link.hash.slice(1))));
+  }
+</script>
+
+<style>
+  .article-layout {
+    display: grid;
+    /* minmax(0, …): long code lines scroll inside <pre> instead of widening
+       the column past the viewport. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: calc(var(--spacing) * 8);
+    margin-top: calc(var(--spacing) * 8);
+  }
+
+  @media (min-width: 64rem) {
+    .article-layout-rail {
+      grid-template-columns: var(--container-rail) minmax(0, var(--container-prose));
+      gap: calc(var(--spacing) * 16);
+    }
+
+    /* Sticks under the global header; a rail taller than the viewport
+       scrolls inside itself instead of hiding its last entries. */
+    .article-rail {
+      position: sticky;
+      top: var(--sticky-offset);
+      align-self: start;
+      max-height: calc(100dvh - var(--sticky-offset) - var(--spacing-component-lg));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+  }
+
+  .article-toc {
+    margin-top: calc(var(--spacing) * 6);
+  }
+
+  .article-toc-title {
+    margin-bottom: calc(var(--spacing) * 2);
+  }
+
+  /* One contents list per breakpoint; the hidden one leaves the a11y tree. */
+  .article-toc-rail {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    .article-toc-rail {
+      display: block;
+    }
+
+    .article-toc-disclosure {
+      display: none;
+    }
+  }
+
+  .article-toc-disclosure {
+    margin-top: calc(var(--spacing) * 4);
+    border-block: var(--border-hairline) solid var(--color-border);
+  }
+
+  .article-toc-disclosure summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--target-min);
+    color: var(--color-text);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .article-toc-disclosure summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .article-toc-disclosure summary::after {
+    content: "+";
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+  }
+
+  .article-toc-disclosure[open] summary::after {
+    content: "−";
+  }
+
+  .article-toc-disclosure nav {
+    padding-bottom: var(--spacing-component);
+  }
+
+  .article-toc ol {
+    display: grid;
+    gap: 0;
+    border-left: var(--border-hairline) solid var(--color-border);
+  }
+
+  .article-toc a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: var(--target-min);
+    padding-left: var(--spacing-component);
+    font-size: var(--text-small);
+  }
+
+  .article-toc a:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* Desktop rail entries are denser with a fine pointer. */
+  @media (pointer: fine) {
+    .article-toc-rail a {
+      min-height: 2rem;
+      line-height: 1.3;
+    }
+  }
+
+  /* Section being read: full-strength text and a short drafting-green mark on
+     the list's rule. No fill, no motion. Distinct from focus (outline ring)
+     and from :target (the heading's tick). */
+  .article-toc-rail a[aria-current="location"] {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .article-toc-rail a[aria-current="location"]::before {
+    content: "";
+    position: absolute;
+    top: 0.45rem;
+    bottom: 0.45rem;
+    left: -1px;
+    border-left: 2px solid var(--color-accent);
+  }
+
+  /* Sections start on a hairline with the drafting-green tick, the same
+     section marker as the homepage. */
+  .article-prose > :global(h2) {
+    position: relative;
+    padding-top: var(--spacing-component-lg);
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .article-prose > :global(h2)::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 1.5rem;
+    border-top: 2px solid var(--color-accent);
+    transition: width var(--motion-section) var(--ease-standard);
+  }
+
+  /* Arriving through "On this page" or an anchor: the section tick lengthens. */
+  .article-prose > :global(h2:target)::before {
+    width: 3rem;
+  }
+</style>

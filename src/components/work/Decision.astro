@@ -1,0 +1,84 @@
+---
+// One engineering decision: problem, choice, why, trade-off. The visual center
+// of a case study: a strong rule, the decision as a heading, and a key/value
+// sheet. Used inside case-study MDX.
+interface Props {
+  title: string;
+  problem: string;
+  choice: string;
+  why: string;
+  tradeoff?: string;
+}
+
+const { title, problem, choice, why, tradeoff } = Astro.props;
+const rows = [
+  ["Problem", problem],
+  ["Choice", choice],
+  ["Why", why],
+  ...(tradeoff ? [["Trade-off", tradeoff]] : []),
+];
+---
+
+<section class="decision" aria-label={`Decision: ${title}`}>
+  <h3 class="decision-title">{title}</h3>
+  <dl class="decision-sheet">
+    {
+      rows.map(([term, text]) => (
+        <>
+          <dt class:list={["label", term === "Trade-off" && "decision-tradeoff-term"]}>{term}</dt>
+          <dd class:list={[term === "Trade-off" && "decision-tradeoff"]}>{text}</dd>
+        </>
+      ))
+    }
+  </dl>
+</section>
+
+<style>
+  .decision {
+    margin-top: calc(var(--spacing) * 10);
+    padding-top: var(--spacing-component);
+    border-top: 2px solid var(--color-text);
+  }
+
+  .decision-title {
+    font-size: var(--text-h3);
+    line-height: var(--leading-heading);
+  }
+
+  .decision-sheet {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin-top: var(--spacing-component);
+  }
+
+  @media (min-width: 40rem) {
+    .decision-sheet {
+      grid-template-columns: 6.5rem minmax(0, 1fr);
+    }
+  }
+
+  .decision-sheet > dt,
+  .decision-sheet > dd {
+    padding-block: 0.55rem;
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .decision-sheet > dt {
+    padding-right: var(--spacing-component);
+  }
+
+  @media (max-width: 39.99rem) {
+    .decision-sheet > dd {
+      padding-top: 0.1rem;
+      border-top: 0;
+    }
+  }
+
+  .decision-sheet > dd {
+    font-size: var(--text-body);
+  }
+
+  .decision-tradeoff {
+    color: var(--color-text-muted);
+  }
+</style>

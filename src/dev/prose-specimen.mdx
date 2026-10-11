@@ -1,0 +1,62 @@
+{/* Dev-only typography specimen for /dev/design-system. Not an article; never published. */}
+
+## Idempotent writes
+
+A client that retries a request after a timeout cannot know whether the first
+attempt reached the database. If the endpoint is not idempotent, the retry can
+create a second record. The usual fix is an **idempotency key**: the client
+sends a unique key with the request, and the server stores the result of the
+first attempt under that key.
+
+The key has to be stored in the same transaction as the write. Storing it
+afterwards leaves a window where the write succeeded but the key was lost, which
+is exactly the failure the key was meant to cover. See the
+[PostgreSQL documentation on transactions](https://www.postgresql.org/docs/current/tutorial-transactions.html)
+for the isolation guarantees involved.
+
+### What the server stores
+
+1. The key and a hash of the request body.
+2. The response status and body of the first attempt.
+3. A creation time, so old keys can expire.
+
+- Reject a repeated key with a different body hash.
+- Return the stored response for an identical retry.
+- Expire keys after a window the clients agree on.
+
+> Retries are only safe when the server can recognise them. Without a key,
+> "at least once" delivery becomes "sometimes twice".
+
+```python
+async def create_order(payload: OrderIn, key: str, db: Connection) -> OrderOut:
+    async with db.transaction():
+        existing = await db.fetchrow(
+            "SELECT response FROM idempotency_keys WHERE key = $1 FOR UPDATE", key
+        )
+        if existing:
+            return OrderOut.model_validate_json(existing["response"])
+        order = await insert_order(db, payload)
+        await db.execute(
+            "INSERT INTO idempotency_keys (key, response) VALUES ($1, $2)",
+            key, order.model_dump_json(),
+        )
+        return order
+```
+
+Use `SELECT … FOR UPDATE` to serialise concurrent retries on the same key, and
+press <kbd>Ctrl</kbd> + <kbd>C</kbd> to stop the local server.
+
+| Strategy | Storage | Concurrent retries | Expiry |
+| --- | --- | --- | --- |
+| Key table in the same database | 1 row per request | Row lock | Scheduled delete |
+| Cache with TTL | In memory | Needs a lock | Built in |
+| Natural unique constraint | None extra | Constraint error | Not needed |
+
+<figure>
+  <svg viewBox="0 0 600 120" role="img" aria-label="Placeholder figure frame" width="600" height="120" style="width:100%;height:auto;border:1px solid var(--color-border);border-radius:var(--radius-md)"></svg>
+  <figcaption>Figure caption: one sentence that says what the figure shows.</figcaption>
+</figure>
+
+---
+
+A closing paragraph after a rule, to check the rhythm between sections.

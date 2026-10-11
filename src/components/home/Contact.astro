@@ -1,0 +1,271 @@
+---
+// Contact, on the page's 11rem axis. The email block leads: the address in
+// large type, then two actions (copy, write). Profiles and CVs follow as two
+// quiet link lists. No cards, no form.
+// Client JS justification: copying needs the Clipboard API; ~0.5 KB gz,
+// inline module, runs on click. If copying fails the address is selected
+// instead (never a false "Copied"). No-JS fallback: the copy button stays
+// hidden; the address is selectable text and "Write an email" is a mailto link.
+import GitHub from "@/components/icons/GitHub.astro";
+import Icon from "@/components/icons/Icon.astro";
+import LinkedIn from "@/components/icons/LinkedIn.astro";
+import ExternalLink from "@/components/system/ExternalLink.astro";
+import { links, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "");
+// Narrow screens break the address after "@", never inside the domain.
+const [user, domain] = links.email.split("@");
+---
+
+<section id="contact" class="page-section" aria-labelledby="contact-title">
+  <div class="section-head">
+    <h2 id="contact-title">{t(locale, "contact.title")}</h2>
+    <p class="contact-lead">{t(locale, "contact.lead")}</p>
+  </div>
+
+  <div class="axis contact-email">
+    <p class="label contact-label"><Icon name="mail" />{t(locale, "contact.email")}</p>
+    <div>
+      <p class="contact-address" data-copy-source>{user}@<wbr />{domain}</p>
+      <div class="contact-actions">
+        <button type="button" class="button contact-copy" data-copy={links.email} data-state="idle" hidden>
+          <span class="copy-label" data-for="idle"><Icon name="copy" />{t(locale, "contact.copy")}</span>
+          <span class="copy-label" data-for="copied"><Icon name="check" class="copy-check" />{t(locale, "contact.copiedShort")}</span>
+          <span class="copy-label" data-for="failed">{t(locale, "contact.copyFailedShort")}</span>
+        </button>
+        <a class="button" href={`mailto:${links.email}`}><Icon name="send" />{t(locale, "contact.write")}</a>
+      </div>
+      <p
+        class="visually-hidden"
+        aria-live="polite"
+        data-copy-status
+        data-copied={t(locale, "contact.copied")}
+        data-failed={t(locale, "contact.copyFailed")}
+      >
+      </p>
+    </div>
+  </div>
+
+  <div class="axis contact-more">
+    <span class="contact-spacer" aria-hidden="true"></span>
+    <div class="contact-groups">
+      <div>
+        <h3 class="label contact-group-title">{t(locale, "contact.profiles")}</h3>
+        <ul class="contact-links">
+          <li>
+            <span class="contact-icon"><LinkedIn /></span>
+            <ExternalLink class="link contact-link" href={links.linkedin} locale={locale} me arrow>LinkedIn</ExternalLink>
+            <span class="meta contact-detail">{bare(links.linkedin)}</span>
+          </li>
+          <li>
+            <span class="contact-icon"><GitHub /></span>
+            <ExternalLink class="link contact-link" href={links.github} locale={locale} me arrow>GitHub</ExternalLink>
+            <span class="meta contact-detail">{bare(links.github)}</span>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="label contact-group-title">{t(locale, "contact.cv")}</h3>
+        <ul class="contact-links">
+          <li>
+            <span class="contact-icon"><Icon name="file-text" /></span>
+            <ExternalLink class="link contact-link" href={links.cv.en} hreflang="en" type="application/pdf" locale={locale} arrow>
+              <span lang="en">{t("en", "lang.english")}</span>
+            </ExternalLink>
+            <span class="badge">PDF</span>
+          </li>
+          <li>
+            <span class="contact-icon"><Icon name="file-text" /></span>
+            <ExternalLink class="link contact-link" href={links.cv.es} hreflang="es" type="application/pdf" locale={locale} arrow>
+              <span lang="es">{t("es", "lang.spanish")}</span>
+            </ExternalLink>
+            <span class="badge">PDF</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Availability is the message, not a muted aside. */
+  .contact-lead {
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+    text-wrap: pretty;
+  }
+
+  .contact-label {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    align-self: start;
+    padding-top: 0.6rem;
+  }
+
+  /* The address is the section's subject and the page's closing action:
+     large and selectable, at the same h1 scale as the featured project and
+     BKODE titles so it closes the page without outranking them. It breaks
+     after "@" when it must; overflow-wrap is only a last resort. */
+  .contact-address {
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 3);
+    margin-top: var(--spacing-component-lg);
+  }
+
+  /* Copy button: the three labels share one grid cell, so the button keeps
+     the width of the longest one (no layout shift). The active label fades
+     and rises 2px into place; inactive ones are hidden from the name. */
+  .contact-copy {
+    display: inline-grid;
+    justify-items: center;
+    transition:
+      background-color var(--motion-fast) var(--ease-standard),
+      border-color var(--motion-ui) var(--ease-standard),
+      color var(--motion-fast) var(--ease-standard);
+  }
+
+  .contact-copy[hidden] {
+    display: none;
+  }
+
+  .copy-label {
+    grid-area: 1 / 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(2px);
+  }
+
+  /* Only the incoming label animates; the outgoing one leaves at once, so the
+     button's accessible name is always a single label. */
+
+  .contact-copy[data-state="idle"] [data-for="idle"],
+  .contact-copy[data-state="copied"] [data-for="copied"],
+  .contact-copy[data-state="failed"] [data-for="failed"] {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--motion-ui) var(--ease-standard),
+      transform var(--motion-ui) var(--ease-standard);
+  }
+
+  /* Success: check mark, wording and a text-colored border. Never color alone. */
+  .contact-copy[data-state="copied"] {
+    border-color: var(--color-text);
+  }
+
+  .contact-copy :global(.copy-check) {
+    color: var(--color-accent);
+  }
+
+  .contact-more {
+    margin-top: calc(var(--spacing) * 16);
+  }
+
+  @media (max-width: 47.99rem) {
+    .contact-spacer {
+      display: none;
+    }
+  }
+
+  .contact-groups {
+    display: grid;
+    gap: calc(var(--spacing) * 6) calc(var(--spacing) * 12);
+    padding-top: var(--spacing-component-lg);
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  @media (min-width: 40rem) {
+    .contact-groups {
+      grid-template-columns: repeat(2, max-content);
+    }
+  }
+
+  .contact-group-title {
+    margin-bottom: calc(var(--spacing) * 1);
+    font-weight: 400;
+  }
+
+  /* A small leading mark per destination: brand marks for profiles (the same
+     as the header), a document for the CVs. Decorative; the link names it. */
+  .contact-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 1rem;
+    color: var(--color-text-muted);
+  }
+
+  .contact-icon :global(svg) {
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
+
+  .contact-links li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 calc(var(--spacing) * 3);
+  }
+
+  .contact-link {
+    min-height: var(--target-min);
+  }
+
+  .contact-detail {
+    color: var(--color-text-muted);
+    overflow-wrap: anywhere;
+  }
+</style>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+    const block = button.closest(".contact-email");
+    const status = block?.querySelector<HTMLElement>("[data-copy-status]");
+    const source = block?.querySelector<HTMLElement>("[data-copy-source]");
+    if (!status || !source) continue;
+    let timer: number | undefined;
+
+    const show = (state: "copied" | "failed", message: string) => {
+      button.dataset.state = state;
+      // Clear first so a repeated message is announced again.
+      status.textContent = "";
+      setTimeout(() => (status.textContent = message), 50);
+      clearTimeout(timer);
+      timer = window.setTimeout(() => (button.dataset.state = "idle"), state === "copied" ? 1800 : 4000);
+    };
+
+    button.hidden = false;
+    button.addEventListener("click", async () => {
+      try {
+        if (!navigator.clipboard) throw new Error("Clipboard API unavailable");
+        await navigator.clipboard.writeText(button.dataset.copy ?? "");
+        show("copied", status.dataset.copied ?? "");
+      } catch {
+        // Fallback: select the address so it can be copied by hand.
+        const range = document.createRange();
+        range.selectNodeContents(source);
+        const selection = getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        show("failed", status.dataset.failed ?? "");
+      }
+    });
+  }
+</script>

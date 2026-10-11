@@ -1,0 +1,199 @@
+---
+// Evidence row for a published work entry: status/source, title, problem,
+// role, one verified result and a short stack. Decisions and trade-offs live in
+// the case study. On Spanish pages, English-only case studies are marked EN.
+import type { CollectionEntry } from "astro:content";
+
+import Icon from "@/components/icons/Icon.astro";
+import { t, type Locale, type UIKey } from "@/i18n/ui";
+import { verifiedOnly } from "@/lib/work";
+
+interface Props {
+  entry: CollectionEntry<"work">;
+  locale: Locale;
+  /** Case-study URL, when a case study exists. */
+  href?: string;
+  /** Render as a row on the shared axis (Work index) instead of a stacked row. */
+  ledger?: boolean;
+  /** Featured entry: an evidence record on the axis (status, source and role in
+   * the label column; title at h1 scale; the verified result as a statement). */
+  feature?: boolean;
+  /** Title heading level: h2 directly under a page h1, h3 inside a section. */
+  level?: 2 | 3;
+}
+
+const { entry, locale, href, ledger = false, feature = false, level = 3 } = Astro.props;
+const Heading = level === 2 ? "h2" : "h3";
+const { data } = entry;
+const es = locale === "es" ? data.es : undefined;
+const title = es?.title ?? data.title;
+const problem = es?.problem ?? data.problem ?? es?.summary ?? data.summary;
+const role = es?.role ?? data.role;
+const measured =
+  verifiedOnly(data.productionOutcomes)[0] ?? verifiedOnly(data.technicalMeasurements)[0];
+const result = measured
+  ? `${measured.label}: ${measured.value}${"unit" in measured && measured.unit ? ` ${measured.unit}` : ""}`
+  : (es?.result ?? (locale === "en" ? data.results?.[0] : undefined));
+const englishOnly = locale !== "en";
+---
+
+<article class:list={["work-row", (ledger || feature) && "axis work-row-ledger", feature && "work-row-feature"]}>
+  <div class="work-row-meta">
+    <span class="status" data-status={data.status}>{t(locale, `status.${data.status}` as UIKey)}</span>
+    <span class="source">{t(locale, `source.${data.source}` as UIKey)}</span>
+    {feature && role && <p class="label work-row-meta-role">{t(locale, "work.role")}: {role}</p>}
+  </div>
+  <div class="work-row-body">
+    <Heading class="work-row-title">
+      {
+        href ? (
+          <a class="link" href={href} hreflang={englishOnly ? "en" : undefined}>
+            {title}
+          </a>
+        ) : (
+          title
+        )
+      }
+    </Heading>
+    <p class="work-row-problem">{problem}</p>
+    {!feature && role && <p class="label work-row-role">{t(locale, "work.role")}: {role}</p>}
+    {result && <p class="work-row-result">{result}</p>}
+    {data.stack.length > 0 && <p class="meta">{data.stack.slice(0, 6).join(", ").toLowerCase()}</p>}
+    {
+      href && (
+        <p class="work-row-link">
+          <a class="link" href={href} hreflang={englishOnly ? "en" : undefined}>
+            <Icon name="file-text" />
+            {t(locale, "work.caseStudy")}
+          </a>
+          {englishOnly && (
+            <span class="meta" title={t(locale, "lang.englishOnly")}>
+              EN<span class="visually-hidden">, {t(locale, "lang.englishOnly")}</span>
+            </span>
+          )}
+        </p>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .work-row {
+    padding-block: var(--spacing-component-lg);
+  }
+
+  .work-row + :global(.work-row) {
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .work-row-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    margin-bottom: calc(var(--spacing) * 3);
+  }
+
+  .work-row-ledger .work-row-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0;
+  }
+
+  .work-row-body {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    max-width: var(--container-prose);
+  }
+
+  .work-row-title {
+    font-size: var(--text-h3);
+  }
+
+  .work-row-title .link {
+    display: inline;
+  }
+
+  .work-row:is(:hover, :focus-within) .work-row-title .link {
+    text-decoration-thickness: 2px;
+  }
+
+  .work-row-problem {
+    color: var(--color-text);
+  }
+
+  .work-row-result {
+    padding-left: calc(var(--spacing) * 3);
+    border-left: 2px solid var(--color-border-strong);
+    color: var(--color-text-muted);
+  }
+
+  /* Evidence record ------------------------------------------------------ */
+  .work-row-feature {
+    padding-block: calc(var(--spacing) * 12);
+  }
+
+  .work-row-feature .work-row-body {
+    gap: calc(var(--spacing) * 4);
+  }
+
+  .work-row-feature .work-row-title {
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .work-row-feature .work-row-problem {
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+  }
+
+  /* The verified result is the claim the record exists to support. */
+  .work-row-feature .work-row-result {
+    margin-top: calc(var(--spacing) * 2);
+    padding: var(--spacing-component) 0 0;
+    border-left: 0;
+    border-top: 2px solid var(--color-text);
+    color: var(--color-text);
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
+    font-weight: 500;
+    text-wrap: pretty;
+  }
+
+  .work-row-meta-role {
+    margin-top: calc(var(--spacing) * 2);
+  }
+
+  @media (max-width: 47.99rem) {
+    .work-row-feature {
+      padding-block: calc(var(--spacing) * 8);
+    }
+
+    .work-row-feature .work-row-meta {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: calc(var(--spacing) * 2);
+    }
+
+    .work-row-meta-role {
+      flex-basis: 100%;
+      margin-top: 0;
+    }
+  }
+
+  .work-row-link {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+  }
+
+  .work-row-link .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: var(--target-min);
+  }
+</style>

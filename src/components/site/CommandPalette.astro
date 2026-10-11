@@ -1,0 +1,665 @@
+---
+// Site search: a native modal <dialog> over a small index built at render time
+// from the public routes, published case studies and notes, and contact
+// actions. Opens with Cmd/Ctrl+K or the header trigger. The input is a
+// combobox: focus stays in it while ↑/↓ move the selected result and Enter
+// opens it. Matching is normalized substring/token matching, no library.
+// Client JS justification: the dialog, filtering and keyboard selection need
+// a handler; ~1.2 KB gz, inline module. No-JS fallback: the trigger stays
+// hidden and every destination is reachable through ordinary navigation.
+import { aboutPaths, homePaths, htmlLang, links, t, workPaths, type Locale, type UIKey } from "@/i18n/ui";
+import { caseStudyPath, getPublishedNotes, getPublishedWork, readingMinutes } from "@/lib/content";
+
+interface Props {
+  locale: Locale;
+  /** This page in the other language, when it exists. */
+  alternatePath?: string;
+}
+
+const { locale, alternatePath } = Astro.props;
+const other: Locale = locale === "en" ? "es" : "en";
+const englishOnly = locale !== "en";
+const notes = await getPublishedNotes();
+const work = (await getPublishedWork()).filter((entry) => caseStudyPath(entry));
+
+type Kind = "page" | "work" | "note" | "action";
+type Item = {
+  kind: Kind;
+  label: string;
+  secondary?: string;
+  href: string;
+  keywords?: string;
+  lang?: string;
+  /** Profiles and CVs open in a new tab, like everywhere else on the site. */
+  external?: boolean;
+  me?: boolean;
+};
+
+const typeLabel: Record<Kind, UIKey> = {
+  page: "search.typePage",
+  work: "search.typeWork",
+  note: "search.typeNote",
+  action: "search.typeAction",
+};
+const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "");
+const dots = (text: string) => text.replace(/,? and |, /g, " · ");
+
+const items: Item[] = [
+  { kind: "page", label: t(locale, "palette.home"), href: homePaths[locale], keywords: "home inicio" },
+  { kind: "page", label: t(locale, "nav.work"), href: workPaths[locale], keywords: "work projects proyectos trabajo" },
+  ...(notes.length > 0
+    ? [{ kind: "page" as const, label: t(locale, "nav.notes"), href: "/notes", keywords: "notes notas writing escritos", lang: englishOnly ? "en" : undefined }]
+    : []),
+  { kind: "page", label: t(locale, "nav.about"), href: aboutPaths[locale], keywords: "about sobre mi experience experiencia" },
+  ...work.map((entry) => ({
+    kind: "work" as const,
+    label: entry.data.title,
+    secondary: entry.data.focus ? dots(entry.data.focus) : undefined,
+    href: caseStudyPath(entry)!,
+    keywords: `case study caso de estudio ${entry.data.summary} ${entry.data.stack.join(" ")} ${entry.data.status}`,
+    lang: englishOnly ? "en" : undefined,
+  })),
+  ...notes.map((note) => ({
+    kind: "note" as const,
+    label: note.data.title,
+    secondary: [`${readingMinutes(note.body)} ${t(locale, "search.minutes")}`, ...note.data.tags].join(" · "),
+    href: `/notes/${note.id}`,
+    keywords: `note nota ${note.data.description}`,
+    lang: englishOnly ? "en" : undefined,
+  })),
+  { kind: "action", label: t(locale, "palette.email"), secondary: links.email, href: `mailto:${links.email}`, keywords: "email correo contact contacto" },
+  { kind: "action", label: "GitHub", secondary: bare(links.github), href: links.github, keywords: "code codigo repositories", external: true, me: true },
+  { kind: "action", label: "LinkedIn", secondary: bare(links.linkedin), href: links.linkedin, keywords: "profile perfil", external: true, me: true },
+  { kind: "action", label: t(locale, "palette.cv"), href: links.cv[locale], keywords: "cv resume curriculum pdf", external: true },
+  ...(alternatePath
+    ? [{ kind: "action" as const, label: t(locale, "lang.switchLabel"), href: alternatePath, keywords: "language idioma english espanol", lang: htmlLang[other] }]
+    : []),
+];
+
+// Normalized at build time; the client applies the same normalization to the query.
+const normalize = (text: string) =>
+  text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+
+const themes = [
+  { value: "light", label: t(locale, "palette.themeLight") },
+  { value: "system", label: t(locale, "palette.themeSystem") },
+  { value: "dark", label: t(locale, "palette.themeDark") },
+];
+const themeKeywords = normalize(
+  `theme tema appearance apariencia light dark system claro oscuro sistema ${t(locale, "palette.theme")}`,
+);
+---
+
+<button
+  type="button"
+  class="palette-trigger"
+  aria-haspopup="dialog"
+  aria-keyshortcuts="Control+K Meta+K"
+  data-palette-open
+  hidden
+>
+  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true" focusable="false">
+    <circle cx="11" cy="11" r="8"></circle>
+    <path d="m21 21-4.3-4.3"></path>
+  </svg>
+  <span class="palette-trigger-text">{t(locale, "search.label")}</span>
+  <kbd class="palette-key palette-trigger-key" aria-hidden="true" data-palette-kbd>{t(locale, "palette.hint")}</kbd>
+</button>
+
+<dialog class="palette" aria-label={t(locale, "search.dialog")} data-palette>
+  <div class="palette-search">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true" focusable="false">
+      <circle cx="11" cy="11" r="8"></circle>
+      <path d="m21 21-4.3-4.3"></path>
+    </svg>
+    <input
+      class="palette-input"
+      type="text"
+      role="combobox"
+      aria-expanded="true"
+      aria-controls="palette-list"
+      aria-autocomplete="list"
+      aria-label={t(locale, "search.dialog")}
+      aria-describedby="palette-status"
+      placeholder={t(locale, "search.placeholder")}
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      enterkeyhint="go"
+      data-palette-filter
+    />
+    <kbd class="palette-key palette-hint-key" aria-hidden="true">esc</kbd>
+  </div>
+
+  <div class="palette-body">
+    <ul id="palette-list" class="palette-list" role="listbox" aria-label={t(locale, "search.dialog")}>
+      {
+        items.map((item, index) => (
+          <li role="presentation">
+            <a
+              id={`palette-option-${index}`}
+              class="palette-item"
+              href={item.href}
+              hreflang={item.lang}
+              target={item.external ? "_blank" : undefined}
+              rel={item.external ? `${item.me ? "me " : ""}noopener noreferrer` : undefined}
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+              data-palette-item
+              data-title={normalize(item.label)}
+              data-search={normalize(
+                `${item.label} ${item.secondary ?? ""} ${item.kind} ${t(locale, typeLabel[item.kind])} ${item.keywords ?? ""}`,
+              )}
+            >
+              <span class="meta palette-type">{t(locale, typeLabel[item.kind])}</span>
+              <span class="palette-text">
+                <span class="palette-label" lang={item.lang}>
+                  {item.label}
+                  {item.lang === "en" && englishOnly && <span class="meta palette-lang">EN</span>}
+                </span>
+                {item.secondary && <span class="meta palette-secondary">{item.secondary}</span>}
+                {item.external && <span class="visually-hidden">({t(locale, "external.newTab")})</span>}
+              </span>
+              <span class="palette-enter" aria-hidden="true">↵</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="palette-empty" data-palette-empty hidden>{t(locale, "search.empty")}</p>
+
+    <div class="palette-themes" role="group" aria-labelledby="palette-theme-label" data-palette-themes data-search={themeKeywords}>
+      <span id="palette-theme-label" class="meta palette-type">{t(locale, "palette.theme")}</span>
+      <span class="palette-theme-options">
+        {
+          themes.map((theme) => (
+            <button type="button" class="palette-theme" data-theme-value={theme.value} aria-pressed="false">
+              {theme.label}
+            </button>
+          ))
+        }
+      </span>
+    </div>
+  </div>
+
+  <div class="palette-footer">
+    <span><kbd class="palette-key">↑</kbd><kbd class="palette-key">↓</kbd> {t(locale, "search.navigate")}</span>
+    <span><kbd class="palette-key">↵</kbd> {t(locale, "search.select")}</span>
+    <span><kbd class="palette-key">esc</kbd> {t(locale, "search.close")}</span>
+  </div>
+
+  <p id="palette-status" class="visually-hidden" aria-live="polite" data-palette-status data-results-label={t(locale, "search.results")}></p>
+</dialog>
+
+<script>
+  // Theme state is owned by the header (scripts/theme.ts): read the applied
+  // choice from <html>, request changes with a "themerequest" event.
+  const dialog = document.querySelector<HTMLDialogElement>("[data-palette]");
+  const trigger = document.querySelector<HTMLButtonElement>("[data-palette-open]");
+
+  if (dialog && trigger && typeof dialog.showModal === "function") {
+    const input = dialog.querySelector<HTMLInputElement>("[data-palette-filter]")!;
+    const list = dialog.querySelector<HTMLElement>("#palette-list")!;
+    const status = dialog.querySelector<HTMLElement>("[data-palette-status]")!;
+    const empty = dialog.querySelector<HTMLElement>("[data-palette-empty]")!;
+    const themesRow = dialog.querySelector<HTMLElement>("[data-palette-themes]")!;
+    const items = [...list.querySelectorAll<HTMLAnchorElement>("[data-palette-item]")];
+    const themeButtons = [...dialog.querySelectorAll<HTMLButtonElement>("[data-theme-value]")];
+    const kbd = trigger.querySelector("[data-palette-kbd]");
+    if (kbd && /Mac|iPhone|iPad/.test(navigator.platform)) kbd.textContent = "⌘K";
+
+    const normalize = (text: string) =>
+      text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+
+    let shown: HTMLAnchorElement[] = [];
+    let active = -1;
+
+    const select = (index: number, scroll = true) => {
+      active = index;
+      shown.forEach((item, i) => item.setAttribute("aria-selected", String(i === index)));
+      const current = shown[index];
+      if (current) {
+        input.setAttribute("aria-activedescendant", current.id);
+        if (scroll) current.scrollIntoView({ block: "nearest" });
+      } else {
+        input.removeAttribute("aria-activedescendant");
+      }
+    };
+
+    // Every query token must appear; title-prefix matches rank first, then
+    // title matches, then matches elsewhere. Ties keep the index order.
+    const applyFilter = () => {
+      const query = normalize(input.value);
+      const tokens = query.split(" ").filter(Boolean);
+      const matches = (text: string) => tokens.every((token) => text.includes(token));
+      const ranked = items
+        .map((item, order) => {
+          if (!matches(item.dataset.search!)) return undefined;
+          const title = item.dataset.title!;
+          const score = !query ? 0 : title.startsWith(query) ? 3 : matches(title) ? 2 : 1;
+          return { item, order, score };
+        })
+        .filter((entry) => entry !== undefined)
+        .sort((a, b) => b.score - a.score || a.order - b.order);
+
+      for (const item of items) item.parentElement!.hidden = true;
+      shown = ranked.map(({ item }) => item);
+      for (const item of shown) {
+        item.parentElement!.hidden = false;
+        list.append(item.parentElement!);
+      }
+      themesRow.hidden = !matches(themesRow.dataset.search!);
+      empty.hidden = shown.length > 0 || !themesRow.hidden;
+      status.textContent = query ? `${shown.length} ${status.dataset.resultsLabel}` : "";
+      select(shown.length > 0 ? 0 : -1);
+    };
+
+    const syncTheme = () => {
+      const choice = document.documentElement.dataset.theme ?? "system";
+      for (const button of themeButtons) button.setAttribute("aria-pressed", String(button.dataset.themeValue === choice));
+    };
+
+    const open = () => {
+      if (dialog.open) return;
+      input.value = "";
+      applyFilter();
+      syncTheme();
+      dialog.showModal();
+      input.focus();
+      list.scrollTop = 0;
+    };
+
+    trigger.hidden = false;
+    trigger.addEventListener("click", open);
+    document.addEventListener("themechange", syncTheme);
+
+    document.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        if (dialog.open) dialog.close();
+        else open();
+      }
+    });
+
+    // A click on the backdrop lands on the <dialog> itself, outside its content.
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    input.addEventListener("input", applyFilter);
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        if (shown.length === 0) return;
+        const step = event.key === "ArrowDown" ? 1 : -1;
+        select(Math.min(Math.max(active + step, 0), shown.length - 1));
+      } else if (event.key === "Enter" && !event.isComposing && shown[active]) {
+        event.preventDefault();
+        shown[active].click();
+      }
+    });
+
+    // The pointer moves the selection too, so Enter and the highlight agree.
+    list.addEventListener("pointermove", (event) => {
+      const item = (event.target as Element).closest<HTMLAnchorElement>("[data-palette-item]");
+      const index = item ? shown.indexOf(item) : -1;
+      if (index >= 0 && index !== active) select(index, false);
+    });
+
+    for (const button of themeButtons) {
+      button.addEventListener("click", () =>
+        document.dispatchEvent(new CustomEvent("themerequest", { detail: button.dataset.themeValue })),
+      );
+    }
+  }
+</script>
+
+<style>
+  /* Trigger: a quiet search field on desktop, an icon on mobile. */
+  .palette-trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 2);
+    min-width: var(--target-min);
+    min-height: var(--target-min);
+    padding-inline: calc(var(--spacing) * 2.5);
+    border: 0;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+    cursor: pointer;
+    transition: color var(--motion-fast) var(--ease-standard);
+  }
+
+  .palette-trigger::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: var(--border-hairline) solid transparent;
+    border-radius: var(--radius-md);
+    transition: border-color var(--motion-fast) var(--ease-standard);
+  }
+
+  .palette-trigger[hidden] {
+    display: none;
+  }
+
+  .palette-trigger:hover {
+    color: var(--color-text);
+  }
+
+  .palette-trigger:hover::before {
+    border-color: var(--color-border);
+  }
+
+  .palette-trigger-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 48rem) {
+    .palette-trigger {
+      justify-content: flex-start;
+      padding-inline: calc(var(--spacing) * 2.5);
+    }
+
+    .palette-trigger::before {
+      inset: 0.25rem 0;
+      border-color: var(--color-border);
+    }
+
+    .palette-trigger:hover::before {
+      border-color: var(--color-border-strong);
+    }
+
+    .palette-trigger-text {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip-path: none;
+      margin-right: auto;
+    }
+  }
+
+  .palette-key {
+    display: inline-block;
+    min-width: 1.25rem;
+    padding: 0 0.3rem;
+    border: var(--border-hairline) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    line-height: 1.35rem;
+    text-align: center;
+    color: var(--color-text-muted);
+  }
+
+  /* In the trigger the shortcut is plain mono text (no box inside a box),
+     shown only on desktop with a fine pointer. */
+  .palette-trigger-key {
+    display: none;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  @media (min-width: 48rem) and (pointer: fine) {
+    .palette-trigger-key {
+      display: inline-block;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .palette-trigger {
+      min-width: 10.5rem;
+    }
+  }
+
+  /* Dialog ------------------------------------------------------------------- */
+  .palette {
+    width: min(36rem, calc(100vw - 2 * var(--spacing-gutter)));
+    max-height: min(34rem, calc(100dvh - 2 * var(--spacing-gutter)));
+    margin: calc(var(--spacing) * 16) auto auto;
+    padding: 0;
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-raised);
+    color: var(--color-text);
+  }
+
+  .palette[open] {
+    display: flex;
+    flex-direction: column;
+    transition:
+      opacity var(--motion-ui) var(--ease-standard),
+      transform var(--motion-ui) var(--ease-standard);
+  }
+
+  @starting-style {
+    .palette[open] {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  .palette::backdrop {
+    background-color: color-mix(in oklab, var(--color-bg) 70%, transparent);
+  }
+
+  @media (max-width: 30rem) {
+    .palette {
+      margin-top: var(--spacing-gutter);
+    }
+  }
+
+  /* The search field is the strongest element: full width, larger type,
+     a hairline rule beneath, the accent rule only while focused. */
+  .palette-search {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3) calc(var(--spacing) * 2) var(--spacing-component);
+    border-bottom: var(--border-hairline) solid var(--color-border);
+    color: var(--color-text-muted);
+  }
+
+  .palette-search:focus-within {
+    color: var(--color-text);
+  }
+
+  .palette-input {
+    flex: 1;
+    min-width: 0;
+    min-height: calc(var(--target-min) + var(--spacing) * 2);
+    border: 0;
+    background: transparent;
+    color: var(--color-text);
+    font-size: max(16px, var(--text-body));
+    outline: none;
+  }
+
+  .palette-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  /* Focus is shown on the whole field row: a 2px accent rule along its base. */
+  .palette-search:has(.palette-input:focus-visible) {
+    box-shadow: inset 0 -2px 0 var(--color-focus);
+  }
+
+  .palette-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: calc(var(--spacing) * 2);
+  }
+
+  .palette-list li[hidden],
+  .palette-empty[hidden],
+  .palette-themes[hidden] {
+    display: none;
+  }
+
+  /* Result rows: type column, title + secondary line, Enter hint on the
+     selected row. Rows, not cards. */
+  .palette-item {
+    display: grid;
+    grid-template-columns: 4.75rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: calc(var(--spacing) * 3);
+    min-height: var(--target-min);
+    padding: calc(var(--spacing) * 2);
+    border-left: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .palette-item[aria-selected="true"] {
+    border-left-color: var(--color-text);
+    background-color: var(--color-surface);
+  }
+
+  .palette-type {
+    color: var(--color-text-muted);
+  }
+
+  /* Narrow screens: title first, the type as a quiet tag on its right. */
+  @media (max-width: 30rem) {
+    .palette-item {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .palette-item .palette-type {
+      order: 1;
+    }
+
+    .palette-item .palette-enter {
+      display: none;
+    }
+
+    .palette-themes {
+      grid-template-columns: minmax(0, 1fr);
+      gap: calc(var(--spacing) * 1);
+    }
+  }
+
+  .palette-text {
+    display: grid;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+
+  .palette-label {
+    font-size: var(--text-small);
+  }
+
+  .palette-item[aria-selected="true"] .palette-label {
+    font-weight: 600;
+  }
+
+  .palette-lang {
+    margin-left: calc(var(--spacing) * 2);
+    color: var(--color-text-muted);
+    font-weight: 400;
+  }
+
+  .palette-secondary {
+    overflow: hidden;
+    color: var(--color-text-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .palette-enter {
+    visibility: hidden;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+  }
+
+  .palette-item[aria-selected="true"] .palette-enter {
+    visibility: visible;
+  }
+
+  .palette-empty {
+    padding: calc(var(--spacing) * 6) calc(var(--spacing) * 2);
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+    text-align: center;
+  }
+
+  .palette-themes {
+    display: grid;
+    grid-template-columns: 4.75rem minmax(0, 1fr);
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    margin-top: calc(var(--spacing) * 2);
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 2) 0;
+    border-top: var(--border-hairline) solid var(--color-border);
+  }
+
+  .palette-theme-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1);
+  }
+
+  .palette-theme {
+    min-height: var(--target-min);
+    padding-inline: calc(var(--spacing) * 3);
+    border: var(--border-hairline) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+    cursor: pointer;
+  }
+
+  .palette-theme:hover {
+    color: var(--color-text);
+  }
+
+  .palette-theme[aria-pressed="true"] {
+    border-color: var(--color-border-strong);
+    border-bottom: 2px solid var(--color-text);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  /* Keyboard help: secondary, and only where a keyboard is likely. */
+  .palette-footer {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 5);
+    padding: calc(var(--spacing) * 2.5) var(--spacing-component);
+    border-top: var(--border-hairline) solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: var(--text-meta);
+  }
+
+  .palette-footer .palette-key + .palette-key {
+    margin-left: 0.2rem;
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .palette-footer,
+    .palette-hint-key {
+      display: none;
+    }
+  }
+</style>

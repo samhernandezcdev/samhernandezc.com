@@ -1,0 +1,23 @@
+---
+# Source: CV ("Personal GitHub Project"; ES describes it as in progress).
+# No public repository found on github.com/samhernandezcdev (checked 2026-10-05), so this stays a draft.
+# TODO(sam): repository URL, real status, whether it was ever deployed (CV says "prepared for AWS deployment").
+# TODO(sam): test coverage or other verified technical measurements, with method.
+title: Multi-tenant FastAPI backend
+slug: fastapi-multitenant-backend
+summary: >-
+  FastAPI backend for a multi-tenant, LMS-style learning platform with JWT
+  authentication, tenant-aware data models, role-based access control and
+  documented REST endpoints.
+status: building
+source: private
+visibility: draft
+stack: [Python, FastAPI, PostgreSQL, Docker]
+---
+
+## System
+
+- PostgreSQL schema covering users, organizations, courses, lessons,
+  enrollments and progress tracking.
+- Docker-based local development, database migrations and automated tests.
+- Container and environment-based configuration intended for AWS deployment.

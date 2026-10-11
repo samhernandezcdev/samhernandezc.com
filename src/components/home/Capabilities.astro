@@ -1,0 +1,118 @@
+---
+import { capabilities, t, type Locale, type UIKey } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<section class="page-section" aria-labelledby="engineer-title">
+  <div class="section-head">
+    <h2 id="engineer-title">{t(locale, "engineer.title")}</h2>
+  </div>
+
+  <ul class="capabilities">
+    {
+      capabilities.map((area) => (
+        <li class="capability">
+          <h3 class="capability-title">{t(locale, `engineer.${area.id}.title` as UIKey)}</h3>
+          <div class="capability-content">
+            <p class="capability-body">{t(locale, `engineer.${area.id}.body` as UIKey)}</p>
+            {area.used.length > 0 && <p class="meta capability-used">{area.used.join(", ")}</p>}
+            {"exploring" in area && (
+              <p class="meta capability-exploring">
+                <span class="capability-exploring-label">{t(locale, "engineer.exploring")}:</span>{" "}
+                {area.exploring.join(", ")}
+              </p>
+            )}
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  /* One technical matrix, not four cards: the group shares its outer rules,
+     and the cells are divided only by internal hairlines (the hero datasheet's
+     grammar). No surfaces, boxes or radii. */
+  .capabilities {
+    border-block: var(--border-hairline) solid var(--color-border);
+  }
+
+  /* Mobile: one dense group (no per-item rules, tight rhythm) between the
+     spacious evidence record above and the journal below. */
+  .capability {
+    padding-block: var(--spacing-component);
+  }
+
+  .capability:first-child {
+    padding-top: var(--spacing-component-lg);
+  }
+
+  .capability:last-child {
+    padding-bottom: var(--spacing-component-lg);
+  }
+
+  @media (min-width: 48rem) {
+    .capabilities {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .capability,
+    .capability:first-child,
+    .capability:last-child {
+      padding-block: calc(var(--spacing) * 8);
+    }
+
+    .capability:nth-child(odd) {
+      padding-inline-end: calc(var(--spacing) * 8);
+    }
+
+    .capability:nth-child(even) {
+      padding-inline-start: calc(var(--spacing) * 8);
+      border-left: var(--border-hairline) solid var(--color-border);
+    }
+
+    .capability:nth-child(n + 3) {
+      border-top: var(--border-hairline) solid var(--color-border);
+    }
+  }
+
+  .capability-title {
+    font-size: var(--text-h3);
+  }
+
+  .capability-content {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    margin-top: calc(var(--spacing) * 2);
+    max-width: var(--container-prose);
+  }
+
+  @media (min-width: 48rem) {
+    .capability-content {
+      margin-top: calc(var(--spacing) * 3);
+    }
+  }
+
+  .capability-body {
+    color: var(--color-text-muted);
+  }
+
+  .capability-used {
+    color: var(--color-text);
+  }
+
+  .capability-exploring {
+    color: var(--color-text-muted);
+  }
+
+  .capability-exploring-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-small);
+  }
+</style>

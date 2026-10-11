@@ -1,0 +1,105 @@
+---
+// Evidence section. With at least one published, featured work entry it is
+// "Selected work" (project rows). Until then it is "Selected experience":
+// recent roles from the experience collection, grouped by organization at
+// presentation level. Draft work never reaches this component.
+import ExperienceList from "@/components/experience/ExperienceList.astro";
+import External from "@/components/icons/External.astro";
+import WorkRow from "@/components/work/WorkRow.astro";
+import { t, type Locale, type UIKey } from "@/i18n/ui";
+import { caseStudyPath, getFeaturedWork, getPublishedWork } from "@/lib/content";
+
+interface Props {
+  locale: Locale;
+  /** How many recent roles to show in the experience fallback. */
+  roles?: number;
+}
+
+const { locale, roles = 3 } = Astro.props;
+const featured = await getFeaturedWork();
+const showWork = featured.length > 0;
+const other = (await getPublishedWork()).filter(({ data }) => !data.featured);
+
+const titleKey: UIKey = showWork ? "work.title" : "experience.title";
+const introKey: UIKey = showWork ? "work.intro" : "experience.intro";
+---
+
+<section id="work" class="page-section" aria-labelledby="work-title">
+  <div class="section-head">
+    <h2 id="work-title">{t(locale, titleKey)}</h2>
+    <p class="section-intro">{t(locale, introKey)}</p>
+  </div>
+
+  {
+    showWork ? (
+      <div class="rows">
+        {featured.map((entry) => (
+          <WorkRow entry={entry} locale={locale} href={caseStudyPath(entry)} feature />
+        ))}
+      </div>
+    ) : (
+      <ExperienceList locale={locale} roles={roles} items={2} />
+    )
+  }
+
+  {
+    other.length > 0 && (
+      <div class="axis other-work">
+        <h3 class="label other-work-title">{t(locale, "work.other")}</h3>
+        <ul>
+          {other.map(({ data }) => (
+            <li class="other-work-item">
+              <span class="status" data-status={data.status}>
+                {t(locale, `status.${data.status}` as UIKey)}
+              </span>
+              {data.links?.demo ? (
+                <a class="link" href={data.links.demo} rel="noopener">
+                  {(locale === "es" && data.es?.title) || data.title}
+                  <External class="external-mark" />
+                </a>
+              ) : (
+                <span>{(locale === "es" && data.es?.title) || data.title}</span>
+              )}
+              {data.stack.length > 0 && (
+                <span class="meta">{data.stack.slice(0, 4).join(", ").toLowerCase()}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .rows {
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  .other-work {
+    margin-top: calc(var(--spacing) * 8);
+  }
+
+  .other-work-title {
+    font-weight: 400;
+  }
+
+  .other-work-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    font-size: var(--text-small);
+  }
+
+  .other-work-item .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    min-height: var(--target-min);
+  }
+
+  .external-mark {
+    color: var(--color-text-muted);
+  }
+</style>

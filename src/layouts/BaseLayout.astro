@@ -1,105 +1,88 @@
 ---
-import { ClientRouter } from "astro:transitions";
-import "../styles/global.css";
+import ThemeScript from "@/components/system/ThemeScript.astro";
+import { defaultLocale, htmlLang, ogLocale, t, type Locale } from "@/i18n/ui";
+import { getPublishedNotes } from "@/lib/content";
+import "@/styles/system.css";
+import { siteUrl } from "@/lib/site";
 
 interface Props {
   title: string;
   description: string;
-  lang?: string;
-  ogLocale?: string;
-  image?: string;
-  canonicalURL?: string;
-  alternateLocales?: Array<{
-    lang: string;
-    href: string;
-  }>;
+  locale?: Locale;
+  /** Paths of this page in each language that exists, e.g. { en: "/", es: "/es" }. */
+  alternates?: Partial<Record<Locale, string>>;
+  noindex?: boolean;
+  /** "article" for notes; publication dates are emitted only for articles. */
+  ogType?: "website" | "article";
+  published?: Date;
+  modified?: Date;
 }
 
 const {
   title,
   description,
-  lang = "es",
-  ogLocale = "es_MX",
-  image = "/og-default.png",
-  canonicalURL = Astro.url.href,
-  alternateLocales = [],
+  locale = defaultLocale,
+  alternates = {},
+  noindex = false,
+  ogType = "website",
+  published,
+  modified,
 } = Astro.props;
 
-const siteName = "Samuel Hernandez";
-const pageTitle = title.includes(siteName) ? title : `${siteName}: ${title}`;
-const ogImage = new URL(image, Astro.site).toString();
-const alternateLinks = alternateLocales.map((alternate) => ({
-  lang: alternate.lang,
-  href: new URL(alternate.href, Astro.site).toString(),
+const site = siteUrl(Astro.site);
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, "") || "/", site).href;
+const alternateLinks = Object.entries(alternates).map(([lang, path]) => ({
+  lang: htmlLang[lang as Locale],
+  href: new URL(path, site).href,
 }));
+const xDefault = alternates[defaultLocale];
+// One static, site-level share image (public/og-default.png, rendered by scripts/og-image.mjs).
+const ogImage = new URL("/og-default.png", site).href;
+const ogImageAlt = "Samuel Hernández, Software Engineer: backend systems, data and applied AI.";
+// RSS autodiscovery only once the feed has content.
+const hasFeed = (await getPublishedNotes()).length > 0;
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={htmlLang[locale]}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="generator" content={Astro.generator} />
-    
-    <title>{pageTitle}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ThemeScript />
+    <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="author" content={siteName} />
-    <link rel="canonical" href={canonicalURL} />
-    {alternateLinks.map((alternate) => (
-      <link rel="alternate" hreflang={alternate.lang} href={alternate.href} />
-    ))}
-    <link rel="alternate" hreflang="x-default" href={new URL("/", Astro.site).toString()} />
-    
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:site_name" content={siteName} />
-    <meta property="og:locale" content={ogLocale} />
+    <meta name="author" content="Samuel Hernández" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    {alternateLinks.map(({ lang, href }) => <link rel="alternate" hreflang={lang} href={href} />)}
+    {xDefault && <link rel="alternate" hreflang="x-default" href={new URL(xDefault, site).href} />}
 
+    <meta property="og:type" content={ogType} />
+    {ogType === "article" && published && <meta property="article:published_time" content={published.toISOString()} />}
+    {ogType === "article" && modified && <meta property="article:modified_time" content={modified.toISOString()} />}
+    {ogType === "article" && <meta property="article:author" content="Samuel Hernández" />}
+    <meta property="og:site_name" content="Samuel Hernández" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale[locale]} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
-    <ClientRouter fallback="animate" />
+    {hasFeed && <link rel="alternate" type="application/rss+xml" title="Engineering notes · Samuel Hernández" href={new URL("/rss.xml", site).href} />}
+    <slot name="head" />
   </head>
-  <body class="min-h-screen bg-background text-foreground antialiased">
+  <body>
+    <a class="skip-link" href="#main">{t(locale, "nav.skipToContent")}</a>
     <slot />
-    <script>
-      document.documentElement.classList.add("js");
- 
-      function initReveal() {
-        const elements = document.querySelectorAll<HTMLElement>("[data-reveal]");
-        if (!elements.length) return;
- 
-        const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (prefersReduced) {
-          elements.forEach((el) => el.classList.add("is-visible"));
-          return;
-        }
- 
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add("is-visible");
-                observer.unobserve(entry.target);
-              }
-            });
-          },
-          { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
-        );
- 
-        elements.forEach((el) => observer.observe(el));
-      }
- 
-      // Run on initial load and after every View Transition navigation
-      document.addEventListener("astro:page-load", initReveal);
-      initReveal();
-    </script>
   </body>
 </html>

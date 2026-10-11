@@ -1,0 +1,50 @@
+---
+import BkodeBanner from "@/components/home/BkodeBanner.astro";
+import Capabilities from "@/components/home/Capabilities.astro";
+import Contact from "@/components/home/Contact.astro";
+import Hero from "@/components/home/Hero.astro";
+import LatestNotes from "@/components/home/LatestNotes.astro";
+import SelectedWork from "@/components/home/SelectedWork.astro";
+import Footer from "@/components/site/Footer.astro";
+import Header from "@/components/site/Header.astro";
+import { homePaths, htmlLang, t, type Locale } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getFeaturedWork, getPublishedNotes } from "@/lib/content";
+import { graph, person, website } from "@/lib/structured-data";
+import { siteUrl } from "@/lib/site";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const other: Locale = locale === "en" ? "es" : "en";
+const hasNotes = (await getPublishedNotes()).length > 0;
+// The evidence section is "Selected work" only once a featured case study is public.
+const workLabel = t(locale, (await getFeaturedWork()).length > 0 ? "work.title" : "experience.title");
+const site = siteUrl(Astro.site);
+const jsonLd = graph(website(site, htmlLang[locale]), person(site));
+---
+
+<BaseLayout
+  title={t(locale, "meta.title")}
+  description={t(locale, "meta.description")}
+  locale={locale}
+  alternates={homePaths}
+>
+  <script slot="head" type="application/ld+json" set:html={jsonLd} />
+  <Header locale={locale} alternatePath={homePaths[other]} showNotes={hasNotes} />
+  <main id="main" tabindex="-1">
+    <div class="page">
+      <Hero locale={locale} workLabel={workLabel} />
+      <SelectedWork locale={locale} />
+      <Capabilities locale={locale} />
+      <LatestNotes locale={locale} />
+    </div>
+    <BkodeBanner locale={locale} />
+    <div class="page">
+      <Contact locale={locale} />
+    </div>
+  </main>
+  <Footer locale={locale} />
+</BaseLayout>

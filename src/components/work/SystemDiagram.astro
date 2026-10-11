@@ -1,0 +1,508 @@
+---
+// Layered system diagram in the design-system diagram language: real text,
+// semantic lists, a caption. Layers stack top to bottom; an optional `group`
+// labels the nodes of one layer as parts of a single application. External
+// systems are listed below a boundary line with the direction of their data.
+//
+// Optional Architecture Trace: `traces` adds buttons that highlight one flow
+// (nodes, connectors and the boundary tagged with `trace`). Selected nodes lift
+// slightly and the rest recede; from 48rem the flow's `routes` (ordered node
+// pairs) are drawn as accent paths between the actual nodes, once, on
+// selection. The static diagram and the surrounding prose stay complete
+// without JS; the controls are hidden until the script runs.
+// Client JS justification: toggling emphasis needs a click handler and the
+// routes need node geometry; ~1.1 KB gz, module, runs on interaction (plus a
+// ResizeObserver to redraw an active route). No-JS fallback: the neutral
+// diagram plus the text description. Reduced motion: routes appear in place.
+// Mobile (<48rem): emphasis and description only, no routes.
+type Kind = "service" | "store" | "queue" | "external";
+
+interface Node {
+  name: string;
+  /** Trace modes this node belongs to. */
+  trace?: string[];
+  kind?: Kind;
+  note?: string;
+  planned?: boolean;
+}
+
+interface Layer {
+  label: string;
+  /** Trace modes that use the connector into this layer. */
+  trace?: string[];
+  edge?: "sync" | "async";
+  group?: string;
+  nodes: Node[];
+}
+
+interface External {
+  name: string;
+  flow: string;
+  trace?: string[];
+}
+
+interface Trace {
+  id: string;
+  label: string;
+  description: string;
+  /** Ordered [from, to] node names drawn as routes when the flow is selected. */
+  routes?: [string, string][];
+}
+
+interface Props {
+  caption: string;
+  layers: Layer[];
+  external?: External[];
+  /** Trace modes that use the boundary to external systems. */
+  boundaryTrace?: string[];
+  traces?: Trace[];
+  /** Text shown when no flow is selected. */
+  traceIntro?: string;
+}
+
+const { caption, layers, external = [], boundaryTrace, traces = [], traceIntro = "" } = Astro.props;
+const tags = (list?: string[]) => (list && list.length > 0 ? list.join(" ") : undefined);
+const routeNames = new Set(traces.flatMap((trace) => (trace.routes ?? []).flat()));
+const nodeId = (name: string) => (routeNames.has(name) ? name : undefined);
+---
+
+<figure class="diagram system-diagram" data-trace-figure={traces.length > 0 || undefined}>
+  {
+    traces.length > 0 && (
+      <div class="trace" data-trace-controls hidden>
+        <div class="trace-buttons" role="group" aria-label="Trace a flow through the architecture">
+          {traces.map((trace) => (
+            <button
+              type="button"
+              class="button trace-button"
+              aria-pressed="false"
+              data-trace-mode={trace.id}
+              data-trace-description={trace.description}
+              data-trace-routes={trace.routes ? JSON.stringify(trace.routes) : undefined}
+            >
+              {trace.label}
+            </button>
+          ))}
+        </div>
+        <p class="trace-description" aria-live="polite" data-trace-output data-trace-intro={traceIntro}>
+          {traceIntro}
+        </p>
+      </div>
+    )
+  }
+  <div class="diagram-stage" data-trace-stage>
+  <ol class="diagram-layers">
+    {
+      layers.map((layer) => (
+        <li class="diagram-layer" data-edge={layer.edge} data-trace={tags(layer.trace)}>
+          <span class="diagram-label">{layer.label}</span>
+          <div class:list={[layer.group && "diagram-group"]}>
+            {layer.group && <span class="diagram-group-label">{layer.group}</span>}
+            <ul class="diagram-nodes">
+              {layer.nodes.map((node) => (
+                <li
+                  class:list={["diagram-node", node.planned && "planned"]}
+                  data-kind={node.kind ?? "service"}
+                  data-trace={tags(node.trace)}
+                  data-node={nodeId(node.name)}
+                >
+                  {node.kind && node.kind !== "service" && <span class="diagram-kind">{node.kind}</span>}
+                  {node.name}
+                  {node.note && <span class="diagram-note">{node.note}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+
+  {
+    external.length > 0 && (
+      <div class="diagram-boundary" data-trace={tags(boundaryTrace)}>
+        <span class="diagram-label">outside the platform</span>
+        <ul class="diagram-externals">
+          {external.map((system) => (
+            <li class="diagram-node" data-kind="external" data-trace={tags(system.trace)} data-node={nodeId(system.name)}>
+              <span class="diagram-kind">external</span>
+              {system.name}
+              <span class="diagram-note">{system.flow}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+  </div>
+
+  <figcaption>{caption}</figcaption>
+</figure>
+
+<script>
+  const NS = "http://www.w3.org/2000/svg";
+  const wide = matchMedia("(min-width: 48rem)");
+
+  for (const figure of document.querySelectorAll<HTMLElement>("[data-trace-figure]")) {
+    const controls = figure.querySelector<HTMLElement>("[data-trace-controls]");
+    const output = figure.querySelector<HTMLElement>("[data-trace-output]");
+    const stage = figure.querySelector<HTMLElement>("[data-trace-stage]");
+    const buttons = [...figure.querySelectorAll<HTMLButtonElement>("[data-trace-mode]")];
+    const tagged = [...figure.querySelectorAll<HTMLElement>("[data-trace]")];
+    const nodes = new Map([...figure.querySelectorAll<HTMLElement>("[data-node]")].map((n) => [n.dataset.node!, n]));
+    if (!controls || !output || !stage) continue;
+    let mode: string | null = null;
+    let svg: SVGSVGElement | undefined;
+
+    // Obstacles: other nodes and the diagram's labels (labels sit on a
+    // page-colored ground, so a route behind one would vanish into a stub).
+    const all = [...figure.querySelectorAll<HTMLElement>(".diagram-node, .diagram-label, .diagram-group-label")];
+
+    // Orthogonal route between two nodes: leave the source, turn once in the
+    // nearest gap, enter the target from above or below. The long vertical
+    // never crosses another node or label: if one is in the way, the route
+    // detours through a lane beside the blockers (the side closer to the line).
+    const route = (from: HTMLElement, to: HTMLElement, box: DOMRect) => {
+      const a = from.getBoundingClientRect();
+      const b = to.getBoundingClientRect();
+      const ax = a.left + a.width / 2 - box.left;
+      const bx = b.left + b.width / 2 - box.left;
+      const down = b.top >= a.bottom - 1;
+      const y0 = (down ? a.bottom : a.top) - box.top;
+      const y1 = (down ? b.top : b.bottom) - box.top;
+      // Turn just after leaving a source above, or just before entering a target above.
+      const turn = down ? Math.min(y0 + 14, (y0 + y1) / 2) : Math.min(y1 + 14, (y0 + y1) / 2);
+      // The long vertical: at bx (turn → y1) going down, at ax (y0 → turn) going up.
+      const x = down ? bx : ax;
+      const [top, bottom] = down ? [turn, y1 - 14] : [turn, y0];
+      const blockers = all
+        .filter((n) => n !== from && n !== to)
+        .map((n) => n.getBoundingClientRect())
+        .map((r) => ({ l: r.left - box.left, r: r.right - box.left, t: r.top - box.top, b: r.bottom - box.top }))
+        .filter((r) => r.l - 6 < x && x < r.r + 6 && r.t < bottom && top < r.b);
+      let d = `M${ax} ${y0}V${turn}H${bx}V${y1}`;
+      let end = bx;
+      if (blockers.length) {
+        const left = Math.min(...blockers.map((r) => r.l)) - 14;
+        const right = Math.max(...blockers.map((r) => r.r)) + 14;
+        const lane = x - left < right - x ? left : right;
+        // Going up, leave the source straight at the lane: from its top edge
+        // when the lane is within its width, otherwise from the facing side.
+        const al = a.left - box.left;
+        const ar = a.right - box.left;
+        const up =
+          al < lane && lane < ar
+            ? `M${lane} ${y0}`
+            : `M${lane < al ? al : ar} ${(a.top + a.bottom) / 2 - box.top}H${lane}`;
+        // Going down, enter the target straight at the lane when it is within
+        // the target's width; otherwise step across just above it.
+        const inTarget = b.left - box.left < lane && lane < b.right - box.left;
+        if (down && inTarget) end = lane;
+        d = down
+          ? `M${ax} ${y0}V${turn}H${lane}` + (inTarget ? `V${y1}` : `V${y1 - 14}H${bx}V${y1}`)
+          : `${up}V${turn}H${bx}V${y1}`;
+      }
+      return { d, x: end, y: y1, down };
+    };
+
+    const draw = (animate: boolean) => {
+      svg?.remove();
+      svg = undefined;
+      const button = buttons.find((b) => b.dataset.traceMode === mode);
+      const pairs: [string, string][] = JSON.parse(button?.dataset.traceRoutes ?? "[]");
+      if (!pairs.length || !wide.matches) return;
+      const box = stage.getBoundingClientRect();
+      const layer = document.createElementNS(NS, "svg");
+      layer.setAttribute("class", "trace-routes");
+      layer.setAttribute("aria-hidden", "true");
+      layer.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
+      const lines: SVGPathElement[] = [];
+      pairs.forEach(([from, to], i) => {
+        const a = nodes.get(from);
+        const b = nodes.get(to);
+        if (!a || !b) return;
+        const r = route(a, b, box);
+        const line = document.createElementNS(NS, "path");
+        const head = document.createElementNS(NS, "path");
+        const s = r.down ? -1 : 1;
+        line.setAttribute("d", r.d);
+        line.setAttribute("class", "trace-route");
+        // Normalized length: the dash covers the whole route; the offset starts
+        // at 1 (hidden) before the path is ever styled, then transitions to 0.
+        line.setAttribute("pathLength", "1");
+        line.style.strokeDasharray = "1";
+        line.style.strokeDashoffset = animate ? "1" : "0";
+        head.setAttribute("d", `M${r.x - 5} ${r.y + s * 7}L${r.x} ${r.y}L${r.x + 5} ${r.y + s * 7}`);
+        head.setAttribute("class", "trace-route-head");
+        for (const el of [line, head]) el.style.setProperty("--i", String(i));
+        layer.append(line, head);
+        lines.push(line);
+      });
+      if (!animate) layer.classList.add("is-static");
+      stage.prepend(layer);
+      svg = layer;
+      // Resolve each path's starting offset so the change below transitions.
+      for (const line of lines) void getComputedStyle(line).strokeDashoffset;
+      layer.classList.add("is-drawn");
+      for (const line of lines) line.style.strokeDashoffset = "0";
+    };
+
+    const select = (next: string | null) => {
+      mode = next;
+      if (mode) figure.dataset.activeTrace = mode;
+      else delete figure.dataset.activeTrace;
+      for (const el of tagged) {
+        el.classList.toggle("is-traced", !!mode && el.dataset.trace!.split(" ").includes(mode));
+      }
+      for (const button of buttons) {
+        button.setAttribute("aria-pressed", String(button.dataset.traceMode === mode));
+      }
+      const active = buttons.find((button) => button.dataset.traceMode === mode);
+      output.textContent = active?.dataset.traceDescription ?? output.dataset.traceIntro ?? "";
+      draw(true);
+    };
+
+    controls.hidden = false;
+    controls.addEventListener("click", (event) => {
+      const button = (event.target as Element).closest<HTMLButtonElement>("[data-trace-mode]");
+      if (!button) return;
+      select(button.getAttribute("aria-pressed") === "true" ? null : button.dataset.traceMode!);
+    });
+
+    // Layout changes (resize, font load, breakpoint) redraw an active route in place.
+    let frame = 0;
+    const redraw = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        if (mode) draw(false);
+      });
+    };
+    new ResizeObserver(redraw).observe(stage);
+    wide.addEventListener("change", redraw);
+  }
+</script>
+
+<style>
+  .system-diagram {
+    margin-block: calc(var(--spacing) * 8);
+  }
+
+  .diagram-group {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    padding: var(--spacing-component);
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+  }
+
+  /* Narrow screens: a two-column grid for an application's modules instead of
+     one long vertical stack. */
+  @media (max-width: 47.99rem) {
+    .diagram-group .diagram-nodes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: calc(var(--spacing) * 2);
+    }
+
+    .diagram-group .diagram-node {
+      align-content: center;
+      min-width: 0;
+      padding-inline: calc(var(--spacing) * 2);
+    }
+  }
+
+  .diagram-group-label {
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .diagram-note {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--color-text-muted);
+  }
+
+  .diagram-boundary {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    margin-top: calc(var(--spacing) * 8);
+    padding-top: var(--spacing-component);
+    border-top: var(--border-hairline) solid var(--color-border-strong);
+  }
+
+  .diagram-externals {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: calc(var(--spacing) * 3);
+    list-style: none;
+    padding: 0;
+  }
+
+  .diagram-externals .diagram-node {
+    min-width: 14rem;
+  }
+
+  /* Architecture Trace ---------------------------------------------------- */
+  .trace {
+    display: grid;
+    gap: var(--spacing-component);
+    margin-bottom: calc(var(--spacing) * 8);
+    padding-bottom: var(--spacing-component);
+    border-bottom: var(--border-hairline) solid var(--color-border);
+  }
+
+  .trace[hidden] {
+    display: none;
+  }
+
+  .trace-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+  }
+
+  .trace-description {
+    min-height: 4.5em;
+    font-size: var(--text-small);
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+
+  .system-diagram :is(.diagram-node, .diagram-layer, .diagram-boundary) {
+    transition:
+      color var(--motion-section) var(--ease-standard),
+      border-color var(--motion-section) var(--ease-standard),
+      box-shadow var(--motion-section) var(--ease-standard);
+  }
+
+  /* Untraced parts stay readable: muted text and quiet borders, no fading. */
+  .system-diagram[data-active-trace] .diagram-node:not(.is-traced) {
+    border-color: var(--color-border);
+    color: var(--color-text-muted);
+  }
+
+  /* Traced nodes: accent border plus heavier text, so the state is not color-only. */
+  .system-diagram[data-active-trace] .diagram-node.is-traced {
+    border-color: var(--color-accent);
+    box-shadow: inset 0 0 0 1px var(--color-accent);
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .system-diagram[data-active-trace] .diagram-layer:not(.is-traced)::before {
+    border-left-color: var(--color-border);
+  }
+
+  .system-diagram[data-active-trace] .diagram-layer:not(.is-traced)::after {
+    border-top-color: var(--color-border);
+  }
+
+  .system-diagram[data-active-trace] .diagram-layer.is-traced::before {
+    border-left-color: var(--color-accent);
+  }
+
+  .system-diagram[data-active-trace] .diagram-layer.is-traced::after {
+    border-top-color: var(--color-accent);
+  }
+
+  .system-diagram[data-active-trace] .diagram-boundary.is-traced {
+    border-top: 2px solid var(--color-accent);
+    padding-top: calc(var(--spacing-component) - 1px);
+  }
+
+  /* Architecture Trace 2.0: depth and routes ------------------------------ */
+  .diagram-stage {
+    position: relative;
+  }
+
+  /* Spatial hierarchy: the application group reads as a plate with a sheet
+     beneath it (an offset hairline plane, no shadow). */
+  .diagram-group {
+    position: relative;
+    background-color: var(--color-bg);
+  }
+
+  .diagram-group::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border: var(--border-hairline) solid var(--color-border);
+    border-radius: inherit;
+    transform: translate(6px, 6px);
+  }
+
+  /* Stacking: group plate, then routes, then nodes and labels on top. Labels
+     sit on a page-colored ground so a route passing behind never crosses text. */
+  .system-diagram :is(.diagram-node, .diagram-label, .diagram-group-label) {
+    position: relative;
+    z-index: 2;
+  }
+
+  .system-diagram :is(.diagram-label, .diagram-group-label) {
+    justify-self: center;
+    padding-inline: 0.375rem;
+    background-color: var(--color-bg);
+  }
+
+  /* Route elements are created by the script, outside Astro's style scope. */
+  .diagram-stage :global(.trace-routes) {
+    z-index: 1;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .diagram-stage :global(:is(.trace-route, .trace-route-head)) {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Drawn once per selection, in order: each route follows the previous one. */
+  .diagram-stage :global(.trace-route) {
+    transition: stroke-dashoffset calc(var(--motion-section) * 3) var(--ease-standard)
+      calc(var(--i) * var(--motion-ui));
+  }
+
+  .diagram-stage :global(.trace-route-head) {
+    opacity: 0;
+    transition: opacity var(--motion-fast) var(--ease-standard)
+      calc(var(--i) * var(--motion-ui) + var(--motion-section) * 3);
+  }
+
+  .diagram-stage :global(.trace-routes.is-drawn .trace-route-head) {
+    opacity: 1;
+  }
+
+  .diagram-stage :global(.trace-routes.is-static :is(.trace-route, .trace-route-head)) {
+    transition: none;
+  }
+
+  /* Selected nodes lift; the rest recede but stay readable. */
+  .system-diagram .diagram-node {
+    transition:
+      color var(--motion-section) var(--ease-standard),
+      border-color var(--motion-section) var(--ease-standard),
+      box-shadow var(--motion-section) var(--ease-standard),
+      transform var(--motion-section) var(--ease-standard);
+  }
+
+  .system-diagram[data-active-trace] .diagram-node.is-traced {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 0 0 1px var(--color-accent),
+      0 8px 18px -12px color-mix(in oklab, var(--color-text) 60%, transparent);
+  }
+
+  .system-diagram[data-active-trace] .diagram-node:not(.is-traced) {
+    transform: scale(0.97);
+  }
+</style>
