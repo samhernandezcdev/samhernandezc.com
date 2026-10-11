@@ -36,7 +36,7 @@ const hasNotes = (await getPublishedNotes()).length > 0;
       <div class="ledger">
         {
           entries.map((entry) => (
-            <WorkRow entry={entry} locale={locale} href={caseStudyPath(entry)} ledger level={2} />
+            <WorkRow entry={entry} locale={locale} href={caseStudyPath(entry)} ledger feature={entry.data.featured} level={2} />
           ))
         }
       </div>
@@ -50,8 +50,12 @@ const hasNotes = (await getPublishedNotes()).length > 0;
     padding-top: calc(var(--spacing) * 16);
   }
 
+  /* Engineering record: the index title at display scale; featured entries
+     render as evidence records, the rest as compact ledger rows. */
   .work-index-title {
-    font-size: var(--text-h1);
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+    letter-spacing: -0.025em;
   }
 
   .ledger {

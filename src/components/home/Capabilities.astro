@@ -16,7 +16,7 @@ const { locale } = Astro.props;
   <ul class="capabilities">
     {
       capabilities.map((area) => (
-        <li class="axis capability">
+        <li class="capability">
           <h3 class="capability-title">{t(locale, `engineer.${area.id}.title` as UIKey)}</h3>
           <div class="capability-content">
             <p class="capability-body">{t(locale, `engineer.${area.id}.body` as UIKey)}</p>
@@ -35,17 +35,51 @@ const { locale } = Astro.props;
 </section>
 
 <style>
-  /* Rows on the shared axis: no column-height imbalance between areas. */
+  /* One technical matrix, not four cards: the group shares its outer rules,
+     and the cells are divided only by internal hairlines (the hero datasheet's
+     grammar). No surfaces, boxes or radii. */
   .capabilities {
-    border-bottom: var(--border-hairline) solid var(--color-border);
+    border-block: var(--border-hairline) solid var(--color-border);
   }
 
+  /* Mobile: one dense group (no per-item rules, tight rhythm) between the
+     spacious evidence record above and the journal below. */
   .capability {
-    padding-block: var(--spacing-component-lg);
+    padding-block: var(--spacing-component);
   }
 
-  .capability + .capability {
-    border-top: var(--border-hairline) solid var(--color-border);
+  .capability:first-child {
+    padding-top: var(--spacing-component-lg);
+  }
+
+  .capability:last-child {
+    padding-bottom: var(--spacing-component-lg);
+  }
+
+  @media (min-width: 48rem) {
+    .capabilities {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .capability,
+    .capability:first-child,
+    .capability:last-child {
+      padding-block: calc(var(--spacing) * 8);
+    }
+
+    .capability:nth-child(odd) {
+      padding-inline-end: calc(var(--spacing) * 8);
+    }
+
+    .capability:nth-child(even) {
+      padding-inline-start: calc(var(--spacing) * 8);
+      border-left: var(--border-hairline) solid var(--color-border);
+    }
+
+    .capability:nth-child(n + 3) {
+      border-top: var(--border-hairline) solid var(--color-border);
+    }
   }
 
   .capability-title {
@@ -55,7 +89,14 @@ const { locale } = Astro.props;
   .capability-content {
     display: grid;
     gap: calc(var(--spacing) * 2);
+    margin-top: calc(var(--spacing) * 2);
     max-width: var(--container-prose);
+  }
+
+  @media (min-width: 48rem) {
+    .capability-content {
+      margin-top: calc(var(--spacing) * 3);
+    }
   }
 
   .capability-body {

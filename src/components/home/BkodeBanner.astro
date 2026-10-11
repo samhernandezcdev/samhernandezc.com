@@ -1,10 +1,16 @@
 ---
-// BKODE interlude: an editorial break between Samuel's engineering portfolio
-// and the separate studio that handles client work. A `surface` band framed
-// by strong hairlines, on the page's 11rem axis: the BKODE mark and "client
-// work" in the label column; a statement, one explanatory line and a single
-// destination in the content column. Only the link is interactive; hovering
-// or focusing it strengthens the band's top rule and nudges the ↗.
+// BKODE brand band: the site's single branded surface exception. BKODE is the
+// separate home for Samuel's commercial software projects and client work.
+// The band keeps the portfolio's grammar (the 11rem axis, section rhythm,
+// Geist, hairlines, the focus ring, the page's theme) and differs only by
+// brand elements: the official logo (navy on the light theme, white on the
+// dark theme, both unmodified), the BKODE surface and BKODE blue, which never
+// leaves this component.
+// The two logos switch in CSS with the site's theme model (OS preference or
+// the data-theme override); the hidden one is display:none, so it is neither
+// announced nor fetched (lazy). No JS.
+// Only the link is interactive; hovering or focusing it draws a blue rule
+// across the band's top from the logo side and nudges the ↗.
 import ExternalLink from "@/components/system/ExternalLink.astro";
 import { links, t, type Locale } from "@/i18n/ui";
 
@@ -17,15 +23,31 @@ const { locale } = Astro.props;
 
 <aside class="bkode" aria-labelledby="bkode-title">
   <div class="page axis bkode-row">
-    <p class="bkode-mark">
-      <span class="bkode-name">BKODE</span>
-      <span class="meta bkode-kind">/ {t(locale, "bkode.label")}</span>
-    </p>
+    <div class="bkode-mark">
+      <img
+        class="bkode-logo bkode-logo-light"
+        src="/bkode-logo-stacked-navy-1x.png"
+        width="500"
+        height="358"
+        alt="BKODE"
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        class="bkode-logo bkode-logo-dark"
+        src="/bkode-logo-stacked-white-1x.png"
+        width="500"
+        height="358"
+        alt="BKODE"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
     <div class="bkode-body">
       <h2 id="bkode-title" class="bkode-title">{t(locale, "bkode.title")}</h2>
       <p class="bkode-text">{t(locale, "bkode.body")}</p>
       <p class="bkode-action">
-        <ExternalLink class="link bkode-link" href={links.bkode} locale={locale} arrow>{t(locale, "bkode.cta")}</ExternalLink>
+        <ExternalLink class="button bkode-link" href={links.bkode} locale={locale} arrow>{t(locale, "bkode.cta")}</ExternalLink>
         <span class="meta bkode-host">bkode.lat</span>
       </p>
     </div>
@@ -37,57 +59,76 @@ const { locale } = Astro.props;
     position: relative;
     margin-top: var(--spacing-section);
     border-block: var(--border-hairline) solid var(--color-border-strong);
-    background-color: var(--color-surface);
+    background-color: var(--color-bkode-surface);
   }
 
-  /* The top rule strengthens while the destination is hovered or focused. */
+  /* The destination's rule: drawn from the logo side toward the action while
+     the link is hovered or focused. Under reduced motion it appears in place. */
   .bkode::before {
     content: "";
     position: absolute;
     inset: -1px 0 auto;
-    border-top: 2px solid var(--color-text);
-    opacity: 0;
-    transition: opacity var(--motion-section) var(--ease-standard);
+    border-top: 2px solid var(--color-bkode-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--motion-section) var(--ease-standard);
   }
 
   .bkode:has(.bkode-link:hover, .bkode-link:focus-visible)::before {
-    opacity: 1;
+    transform: scaleX(1);
   }
 
   .bkode-row {
-    padding-block: calc(var(--spacing) * 16);
+    align-items: start;
+    padding-block: calc(var(--spacing) * 24);
   }
 
   @media (max-width: 47.99rem) {
     .bkode-row {
-      gap: calc(var(--spacing) * 4);
-      padding-block: calc(var(--spacing) * 10);
+      gap: calc(var(--spacing) * 8);
+      padding-block: calc(var(--spacing) * 12);
     }
   }
 
-  .bkode-mark {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 calc(var(--spacing) * 2);
+  /* The logo fills the label column exactly (11rem, ≈2.8× the 1x asset's
+     density). The PNG has an 18/500 transparent inset; the negative margin
+     puts the drawn mark on the axis line. */
+  .bkode-logo {
+    display: block;
+    width: 8.5rem;
+    height: auto;
+    margin-inline-start: calc(-18 / 500 * 8.5rem);
+  }
+
+  /* Navy logo on the light theme, white logo on the dark theme. */
+  .bkode-logo-dark {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"]) .bkode-logo-light {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"]) .bkode-logo-dark {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) .bkode-logo-light {
+      display: none;
+    }
+
+    :global(:root:not([data-theme="light"])) .bkode-logo-dark {
+      display: block;
+    }
   }
 
   @media (min-width: 48rem) {
-    .bkode-mark {
-      flex-direction: column;
-      gap: calc(var(--spacing) * 1);
-      padding-top: 0.35rem;
+    .bkode-logo {
+      width: var(--container-label);
+      margin-inline-start: calc(-18 / 500 * var(--container-label));
+      margin-top: calc(-18 / 500 * var(--container-label));
     }
-  }
-
-  .bkode-name {
-    font-size: var(--text-lead);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-  }
-
-  .bkode-kind {
-    color: var(--color-text-muted);
   }
 
   .bkode-body {
@@ -95,15 +136,17 @@ const { locale } = Astro.props;
   }
 
   .bkode-title {
-    font-size: var(--text-h2);
-    line-height: 1.25;
-    letter-spacing: -0.01em;
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    letter-spacing: -0.02em;
     text-wrap: balance;
   }
 
   .bkode-text {
     max-width: 40rem;
     margin-top: calc(var(--spacing) * 4);
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
     color: var(--color-text-muted);
   }
 
@@ -111,13 +154,13 @@ const { locale } = Astro.props;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0 calc(var(--spacing) * 4);
-    margin-top: calc(var(--spacing) * 6);
+    gap: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+    margin-top: calc(var(--spacing) * 8);
   }
 
-  .bkode-link {
-    min-height: var(--target-min);
-    font-weight: 600;
+  .bkode-link:hover,
+  .bkode-link:focus-visible {
+    border-color: light-dark(var(--color-bkode-navy), var(--color-bkode-accent));
   }
 
   .bkode-host {

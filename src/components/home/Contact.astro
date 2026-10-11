@@ -22,7 +22,7 @@ const [user, domain] = links.email.split("@");
 <section id="contact" class="page-section" aria-labelledby="contact-title">
   <div class="section-head">
     <h2 id="contact-title">{t(locale, "contact.title")}</h2>
-    <p class="section-intro">{t(locale, "contact.lead")}</p>
+    <p class="contact-lead">{t(locale, "contact.lead")}</p>
   </div>
 
   <div class="axis contact-email">
@@ -86,16 +86,25 @@ const [user, domain] = links.email.split("@");
 </section>
 
 <style>
-  .contact-label {
-    padding-top: 0.45rem;
+  /* Availability is the message, not a muted aside. */
+  .contact-lead {
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+    text-wrap: pretty;
   }
 
-  /* The address is the section's subject: large and selectable. It breaks
+  .contact-label {
+    padding-top: 0.6rem;
+  }
+
+  /* The address is the section's subject and the page's closing action:
+     large and selectable, at the same h1 scale as the featured project and
+     BKODE titles so it closes the page without outranking them. It breaks
      after "@" when it must; overflow-wrap is only a last resort. */
   .contact-address {
-    font-size: var(--text-h2);
-    line-height: 1.2;
-    letter-spacing: -0.01em;
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    letter-spacing: -0.02em;
     overflow-wrap: anywhere;
   }
 
@@ -157,7 +166,7 @@ const [user, domain] = links.email.split("@");
   }
 
   .contact-more {
-    margin-top: calc(var(--spacing) * 10);
+    margin-top: calc(var(--spacing) * 16);
   }
 
   @media (max-width: 47.99rem) {

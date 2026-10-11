@@ -78,8 +78,15 @@ Built on `.row-link`. Order:
 
 Shown only when a featured work entry is public (otherwise the section falls back to "Selected experience", see above). The row itself is the link, so it needs no `→` and no "Read more". Don't: images, decisions or trade-offs (those live in the case study), badge walls, hover zoom.
 
+**Evidence record (`feature`):** featured entries on Home and /work. On `.axis`:
+- Label column: status, source, then the role.
+- Content column: the title at `text-h1` (link), the problem at `lead`, the verified qualitative result as a statement (text color, `h3` size, weight 500, on a 2px text-colored top rule), the stack, then "Read the case study".
+- Below 48rem: status, source and role form one wrapped meta line above the title.
+- Non-featured entries stay compact ledger rows; the contrast between the two is the hierarchy.
+- Still no card, surface, image, diagram or metric. The result line only ever shows existing verified text.
+
 ## Work index (implemented, `components/work/WorkIndex.astro`)
-- A ledger on `.axis`: lifecycle and source in the label column; title (h2, linked when a case study exists), problem, role, one result line (neutral `border-strong` rule, never the accent), stack, and "Read the case study". No cards, images or badges.
+- An engineering record on `.axis`. The h1 is at `display`. Featured entries render as evidence records (above); the others as compact ledger rows: lifecycle and source in the label column; title (h2, linked when a case study exists), problem, role, one result line (neutral `border-strong` rule, never the accent), stack, and "Read the case study". No cards, images or badges.
 
 ## Case study (implemented, `pages/work/[slug].astro`)
 - Header: breadcrumb (Work / Case study), the title at `h1`, the summary at `lead`, the status chip and source, and a `border-strong` rule.
@@ -97,13 +104,14 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 - Mobile: nothing sticky; the contents list stays a collapsed `<details>` and has no active state.
 
 ## Notes (implemented)
-- Index (`/notes`): a dated ledger on `.axis`. The `<time>` date and reading time sit in the label column; the title link (h2), description and plain-text topics sit beside it. No cards, covers, avatars or counters. The RSS link is a quiet `link-quiet`.
+- Index (`/notes`): a journal on `.axis`. The h1 is at `display`. The `<time>` date (mono, text color: the entry's anchor) and the muted reading time sit in the label column; the title link (h2 at `text-h2`), description and plain-text topics sit beside it, with more air per entry than other ledgers. No cards, covers, avatars or counters. The RSS link is a quiet `link-quiet`.
 - Note page: breadcrumb (Engineering notes), title `h1`, description at `lead`, then a mono meta line (Published date, Updated, reading time, topics), then ArticleShell. "All notes" at the end.
-- Homepage "Engineering notes": at most 3 `NoteRow`s (date, reading time, title, description; no topics). Hidden when no note is published.
+- Homepage "Engineering notes": at most 3 `NoteRow`s (date in text color, reading time, title at `h3`, description; no topics). Hidden when no note is published.
 - Code: the token-derived Shiki pair, no copy button or editor chrome (deferred until a note needs it).
 
 ## About (implemented, `components/about/AboutPage.astro`)
-- `h1` "About", then a strong rule and `.axis` with the name in the label column, the identity statement at `h2` size and the direction line at `lead`.
+- `h1` "About" at `display`, then a strong rule and `.axis` with the name in the label column, the identity statement at `h1` size (the page's pull statement) and the direction line at `lead`.
+- Narrative: the first paragraph of "How I got here" is the lede (`lead`, text color). Principle titles stay at body size: at `h3` they wrap to 3–4 lines in the 11rem column.
 - Sections (each a section head with tick): How I got here (prose on the axis), How I work (principles as axis rows: title as `h3` left, sentence right), Experience (`ExperienceList`, full history with `owned` lines), Current direction (prose), Contact (shared component).
 - No portrait, quotes, skill pills, timeline graphics or cards.
 - `ExperienceList` (`components/experience/`): shared by About (all roles, all items) and the homepage fallback (3 roles, 2 items). Periods use `<time datetime>`.
@@ -130,28 +138,36 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 - Unverified entries never render in production. In dev they show as "— pending verification" inside a `.planned` box.
 
 ## Shared axis (`.axis`, `--container-label`)
-- The homepage runs on one left axis: an 11rem label/metadata column plus content. The hero role, the facts strip's first column, experience periods, capability titles, "Other work" and the BKODE name all sit on it. New page-level rows should use `.axis` rather than inventing column widths.
+- The homepage runs on one left axis: an 11rem label/metadata column plus content. The hero role, the facts strip's first column, the evidence record's metadata, experience periods, "Other work" and the BKODE logo all sit on it. New page-level rows should use `.axis` rather than inventing column widths.
 - Section heads start on a hairline with a 1.5rem drafting-green tick (`.section-head`). This is the accent's one structural use.
 
 ## Hero (implemented)
-- Masthead: the name at `display`, then a `border-strong` hairline, then `.axis` with the role in the label column and the thesis as the dominant statement (`h2` size, regular weight, about 34ch), then the actions. It closes with a datasheet strip of four facts (label + value; stack in mono): 4 columns on desktop, 2×2 on mobile.
-- No status panel, image or decoration.
+- Masthead: the name at `masthead` (44 → 88px, tracking −0.035em), the site's one typographic peak. Then a `border-strong` hairline carrying the drafting-green tick (the section-head motif starts in the first viewport), then `.axis` with the role in the label column and the thesis as the dominant statement (`h2` size, regular weight, about 34ch), then the actions. It closes with a datasheet strip of four facts: small muted labels, values at body size (the stack in mono at `small`), 4 columns on desktop, 2×2 on mobile.
+- No status panel, image, illustration, diagram, grid or animation. Typography and composition are the artifact.
+
+## What I engineer (implemented, `components/home/Capabilities.astro`)
+- From 48rem: one 2×2 editorial matrix. Shared outer rules on the group; cells divided only by an internal vertical hairline and a horizontal hairline between rows (the datasheet's grammar). Each cell: the title (h3) on top, the sentence, the mono stack, "Exploring" where it exists.
+- Below 48rem: one dense group framed by a single top and bottom rule, no per-item rules, tight rhythm: the deliberately dense stretch between the evidence record and the notes.
+- Don't: independent surfaces, boxed padding, radii, backgrounds or icons. It must never read as four cards.
 
 ## Evidence section ("Selected work" / "Selected experience")
 - With at least one published, featured work entry: "Selected work" and WorkRows.
 - Otherwise: "Selected experience", the three most recent roles from the experience collection. Consecutive roles at the same organization are grouped under one organization heading (the overall period is in the label column, each role's own period beside its title, separated by a dotted rule). This is a presentation-level grouping; the data stays one entry per role.
 - The hero's primary action uses the same label as the section.
 
-## BKODE interlude (implemented, `components/home/BkodeBanner.astro`)
-- Appears once on the homepage: an editorial break between the engineering portfolio and the separate studio for client work. Full-width `surface` band framed by `border-strong` hairlines, same color scheme as the page.
-- On `.axis`: the label column holds the BKODE mark (sans 700, slight tracking) and a mono `/ Client work`; the content column holds the statement as the section `h2` ("Independent software work has its own home."), one muted explanatory line, and a single destination: "Visit BKODE ↗" (link, weight 600) followed by a muted mono `bkode.lat`.
-- Interaction: only the link is interactive. Hovering or focusing it fades in a 2px text-colored top rule on the band (`--motion-section`) and nudges the ↗; the link's own underline strengthens. No scale, glow or background animation.
-- Mobile: the mark and `/ Client work` share one line above the statement; padding shrinks so the band never reads as an empty panel.
-- Don't: inverted bands, gradients, card treatment, large buttons, a whole-band click target, or more than one link.
+## BKODE brand band (implemented, `components/home/BkodeBanner.astro`)
+- Appears once on the homepage. BKODE is the separate home for commercial software projects and client work. The band is the site's **single branded surface exception**.
+- It belongs to the portfolio system: the 11rem axis, section rhythm, Geist / Geist Mono, hairline framing (`border-strong`), the global focus ring and the page's theme. Only three things make it BKODE:
+  - **The official logo, unmodified:** `bkode-logo-stacked-navy-1x.png` on the light theme, `bkode-logo-stacked-white-1x.png` on the dark theme. Both are rendered; CSS shows exactly one, following the theme model (OS preference, or a `data-theme` override). The hidden one is `display: none` and lazy, so it is neither announced nor fetched. Never invert, recolor, redraw or stretch either logo.
+  - **The BKODE surface** (`bkode-surface`): a pale cool surface in light, BKODE ink in dark.
+  - **BKODE blue** (`bkode-accent`), used only inside `.bkode`.
+- On `.axis`: the logo fills the label column (11rem; 8.5rem above the text on mobile), optically aligned for the PNG's transparent inset. The content column holds the statement as the section `h2` at `text-h1`, the body at `lead` (muted), and one action: "Visit BKODE ↗" as an outlined `.button`, followed by a muted mono `bkode.lat`.
+- Interaction: only the link is interactive. Hovering or focusing it draws a 2px BKODE-blue rule across the band's top from the logo side (`transform: scaleX`, `--motion-section`; appears in place under reduced motion), turns the button border BKODE navy (light) or blue (dark), and nudges the ↗.
+- Don't: gradients, card treatment, large filled buttons, a whole-band click target, more than one link, or BKODE blue outside the band.
 
 ## Contact (implemented, `components/home/Contact.astro`; home and About)
-- Section head (title + availability line), then two `.axis` blocks, no row table:
-  - **Email**: label in the axis column; the address at `h2` size (selectable, breaks after "@" on narrow screens), then two buttons: "Copy address" and "Write an email" (plain `mailto:`, no ↗, no prefilled message; it opens whatever mail handler the visitor has).
+- Section head (title + availability line at `lead` in text color: it is the message), then two `.axis` blocks, no row table:
+  - **Email**: label in the axis column; the address at `h1` size, the page's closing action at the same scale as the featured project and BKODE titles and never larger (selectable, breaks after "@" on narrow screens), then two buttons: "Copy address" and "Write an email" (plain `mailto:`, no ↗, no prefilled message; it opens whatever mail handler the visitor has).
   - **Profiles / CV**: below a hairline, two quiet lists side by side (stacked under 40rem): LinkedIn ↗ and GitHub ↗ with their muted mono handles; English ↗ and Español ↗ (each named in its own language) with a mono `PDF`.
 - Copy feedback: the three labels ("Copy address", "✓ Copied", "Selected") share one grid cell, so the button never changes size. Success swaps to "✓ Copied" (accent check + word) with a text-colored border for ~1.8s; the incoming label fades and rises 2px (`--motion-ui`), the outgoing one leaves at once. A polite live region announces "Email address copied". If the Clipboard API is missing or refuses, the address is selected instead, the button reads "Selected" for ~4s and the live region explains how to copy by hand; it never claims "Copied". Without JS the button is hidden.
 

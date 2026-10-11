@@ -51,7 +51,7 @@ const jsonLd = graph(person(site, current && !current.period.end ? current.org :
       </div>
       <div class="axis">
         <span class="axis-spacer" aria-hidden="true"></span>
-        <div class="prose about-prose">
+        <div class="prose about-prose about-narrative">
           {copy.path.map((paragraph) => <p>{paragraph}</p>)}
           <p>
             <a href="/work/industrial-engineering-platform" hreflang={englishOnly ? "en" : undefined}>{copy.pathCaseStudy}</a>
@@ -124,7 +124,9 @@ const jsonLd = graph(person(site, current && !current.period.end ? current.org :
   }
 
   .about-title {
-    font-size: var(--text-h1);
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+    letter-spacing: -0.025em;
   }
 
   .about-lead {
@@ -137,11 +139,12 @@ const jsonLd = graph(person(site, current && !current.period.end ? current.org :
     padding-top: 0.35rem;
   }
 
+  /* The identity statement is the page's pull statement. */
   .about-statement {
-    max-width: 34ch;
-    font-size: var(--text-h2);
-    line-height: 1.35;
-    letter-spacing: -0.01em;
+    max-width: 30ch;
+    font-size: var(--text-h1);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
     text-wrap: pretty;
   }
 
@@ -168,6 +171,13 @@ const jsonLd = graph(person(site, current && !current.period.end ? current.org :
 
   .about-lang {
     margin-left: 0.35em;
+  }
+
+  /* Narrative: the first paragraph of "How I got here" is the lede. */
+  .about-narrative > p:first-child {
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+    color: var(--color-text);
   }
 
   .about-aside {

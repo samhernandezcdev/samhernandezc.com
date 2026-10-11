@@ -103,13 +103,12 @@ const en = {
   "notes.tags": "Topics",
   "notes.rss": "RSS feed",
 
-  "bkode.label": "Client work",
   "bkode.title": "Independent software work has its own home.",
-  "bkode.body": "BKODE handles business-facing and client software projects, separately from this engineering portfolio.",
+  "bkode.body": "BKODE brings together my commercial software projects and client work, separate from this engineering portfolio.",
   "bkode.cta": "Visit BKODE",
 
   "contact.title": "Contact",
-  "contact.lead": "Open to backend and applied-AI engineering roles, remote.",
+  "contact.lead": "Open to backend and software engineering roles, including work on applied AI systems. Remote.",
   "contact.email": "Email",
   "contact.copy": "Copy address",
   "contact.copiedShort": "Copied",
@@ -253,13 +252,12 @@ const es = {
   "notes.tags": "Temas",
   "notes.rss": "Feed RSS",
 
-  "bkode.label": "Trabajo para clientes",
-  "bkode.title": "El trabajo independiente de software tiene su propio lugar.",
-  "bkode.body": "BKODE se encarga de los proyectos de software para negocios y clientes, separado de este portafolio de ingeniería.",
+  "bkode.title": "El trabajo independiente de software tiene su propio espacio.",
+  "bkode.body": "BKODE reúne mis proyectos comerciales de software y trabajo para clientes, separados de este portafolio de ingeniería.",
   "bkode.cta": "Visitar BKODE",
 
   "contact.title": "Contacto",
-  "contact.lead": "Abierto a roles de ingeniería backend e IA aplicada, remotos.",
+  "contact.lead": "Abierto a oportunidades de backend e ingeniería de software, incluyendo trabajo con sistemas de IA aplicada. Remoto.",
   "contact.email": "Correo",
   "contact.copy": "Copiar correo",
   "contact.copiedShort": "Copiado",

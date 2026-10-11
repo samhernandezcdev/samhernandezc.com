@@ -27,6 +27,13 @@
   --color-accent-hover: light-dark(oklch(0.4 0.07 170), oklch(0.85 0.07 170));
   --color-accent-contrast: light-dark(oklch(0.985 0.004 95), oklch(0.2 0.01 170));
   --color-focus: var(--color-accent);
+  /* BKODE brand band only (BkodeBanner.astro); never used outside .bkode.
+     Colors come from the official logos: a pale cool surface for the navy
+     logo (light) and BKODE ink for the white logo (dark); navy is the logo's
+     mark color (#0B1F3A); the blue is its accent bar (#4FA7FF). */
+  --color-bkode-surface: light-dark(oklch(0.945 0.014 255), oklch(0.17 0.012 255));
+  --color-bkode-navy: oklch(0.243 0.055 262.3);
+  --color-bkode-accent: oklch(0.714 0.154 250.9);
   --color-transparent: transparent;
   --color-current: currentColor;
 
@@ -52,6 +59,8 @@
   --text-h1--line-height: 1.12;
   --text-display: clamp(2.25rem, 1.8rem + 2vw, 3.25rem); /* 36 → 52px, one per page at most */
   --text-display--line-height: 1.08;
+  --text-masthead: clamp(2.75rem, 1.6rem + 4.2vw, 5.5rem); /* 44 → 88px, the homepage name only */
+  --text-masthead--line-height: 1;
 
   --leading-tight: 1.12;
   --leading-heading: 1.3;

@@ -12,11 +12,19 @@
     scroll-padding-top: var(--sticky-offset);
   }
 
+  /* Column layout so <main> absorbs spare height and the footer sits at the
+     bottom of short pages. */
   body {
+    display: flex;
+    flex-direction: column;
     min-height: 100dvh;
     font-size: var(--text-body);
     line-height: var(--leading-body);
     font-feature-settings: "ss01";
+  }
+
+  body > main {
+    flex: 1 0 auto;
   }
 
   h1,

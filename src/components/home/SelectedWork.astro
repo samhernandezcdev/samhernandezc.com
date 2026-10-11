@@ -34,7 +34,7 @@ const introKey: UIKey = showWork ? "work.intro" : "experience.intro";
     showWork ? (
       <div class="rows">
         {featured.map((entry) => (
-          <WorkRow entry={entry} locale={locale} href={caseStudyPath(entry)} ledger />
+          <WorkRow entry={entry} locale={locale} href={caseStudyPath(entry)} feature />
         ))}
       </div>
     ) : (

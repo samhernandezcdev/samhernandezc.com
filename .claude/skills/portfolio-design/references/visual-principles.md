@@ -28,7 +28,7 @@ Never trade credibility for a two-second "wow".
 - Editorial single column, container ~1120 px, prose column ~68ch.
 - Structure comes from 1 px hairlines and whitespace; surfaces are secondary.
 - Case studies: desktop = sticky metadata/TOC rail + prose; mobile = rail becomes a `<details>` at the top.
-- Home sections are separated by rhythm (token spacing) and hairlines, not by alternating colored bands. The only deliberately different band is the BKODE banner.
+- Home sections are separated by rhythm (token spacing) and hairlines, not by alternating colored bands. Each home section uses its own composition inside one grammar: masthead, evidence record, two-column matrix, dated ledger, brand band, closing address. The only deliberately different band is the BKODE banner.
 
 ## Surfaces and borders
 - Three levels: background, surface, raised surface. No translucency or blur.

@@ -59,16 +59,29 @@ const facts = [
     }
   }
 
+  /* The page's one typographic peak: the name at masthead scale. */
   .hero-name {
-    font-size: var(--text-display);
-    line-height: var(--text-display--line-height);
-    letter-spacing: -0.025em;
+    font-size: var(--text-masthead);
+    line-height: var(--text-masthead--line-height);
+    letter-spacing: -0.035em;
   }
 
+  /* The strong rule carries the drafting-green tick, so the section-head
+     motif starts in the first viewport. */
   .hero-body {
+    position: relative;
     margin-top: calc(var(--spacing) * 8);
     padding-top: calc(var(--spacing) * 6);
     border-top: var(--border-hairline) solid var(--color-border-strong);
+  }
+
+  .hero-body::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 1.5rem;
+    border-top: 2px solid var(--color-accent);
   }
 
   .hero-role {
@@ -113,7 +126,16 @@ const facts = [
     align-content: start;
     gap: calc(var(--spacing) * 1);
     padding-block: var(--spacing-component);
+  }
+
+  /* Datasheet: small muted labels, values at reading size. */
+  .hero-fact dt {
     font-size: var(--text-small);
+  }
+
+  .hero-fact dd {
+    font-size: var(--text-body);
+    line-height: var(--leading-heading);
   }
 
   @media (max-width: 63.99rem) {
@@ -134,7 +156,9 @@ const facts = [
     }
   }
 
-  .hero-fact-mono {
+  .hero-fact dd.hero-fact-mono {
+    font-size: var(--text-small);
+    line-height: var(--leading-body);
     color: var(--color-text);
   }
 </style>

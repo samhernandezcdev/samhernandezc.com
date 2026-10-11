@@ -27,6 +27,11 @@ Live preview: `npm run dev`, then open `/dev/design-system`. It is dev-only and 
 | `accent-hover` | Hovered link text | |
 | `accent-contrast` | Text on an accent fill (rarely used) | |
 | `focus` | Focus ring, aliases accent | |
+| `bkode-surface` | BKODE band only | Light: pale cool surface for the navy logo. Dark: BKODE ink for the white logo. |
+| `bkode-navy` | BKODE band only | The logo's mark color (#0B1F3A): CTA hover border in the light theme |
+| `bkode-accent` | BKODE band only | The logo's accent bar (#4FA7FF): the CTA rule, and the CTA hover border in the dark theme |
+
+**BKODE confinement:** the three `bkode-*` tokens are used only in `BkodeBanner.astro`. BKODE blue never appears anywhere else on the site; drafting green stays the portfolio's only accent.
 
 **Accent rationale:** green is the color of engineering computation pads, which ties it to the subject. The alternatives were compared in the preview's accent study:
 - Amber/orange on warm paper drifts toward the clay-on-cream palette that marks generated designs.
@@ -46,7 +51,8 @@ The green is kept dark and low in chroma so it never reads as terminal green.
 | `h3` | 18 → 20px | |
 | `h2` | 22 → 28px | |
 | `h1` | 30 → 44px | |
-| `display` | 36 → 52px | At most once per page (home hero). Never larger. |
+| `display` | 36 → 52px | At most once per page: the h1 of Work, Notes and About. |
+| `masthead` | 44 → 88px | The homepage name only: the site's one typographic peak. Nothing else uses it. |
 
 Line heights: `leading-tight` 1.12 (h1/display), `leading-heading` 1.3, `leading-body` 1.6, `leading-meta` 1.5.
 

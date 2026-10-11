@@ -37,4 +37,4 @@ It does **not** own copy, claims or project status — use `engineering-case-stu
 - `references/visual-principles.md` — the aesthetic, anti-patterns, hierarchy and composition rules.
 - `references/tokens.md` — color (light/dark), type scale, spacing, radii, durations; token naming.
 - `references/typography.md` — font roles, measure, leading, when mono is allowed.
-- `references/components.md` — anatomy and do/don't for WorkRow, status chip, BKODE banner, diagram figure, command palette, header.
+- `references/components.md` — anatomy and do/don't for WorkRow, status chip, BKODE brand band, diagram figure, command palette, header.
