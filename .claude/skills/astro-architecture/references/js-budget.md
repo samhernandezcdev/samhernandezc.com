@@ -12,6 +12,7 @@ After Phase 7: theme 153 B + command palette 1,017 B on every page; + copy-email
 After Phase 7.5: theme 155 B + command palette 891 B + header menus/theme 681 B on every page; + copy-email 228 B (home, about); + Architecture Trace 376 B (case study). Largest page 2,177 B gz (about). All inline. `scripts/theme.ts` has a single importer (the header): a second importer would split it into an external shared chunk.
 After Phase 7.5 (sticky shell + search): theme 155 B + search 1,151 B + header (menus, switch) 812 B on every page; + copy-email 228 B (home, about); + scroll-spy 560 B (case study, note); + Architecture Trace 376 B (case study). Largest page: case study 3,054 B gz. All inline, no shared chunks.
 After Phase 7.75 (contact polish): copy-email 228 → 424 B (success/failure states, fallback selection). Home, /es and About pages 2,542 B; case study unchanged at 3,054 B gz.
+After Phase 9 (visual layer): Hero artifact gate (loads the loop after load + idle on wide screens, theme-aware, pause control) +673 B → home and /es 3,210 B gz; Architecture Trace 2.0 (route geometry, lane avoidance, draw, ResizeObserver) +928 B → case study 3,974 B gz. Notes covers and the BKODE construction drawing are build-time SVG + CSS (0 B). The Hero loop itself (~250 KB VP9) is media, loaded only on wide screens without reduced motion or Save-Data.
 
 ## Allowed scripts (planned)
 | Script | Purpose | Loading |

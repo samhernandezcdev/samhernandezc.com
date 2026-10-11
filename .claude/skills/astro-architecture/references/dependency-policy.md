@@ -20,6 +20,8 @@ Record each decision as a row below: package · purpose · benefit · runtime im
 | `@fontsource-variable/geist-mono` | Consistent mono font | no (font file) | 2 |
 | `@playwright/test` (dev) | Screenshots for visual-review; smoke tests | no | −1 |
 | `@axe-core/playwright` (dev) | Accessibility tests | no | 8 |
+| `three` (dev) | Offline render of the Hero artifact in `scripts/hero-artifact.mjs` (stills + loop frames). Alternative: hand-written WebGL (far more code for the same output). Never shipped: no import from `src/`, zero runtime | no | 9 |
+| `webm-muxer` (dev) | Packages the WebCodecs VP9 frames of the Hero loop into WebM in the same script (Chromium has no built-in muxer; no ffmpeg on the machine). Never shipped | no | 9 |
 
 Built-in Shiki is used for code highlighting — no extra package.
 

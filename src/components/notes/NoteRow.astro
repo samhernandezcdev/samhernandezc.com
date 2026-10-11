@@ -4,6 +4,7 @@
 // Notes are English-only; Spanish pages mark the link EN.
 import type { CollectionEntry } from "astro:content";
 
+import NoteCover from "@/components/notes/NoteCover.astro";
 import { t, type Locale } from "@/i18n/ui";
 import { readingMinutes } from "@/lib/content";
 
@@ -22,10 +23,13 @@ const englishOnly = locale !== "en";
 ---
 
 <article class:list={["axis note-row", level === 2 && "note-row-journal"]}>
-  <p class="meta note-row-meta">
-    <time class="note-row-date" datetime={iso}>{iso}</time>
-    <span>{readingMinutes(note.body)} {t(locale, "notes.readingTime")}</span>
-  </p>
+  <div class="note-row-aside">
+    <p class="meta note-row-meta">
+      <time class="note-row-date" datetime={iso}>{iso}</time>
+      <span>{readingMinutes(note.body)} {t(locale, "notes.readingTime")}</span>
+    </p>
+    {level === 2 && <div class="note-row-cover"><NoteCover slug={note.id} motif={data.cover?.motif} /></div>}
+  </div>
   <div class="note-row-body">
     <Heading class="note-row-title" lang="en">
       <a class="link" href={`/notes/${note.id}`} hreflang={englishOnly ? "en" : undefined}>{data.title}</a>
@@ -73,6 +77,7 @@ const englishOnly = locale !== "en";
 
   .note-row-body {
     display: grid;
+    align-content: start;
     gap: calc(var(--spacing) * 2);
     max-width: var(--container-prose);
   }
@@ -84,6 +89,20 @@ const englishOnly = locale !== "en";
 
   .note-row-title {
     font-size: var(--text-h3);
+  }
+
+  /* Notes index: the note's cover plate sits under the date in the label
+     column (desktop only; on mobile the date line stays alone). */
+  .note-row-cover {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .note-row-cover {
+      display: block;
+      margin-top: calc(var(--spacing) * 6);
+      max-width: var(--container-label);
+    }
   }
 
   /* Notes index: a journal. Larger titles and more air per entry. */

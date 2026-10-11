@@ -437,11 +437,11 @@ test("contact, copy and external links", async ({ browser, baseURL: base }) => {
     const bk = await p.evaluate(() => { const a = document.querySelector(".bkode-link"); const logos = [...document.querySelectorAll(".bkode img")].map((i) => ({ alt: i.alt, src: i.getAttribute("src"), w: i.getAttribute("width"), h: i.getAttribute("height"), shown: getComputedStyle(i).display !== "none" })); return { n: document.querySelectorAll(".bkode a").length, href: a.getAttribute("href"), target: a.target, rel: a.rel, text: a.textContent.trim(), logos }; });
     check("BKODE: one destination, new tab, official logo with alt text", bk.n === 1 && bk.href === "https://bkode.lat" && bk.target === "_blank" && /noopener noreferrer/.test(bk.rel) && /^Visit BKODE/.test(bk.text) && bk.logos.length === 2 && bk.logos.every((l) => l.alt === "BKODE" && l.w === "500" && l.h === "358") && bk.logos.filter((l) => l.shown).map((l) => l.src).join() === "/bkode-logo-stacked-navy-1x.png", JSON.stringify(bk));
     await p.locator(".bkode").scrollIntoViewIfNeeded();
-    const before = await p.evaluate(() => getComputedStyle(document.querySelector(".bkode"), "::before").transform);
+    const before = await p.evaluate(() => getComputedStyle(document.querySelector(".bkode-geo-arm")).strokeDashoffset);
     await p.hover(".bkode-link");
-    await p.waitForTimeout(300);
-    const hov = await p.evaluate(() => ({ rule: getComputedStyle(document.querySelector(".bkode"), "::before").transform, arrow: getComputedStyle(document.querySelector(".bkode-link .external-arrow")).transform }));
-    check("BKODE hover: blue rule draws across the band, ↗ nudges 2px", before === "matrix(0, 0, 0, 1, 0, 0)" && hov.rule === "matrix(1, 0, 0, 1, 0, 0)" && hov.arrow === "matrix(1, 0, 0, 1, 2, -2)", JSON.stringify({ before, ...hov }));
+    await p.waitForTimeout(600);
+    const hov = await p.evaluate(() => ({ arm: getComputedStyle(document.querySelector(".bkode-geo-arm")).strokeDashoffset, arrow: getComputedStyle(document.querySelector(".bkode-link .external-arrow")).transform }));
+    check("BKODE hover: the K's arms draw in BKODE blue, ↗ nudges 2px", parseFloat(before) === 1 && parseFloat(hov.arm) === 0 && hov.arrow === "matrix(1, 0, 0, 1, 2, -2)", JSON.stringify({ before, ...hov }));
     await p.mouse.move(5, 5);
     await p.focus(".contact-link");
     await p.keyboard.press("Shift+Tab");

@@ -103,6 +103,12 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 - Active section (scroll-spy, desktop rail only): an IntersectionObserver whose top edge sits on the sticky offset marks the section whose heading has passed under the header (`aria-current="location"`): full-strength text, weight 600 and a short 2px drafting-green mark on the list's rule. No fill and no motion. At the end of the page the lowest heading in view is current; a click marks its target directly. Without JS the list is plain anchors.
 - Mobile: nothing sticky; the contents list stays a collapsed `<details>` and has no active state.
 
+## Note covers (implemented, `components/notes/NoteCover.astro`)
+- An editorial cover is an abstract drafting plate drawn at build time as inline SVG (no JS, no images): measurement ticks on the top and left edges, modules on the raised surface (hollow ones for changing or optional parts), connectors in the muted text color, one filled key node. Theme-aware through tokens; decorative (`aria-hidden`).
+- Motif from the note's optional frontmatter `cover: { motif: split | pipeline | layers | graph }` (pick the one closest to the argument), otherwise from a hash of the slug. Layout varies deterministically with the slug; rebuilds never change it.
+- `plate` (4:3) sits under the date in the label column of the notes index (desktop only). `band` (4:1, max 44rem) closes the note header above a hairline.
+- Don't: stock or generated imagery, photos, gradients, cards around the plate, a plate above the title like a blog thumbnail, or a cover on the homepage notes list.
+
 ## Notes (implemented)
 - Index (`/notes`): a journal on `.axis`. The h1 is at `display`. The `<time>` date (mono, text color: the entry's anchor) and the muted reading time sit in the label column; the title link (h2 at `text-h2`), description and plain-text topics sit beside it, with more air per entry than other ledgers. No cards, covers, avatars or counters. The RSS link is a quiet `link-quiet`.
 - Note page: breadcrumb (Engineering notes), title `h1`, description at `lead`, then a mono meta line (Published date, Updated, reading time, topics), then ArticleShell. "All notes" at the end.
@@ -143,7 +149,13 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 
 ## Hero (implemented)
 - Masthead: the name at `masthead` (44 → 88px, tracking −0.035em), the site's one typographic peak. Then a `border-strong` hairline carrying the drafting-green tick (the section-head motif starts in the first viewport), then `.axis` with the role in the label column and the thesis as the dominant statement (`h2` size, regular weight, about 34ch), then the actions. It closes with a datasheet strip of four facts: small muted labels, values at body size (the stack in mono at `small`), 4 columns on desktop, 2×2 on mobile.
-- No status panel, image, illustration, diagram, grid or animation. Typography and composition are the artifact.
+- From 64rem the body has a third column (`clamp(16rem, 26vw, 24rem)`): the **identity artifact** (`HeroArtifact.astro`). Below 64rem it follows the actions at full content width.
+- The artifact is a render, not an illustration: an abstract engineering object (modules on a drafting plate, orthogonal conduits with node joints, two constraint gates, a store, an external block across a boundary gap; small packets are the only drafting-green element). It is generated offline by `scripts/hero-artifact.mjs` (three.js in headless Chromium, dev-only) from the design tokens:
+  - stills per theme in `src/assets/hero/` (served as AVIF/WebP via `astro:assets`, ~4–21 KB);
+  - a seamless 8 s VP9 loop per theme in `public/media/` (~250 KB), encoded frame by frame with WebCodecs so the last frame wraps to the first.
+- Light renders sit on pure white and composite with `mix-blend-mode: multiply`; dark renders sit on pure black and composite with `screen`. The script pre-inverts material colors for the blend, so the composite lands on the tokens and no box edge ever shows.
+- The loop loads only after `load` + idle, from 64rem, without reduced motion and without Save-Data; it follows the rendered theme (`themechange`, OS changes) and pauses off screen. A Pause/Play icon button (`aria-pressed`, remembered in localStorage) appears whenever the loop runs (WCAG 2.2.2). Media is decorative (`alt=""`, video `aria-hidden`). No JS / mobile / reduced motion / Save-Data: the still only.
+- Don't: a portrait, illustration, AI imagery (brains, robots, holograms, circuit boards, floating code), a WebGL runtime, scroll-linked motion or a second accent color in the render. Regenerate the media only by editing the script, never by hand.
 
 ## What I engineer (implemented, `components/home/Capabilities.astro`)
 - From 48rem: one 2×2 editorial matrix. Shared outer rules on the group; cells divided only by an internal vertical hairline and a horizontal hairline between rows (the datasheet's grammar). Each cell: the title (h3) on top, the sentence, the mono stack, "Exploring" where it exists.
@@ -162,7 +174,8 @@ Shown only when a featured work entry is public (otherwise the section falls bac
   - **The BKODE surface** (`bkode-surface`): a pale cool surface in light, BKODE ink in dark.
   - **BKODE blue** (`bkode-accent`), used only inside `.bkode`.
 - On `.axis`: the logo fills the label column (11rem; 8.5rem above the text on mobile), optically aligned for the PNG's transparent inset. The content column holds the statement as the section `h2` at `text-h1`, the body at `lead` (muted), and one action: "Visit BKODE ↗" as an outlined `.button`, followed by a muted mono `bkode.lat`.
-- Interaction: only the link is interactive. Hovering or focusing it draws a 2px BKODE-blue rule across the band's top from the logo side (`transform: scaleX`, `--motion-section`; appears in place under reduced motion), turns the button border BKODE navy (light) or blue (dark), and nudges the ↗.
+- Composition (from 80rem): a construction drawing of the K-mark's own node geometry (the ladder of six nodes and the two arms, in the official logo's proportions, with its construction lines) sits at the band's right in hairlines (`border` guides, `border-strong` edges, hollow nodes). Inline SVG, `aria-hidden`, static. Hidden below 80rem, where the text needs the width.
+- Interaction: only the link is interactive. Hovering or focusing it draws the K's two arms in BKODE blue toward their end nodes, which fill blue (`pathLength` + `stroke-dashoffset`, 2 × `--motion-section`; in place under reduced motion), turns the button border BKODE navy (light) or blue (dark), and nudges the ↗. One hover signal, not two: the earlier top rule was removed.
 - Don't: gradients, card treatment, large filled buttons, a whole-band click target, more than one link, or BKODE blue outside the band.
 
 ## Contact (implemented, `components/home/Contact.astro`; home and About)
@@ -184,10 +197,12 @@ Shown only when a featured work entry is public (otherwise the section falls bac
 - Combobox pattern: focus stays in the input; ↑/↓ move `aria-activedescendant` (clamped), Enter opens the selected result, pointer movement moves the selection. No results: "No matching commands" / "No hay resultados". A Theme row (Light / System / Dark, `aria-pressed`) follows the results and filters with theme words.
 - Without JS the trigger stays hidden; every destination is reachable through normal navigation. No terminal styling, prompt glyphs or command execution.
 
-## Architecture Trace (implemented, `SystemDiagram` `traces`)
+## Architecture Trace 2.0 (implemented, `SystemDiagram` `traces`)
 - Optional flow buttons above a diagram (`aria-pressed`), one sentence explaining the selected flow (`aria-live="polite"`). Pressing the active button returns to the neutral diagram.
-- Tagged nodes, connectors and the external boundary get the accent border plus heavier text (never color alone); untagged parts turn muted but stay readable. No movement, zoom or drawing animation; 200ms color/border transitions, none under reduced motion.
-- Controls are hidden without JS; the neutral diagram and the prose remain the complete description.
+- Depth without shadows-as-decoration: the application group is a page-colored plate with an offset hairline sheet beneath it. When a flow is selected, tagged nodes lift 2px with a small soft shadow, the accent border and heavier text (never color alone); untagged nodes recede (muted text, quieter border, `scale(0.97)`) but stay readable.
+- Routes (from 48rem): each trace may list ordered `routes` (`[from, to]` node names, restating the flow's tagged nodes and description; no new claims). The script measures the real nodes and draws orthogonal accent paths with arrowheads in an SVG layer between the group plate and the nodes; labels sit on a page-colored ground so routes pass behind text. A long vertical that would cross an unrelated node detours through a lane beside it. Paths draw once per selection (`pathLength` 1, `stroke-dashoffset` 1 → 0 over 3 × `--motion-section`, staggered by `--motion-ui`); arrowheads appear when their path completes. Reduced motion: routes appear in place. Layout changes redraw an active route without animation.
+- Mobile (<48rem): emphasis and description only, no routes. Without JS: controls hidden; the neutral diagram and the prose remain the complete description.
+- Don't: camera movement, zoom, 3D tilt of text, particles, continuously moving dashes, or routes that imply an order the text does not state.
 
 ## Footer
 - Name, links, CV, and a `.meta` build line (`built 2026-10-05, a1b2c3d, astro 7.3.5`).

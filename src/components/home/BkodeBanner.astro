@@ -9,8 +9,13 @@
 // The two logos switch in CSS with the site's theme model (OS preference or
 // the data-theme override); the hidden one is display:none, so it is neither
 // announced nor fetched (lazy). No JS.
-// Only the link is interactive; hovering or focusing it draws a blue rule
-// across the band's top from the logo side and nudges the ↗.
+// Composition: from 80rem a large construction drawing of the K-mark's own
+// node geometry (the ladder of six nodes and the two arms, taken from the
+// official logo's proportions) sits at the band's right, its construction
+// lines running out to the edges, in hairlines. It is decorative (aria-hidden) and static.
+// Only the link is interactive; hovering or focusing it draws the K's two arms
+// in BKODE blue (no JS: pathLength + stroke-dashoffset) and nudges the ↗.
+// Under reduced motion the arms appear in place.
 import ExternalLink from "@/components/system/ExternalLink.astro";
 import { links, t, type Locale } from "@/i18n/ui";
 
@@ -22,6 +27,22 @@ const { locale } = Astro.props;
 ---
 
 <aside class="bkode" aria-labelledby="bkode-title">
+  <svg class="bkode-geo" viewBox="120 0 260 236" aria-hidden="true" focusable="false">
+    <path class="bkode-geo-guide" d="M120 40H380M120 113H380M120 196H380M163 0V236M247 0V236M338 0V236"></path>
+    <path class="bkode-geo-edge" d="M163 40V196M247 40V196M163 40H247M163 113H247M163 196H247M247 113L338 30M247 113L338 196"></path>
+    <path class="bkode-geo-arm" pathLength="1" d="M247 113L338 30"></path>
+    <path class="bkode-geo-arm" pathLength="1" d="M247 113L338 196"></path>
+    <g class="bkode-geo-nodes">
+      <circle cx="163" cy="40" r="9"></circle>
+      <circle cx="247" cy="40" r="9"></circle>
+      <circle cx="163" cy="113" r="9"></circle>
+      <circle cx="247" cy="113" r="9"></circle>
+      <circle cx="163" cy="196" r="9"></circle>
+      <circle cx="247" cy="196" r="9"></circle>
+      <circle class="bkode-geo-end" cx="338" cy="30" r="9"></circle>
+      <circle class="bkode-geo-end" cx="338" cy="196" r="9"></circle>
+    </g>
+  </svg>
   <div class="page axis bkode-row">
     <div class="bkode-mark">
       <img
@@ -62,23 +83,73 @@ const { locale } = Astro.props;
     background-color: var(--color-bkode-surface);
   }
 
-  /* The destination's rule: drawn from the logo side toward the action while
-     the link is hovered or focused. Under reduced motion it appears in place. */
-  .bkode::before {
-    content: "";
-    position: absolute;
-    inset: -1px 0 auto;
-    border-top: 2px solid var(--color-bkode-accent);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--motion-section) var(--ease-standard);
+  /* Construction drawing of the K-mark, bleeding off the right edge. Only
+     where the text column leaves room for it. */
+  .bkode-geo {
+    display: none;
   }
 
-  .bkode:has(.bkode-link:hover, .bkode-link:focus-visible)::before {
-    transform: scaleX(1);
+  @media (min-width: 80rem) {
+    .bkode {
+      overflow: hidden;
+    }
+
+    .bkode-geo {
+      display: block;
+      position: absolute;
+      top: 50%;
+      right: 3vw;
+      width: clamp(18rem, 22vw, 26rem);
+      height: auto;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+  }
+
+  .bkode-geo :is(.bkode-geo-guide, .bkode-geo-edge, circle) {
+    vector-effect: non-scaling-stroke;
+    fill: none;
+    stroke-width: 1;
+  }
+
+  .bkode-geo-guide {
+    stroke: var(--color-border);
+  }
+
+  .bkode-geo-edge {
+    stroke: var(--color-border-strong);
+  }
+
+  .bkode-geo .bkode-geo-nodes circle {
+    fill: var(--color-bkode-surface);
+    stroke: var(--color-border-strong);
+    transition: fill var(--motion-section) var(--ease-standard),
+      stroke var(--motion-section) var(--ease-standard);
+  }
+
+  /* The arms draw in BKODE blue toward their end nodes while the destination
+     is hovered or focused. */
+  /* Scaled stroke on purpose: non-scaling-stroke would ignore pathLength. */
+  .bkode-geo-arm {
+    fill: none;
+    stroke: var(--color-bkode-accent);
+    stroke-width: 1.5;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset calc(var(--motion-section) * 2) var(--ease-standard);
+  }
+
+  .bkode:has(.bkode-link:hover, .bkode-link:focus-visible) .bkode-geo-arm {
+    stroke-dashoffset: 0;
+  }
+
+  .bkode:has(.bkode-link:hover, .bkode-link:focus-visible) .bkode-geo-end {
+    fill: var(--color-bkode-accent);
+    stroke: var(--color-bkode-accent);
   }
 
   .bkode-row {
+    position: relative;
     align-items: start;
     padding-block: calc(var(--spacing) * 24);
   }

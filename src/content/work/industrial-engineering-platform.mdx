@@ -108,16 +108,19 @@ formulas: specialists own them and validate their correctness.
       id: "calculation",
       label: "Engineering calculation",
       description: "Technical inputs from the configuration workflow reach the FastAPI backend, where the calculation engine and validation apply the engineering rules. The result is deterministic: the same inputs and rules give the same result.",
+      routes: [["Configuration workflow", "Calculation engine"], ["Configuration workflow", "Validation"]],
     },
     {
       id: "recommendation",
       label: "Operational recommendation",
       description: "Product, availability and cost-related data come from the company's ERP through the integration layer. Component selection uses that current context to recommend components. It changes the recommendation, not the engineering calculation.",
+      routes: [["Company ERP", "Integrations"], ["Integrations", "Component selection"], ["Configuration workflow", "Component selection"]],
     },
     {
       id: "handoff",
       label: "Commercial handoff",
       description: "Technical configuration data leaves the platform through the integration layer and goes into the CRM. The platform owns technical correctness, the CRM owns the commercial workflow, and the ERP owns product, inventory and cost data.",
+      routes: [["Integrations", "CRM"]],
     },
   ]}
   layers={[

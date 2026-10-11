@@ -30,12 +30,13 @@ Portafolio personal de Samuel Hernández (samhernandezc.bkode.lat). Está en red
 ## Estructura principal
 - `src/pages/` — `index.astro` (EN), `es/index.astro` (ES), `work/index.astro` + `es/work/index.astro` (Work index), `work/[slug].astro` (case studies, EN only), `notes/index.astro` + `notes/[slug].astro` (notas, solo EN), `about.astro` + `es/about.astro` (Sobre mí), `rss.xml.ts` (feed de notas publicadas).
 - `src/layouts/BaseLayout.astro` — `<html>`, design system, ThemeScript, skip link, meta SEO/OG, canonical, hreflang.
-- `src/components/` — `site/` (Header, Footer, CommandPalette), `home/` (HomePage, Hero, SelectedWork, WorkRow, Capabilities, LatestNotes, BkodeBanner, Contact), `work/` (WorkIndex, WorkRow, Decision, SystemDiagram), `article/` (ArticleShell: layout de lectura compartido), `notes/` (NoteRow), `about/` (AboutPage), `experience/` (ExperienceList), `system/` (ThemeScript, ThemeSwitch, DataTable), `icons/`.
+- `src/components/` — `site/` (Header, Footer, CommandPalette), `home/` (HomePage, Hero, HeroArtifact, SelectedWork, WorkRow, Capabilities, LatestNotes, BkodeBanner, Contact), `work/` (WorkIndex, WorkRow, Decision, SystemDiagram), `article/` (ArticleShell: layout de lectura compartido), `notes/` (NoteRow, NoteCover), `about/` (AboutPage), `experience/` (ExperienceList), `system/` (ThemeScript, ThemeSwitch, DataTable), `icons/`.
 - `src/i18n/ui.ts` — textos de UI/home EN/ES (paridad de claves por tipos). `src/lib/content.ts` — único acceso a colecciones (filtra borradores). `src/scripts/theme.ts` — estado del tema; solo lo importa `Header` (un segundo importador lo sacaría del script inline).
 - `src/styles/system.css` + `src/styles/system/` — nuevo design system (tokens light/dark con `light-dark()`, primitivas, prose, código, diagramas). Reglas en el skill `portfolio-design`.
 - `src/dev/` — páginas solo de desarrollo (`/dev/design-system`), inyectadas por la integración `dev-pages` únicamente en `astro dev`.
 - `src/assets/` — imágenes importadas (optimizadas por Astro). `public/` — favicon y PDFs de CV, con nombres exactos `Samuel-Hernandez-CV-EN.pdf` y `Samuel-Hernandez-CV-ES.pdf` (el sitio los enlaza directamente; no se generan en el build).
 - `scripts/screenshot.mjs` — herramienta dev de `visual-review` (Playwright). No es parte del sitio.
+- `scripts/hero-artifact.mjs` — generador dev del artefacto del Hero (three.js en Chromium headless). Escribe `src/assets/hero/artifact-{light,dark}.png` y `public/media/hero-artifact-{light,dark}.webm`. `three` y `webm-muxer` son devDependencies solo de este script; nada en `src/` las importa.
 - `tests/e2e/` — pruebas de producto versionadas. Las capturas y scripts de `visual-review` viven en `.claude/review/` (gitignored) y no forman parte de la suite.
 - `docs/` — contenido personal no relacionado, no enrutado. **Off-limits.**
 
@@ -50,6 +51,7 @@ Portafolio personal de Samuel Hernández (samhernandezc.bkode.lat). Está en red
 - `npm run test:budget` — falla si alguna página de `dist/` supera 6 KB gzip de JS propio.
 - Secuencia de release (igual que CI en `.github/workflows/ci.yml`, solo verificación, sin deploy): `npm ci` → `check` → `build` → `test:content` → `test:e2e` → `test:budget`.
 - `node scripts/og-image.mjs` — regenera `public/og-default.png` (1200×630) solo si cambian nombre, rol o dominio.
+- `node scripts/hero-artifact.mjs` — regenera stills y loops del Hero (`--posters` solo stills). Solo si cambian la escena o los tokens de color; editar el script, nunca los archivos a mano.
 - No existen `lint`, `test` ni `format`. No inventes comandos que no estén en `package.json`.
 
 ## Convenciones de código

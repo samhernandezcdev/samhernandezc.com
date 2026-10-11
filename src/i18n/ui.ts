@@ -53,6 +53,8 @@ const en = {
   "hero.spec.locationValue": "Villahermosa, Mexico. Remote",
   "hero.cta.github": "GitHub",
   "hero.cta.cv": "CV",
+  "hero.artifact.pause": "Pause animation",
+  "hero.artifact.play": "Play animation",
 
   "work.title": "Selected work",
   "work.intro": "Systems I built, with the problem, my role and what changed.",
@@ -202,6 +204,8 @@ const es = {
   "hero.spec.locationValue": "Villahermosa, México. Remoto",
   "hero.cta.github": "GitHub",
   "hero.cta.cv": "CV",
+  "hero.artifact.pause": "Pausar animación",
+  "hero.artifact.play": "Reproducir animación",
 
   "work.title": "Trabajo seleccionado",
   "work.intro": "Sistemas que construí: el problema, mi rol y qué cambió.",

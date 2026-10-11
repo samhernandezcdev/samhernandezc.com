@@ -5,6 +5,7 @@
 import { render, type CollectionEntry } from "astro:content";
 
 import ArticleShell from "@/components/article/ArticleShell.astro";
+import NoteCover from "@/components/notes/NoteCover.astro";
 import Footer from "@/components/site/Footer.astro";
 import Header from "@/components/site/Header.astro";
 import DataTable from "@/components/system/DataTable.astro";
@@ -72,6 +73,9 @@ const jsonLd = {
           <span>{readingMinutes(note.body)} {t("en", "notes.readingTime")}</span>
           {data.tags.length > 0 && <span><span class="visually-hidden">{t("en", "notes.tags")}: </span>{data.tags.join(", ")}</span>}
         </p>
+        <div class="note-cover">
+          <NoteCover slug={note.id} motif={data.cover?.motif} variant="band" />
+        </div>
       </header>
 
       <ArticleShell headings={headings} railLabel="Note details" contentsLabel={t("en", "caseStudy.contents")}>
@@ -128,6 +132,15 @@ const jsonLd = {
     display: flex;
     flex-wrap: wrap;
     gap: calc(var(--spacing) * 1) calc(var(--spacing) * 6);
+  }
+
+  /* The note's cover plate closes the header: a drafting band across the
+     reading width, never wider than the page's prose and rail. */
+  .note-cover {
+    max-width: 44rem;
+    margin-top: calc(var(--spacing) * 8);
+    padding-top: calc(var(--spacing) * 4);
+    border-top: var(--border-hairline) solid var(--color-border);
   }
 
   .note-footer {

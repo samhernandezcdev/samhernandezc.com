@@ -1,0 +1,237 @@
+---
+// Hero identity artifact: an abstract engineering object (modules on a drafting
+// plate, routed conduits, two constraint gates, a store, and an external block
+// across a boundary gap) rendered offline by scripts/hero-artifact.mjs.
+//
+// Media strategy:
+// - Still posters per theme (src/assets/hero), served as AVIF/WebP by
+//   astro:assets. CSS shows the poster for the rendered theme; the other is
+//   display:none and lazy, so it is never fetched.
+// - A seamless 8 s loop per theme (public/media, VP9 WebM, ~250 KB), loaded
+//   only after the page has loaded, on wide screens, without reduced motion
+//   and without Save-Data. The poster is the loop's first frame, so the swap
+//   is invisible. Without JS, or when any condition fails, the still stays.
+//
+// Client JS justification:
+// - What breaks without it: nothing; the still poster is the complete artifact.
+// - Size: ~0.6 KB gz, inline module; work starts after `load` + idle.
+// - No-JS fallback: the still poster.
+// - Accessibility: the media is decorative (alt="", the video is aria-hidden).
+//   Motion lasts longer than 5 s, so a Pause/Play button (aria-pressed) appears
+//   whenever the loop is active; the choice is remembered. The loop also stops
+//   when the figure leaves the viewport and never runs under reduced motion.
+import { Picture } from "astro:assets";
+
+import dark from "@/assets/hero/artifact-dark.png";
+import light from "@/assets/hero/artifact-light.png";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const picture = {
+  alt: "",
+  widths: [480, 720, 960, 1440],
+  sizes: "(min-width: 64rem) 24rem, 100vw",
+  formats: ["avif", "webp"] as ("avif" | "webp")[],
+  loading: "lazy" as const,
+  decoding: "async" as const,
+};
+---
+
+<figure class="artifact" data-artifact>
+  <div class="artifact-media">
+    <Picture src={light} {...picture} class="artifact-still artifact-still-light" />
+    <Picture src={dark} {...picture} class="artifact-still artifact-still-dark" />
+    <video
+    class="artifact-loop"
+    muted
+    loop
+    playsinline
+    preload="none"
+    aria-hidden="true"
+    tabindex="-1"
+    data-artifact-loop
+    data-src-light="/media/hero-artifact-light.webm"
+    data-src-dark="/media/hero-artifact-dark.webm"
+    >
+    </video>
+  </div>
+  <button
+    type="button"
+    class="icon-button artifact-toggle"
+    aria-pressed="false"
+    aria-label={t(locale, "hero.artifact.pause")}
+    data-artifact-toggle
+    data-label-pause={t(locale, "hero.artifact.pause")}
+    data-label-play={t(locale, "hero.artifact.play")}
+    hidden
+  >
+    <svg class="artifact-icon-pause" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">
+      <rect x="4" y="3" width="3" height="10" rx="0.5"></rect>
+      <rect x="9" y="3" width="3" height="10" rx="0.5"></rect>
+    </svg>
+    <svg class="artifact-icon-play" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">
+      <path d="M5 3.2v9.6a.5.5 0 0 0 .77.42l7.2-4.8a.5.5 0 0 0 0-.84l-7.2-4.8A.5.5 0 0 0 5 3.2Z"></path>
+    </svg>
+  </button>
+</figure>
+
+<script>
+  const figure = document.querySelector<HTMLElement>("[data-artifact]");
+  const video = figure?.querySelector<HTMLVideoElement>("[data-artifact-loop]");
+  const toggle = figure?.querySelector<HTMLButtonElement>("[data-artifact-toggle]");
+
+  if (figure && video && toggle) {
+    const wide = matchMedia("(min-width: 64rem)");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+    const osDark = matchMedia("(prefers-color-scheme: dark)");
+    const root = document.documentElement;
+    const KEY = "artifact-paused";
+    const stored = () => {
+      try {
+        return localStorage.getItem(KEY) === "1";
+      } catch {
+        return false;
+      }
+    };
+    let paused = stored();
+    let inView = false;
+
+    const isDark = () => (root.dataset.theme ? root.dataset.theme === "dark" : osDark.matches);
+    const allowed = () =>
+      wide.matches && !reduce.matches && !(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+
+    const sync = () => {
+      if (!allowed()) {
+        video.pause();
+        figure.removeAttribute("data-playing");
+        toggle.hidden = true;
+        return;
+      }
+      const src = isDark() ? video.dataset.srcDark! : video.dataset.srcLight!;
+      if (video.getAttribute("src") !== src) {
+        figure.removeAttribute("data-playing");
+        video.src = src;
+      }
+      toggle.hidden = false;
+      toggle.setAttribute("aria-pressed", String(paused));
+      toggle.setAttribute("aria-label", paused ? toggle.dataset.labelPlay! : toggle.dataset.labelPause!);
+      if (paused || !inView) video.pause();
+      else video.play().catch(() => {});
+    };
+
+    // Reveal the loop over the still only once frames are flowing.
+    video.addEventListener("playing", () => figure.setAttribute("data-playing", ""));
+    toggle.addEventListener("click", () => {
+      paused = !paused;
+      try {
+        localStorage.setItem(KEY, paused ? "1" : "0");
+      } catch {}
+      sync();
+    });
+
+    const start = () => {
+      new IntersectionObserver(([entry]) => {
+        inView = entry.isIntersecting;
+        sync();
+      }).observe(figure);
+      for (const query of [wide, reduce, osDark]) query.addEventListener("change", sync);
+      document.addEventListener("themechange", sync);
+    };
+    const idle = () => ("requestIdleCallback" in window ? requestIdleCallback(start) : setTimeout(start, 200));
+    if (document.readyState === "complete") idle();
+    else addEventListener("load", idle, { once: true });
+  }
+</script>
+
+<style>
+  .artifact {
+    position: relative;
+  }
+
+  /* The render's white (light) or black (dark) background disappears exactly
+     into the page through the blend; the render script pre-inverts colors so
+     the composite lands on the design tokens. */
+  .artifact-media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    mix-blend-mode: multiply;
+  }
+
+  :global(:root[data-theme="dark"]) .artifact-media {
+    mix-blend-mode: screen;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) .artifact-media {
+      mix-blend-mode: screen;
+    }
+  }
+
+  .artifact :global(img),
+  .artifact-loop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* One poster per theme, following the site's theme model. The classes sit
+     on <Picture>'s <img>, outside this component's scope, hence :global. */
+  .artifact :global(.artifact-still-dark) {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"] .artifact .artifact-still-light) {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"] .artifact .artifact-still-dark) {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"]) .artifact .artifact-still-light) {
+      display: none;
+    }
+
+    :global(:root:not([data-theme="light"]) .artifact .artifact-still-dark) {
+      display: block;
+    }
+  }
+
+  .artifact-loop {
+    opacity: 0;
+    transition: opacity var(--motion-section) var(--ease-standard);
+  }
+
+  .artifact[data-playing] .artifact-loop {
+    opacity: 1;
+  }
+
+  /* Pause/Play: a quiet icon control in the figure's corner, outside the
+     blended layer; always reachable by keyboard. */
+  .artifact-toggle {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+
+  .artifact-toggle[hidden] {
+    display: none;
+  }
+
+  .artifact-toggle svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .artifact-toggle[aria-pressed="true"] .artifact-icon-pause,
+  .artifact-toggle[aria-pressed="false"] .artifact-icon-play {
+    display: none;
+  }
+</style>

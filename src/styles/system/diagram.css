@@ -95,7 +95,7 @@
 
   /* external: outside our boundary — no surface, muted */
   .diagram-node[data-kind="external"] {
-    background-color: transparent;
+    background-color: var(--color-bg); /* page-colored: routes never show through */
     border-color: var(--color-border);
     color: var(--color-text-muted);
   }

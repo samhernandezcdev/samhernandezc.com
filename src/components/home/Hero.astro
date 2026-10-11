@@ -1,7 +1,10 @@
 ---
 // Masthead composition: name, then a hairline-ruled body on the page's shared
 // metadata axis (role in the label column, thesis as the dominant statement),
-// closed by a datasheet strip of verified facts. Typography and rules only.
+// closed by a datasheet strip of verified facts. From 64rem the body gains a
+// third column: the rendered identity artifact (HeroArtifact); below 64rem the
+// artifact follows the actions at full content width.
+import HeroArtifact from "@/components/home/HeroArtifact.astro";
 import ExternalLink from "@/components/system/ExternalLink.astro";
 import { links, t, type Locale } from "@/i18n/ui";
 
@@ -26,13 +29,16 @@ const facts = [
 
   <div class="axis hero-body">
     <p class="hero-role">{t(locale, "hero.role")}</p>
-    <div>
-      <p class="hero-thesis">{t(locale, "hero.thesis")}</p>
-      <div class="hero-actions">
-        <a class="button" data-variant="primary" href="#work">{workLabel}</a>
-        <ExternalLink class="button" href={links.github} locale={locale} me arrow>{t(locale, "hero.cta.github")}</ExternalLink>
-        <ExternalLink class="button" href={links.cv[locale]} type="application/pdf" locale={locale} arrow>{t(locale, "hero.cta.cv")}</ExternalLink>
+    <div class="hero-main">
+      <div>
+        <p class="hero-thesis">{t(locale, "hero.thesis")}</p>
+        <div class="hero-actions">
+          <a class="button" data-variant="primary" href="#work">{workLabel}</a>
+          <ExternalLink class="button" href={links.github} locale={locale} me arrow>{t(locale, "hero.cta.github")}</ExternalLink>
+          <ExternalLink class="button" href={links.cv[locale]} type="application/pdf" locale={locale} arrow>{t(locale, "hero.cta.cv")}</ExternalLink>
+        </div>
       </div>
+      <HeroArtifact locale={locale} />
     </div>
   </div>
 
@@ -82,6 +88,20 @@ const facts = [
     left: 0;
     width: 1.5rem;
     border-top: 2px solid var(--color-accent);
+  }
+
+  /* Thesis and actions, then the artifact: stacked below 64rem, side by side
+     above it. The artifact column grows with the viewport up to 26rem. */
+  .hero-main {
+    display: grid;
+    gap: calc(var(--spacing) * 8);
+  }
+
+  @media (min-width: 64rem) {
+    .hero-main {
+      grid-template-columns: minmax(0, 1fr) clamp(16rem, 26vw, 24rem);
+      align-items: start;
+    }
   }
 
   .hero-role {

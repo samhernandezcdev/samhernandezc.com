@@ -32,6 +32,8 @@ const notes = defineCollection({
       pubDate: z.coerce.date(),
       updated: z.coerce.date().optional(),
       tags: z.array(z.string().trim().min(1)).default([]),
+      /** Editorial cover plate (NoteCover). Without it the motif comes from the slug. */
+      cover: z.object({ motif: z.enum(["split", "pipeline", "layers", "graph"]) }).strict().optional(),
       draft: z.boolean().default(true),
     })
     .strict(),
