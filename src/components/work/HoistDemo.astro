@@ -94,13 +94,21 @@ const values = [
   if (root && open) {
     const status = root.querySelector<HTMLElement>("[data-hoist-open-status]")!;
     open.hidden = false;
+    // A figure that fails to load is dropped instead of showing a broken image.
+    const lost = (img: HTMLImageElement) => {
+      root.dataset.figureFailed = "";
+      console.error(`hoist: figure not loaded ${img.currentSrc || img.src}`);
+    };
+    root.addEventListener("error", (event) => event.target instanceof HTMLImageElement && lost(event.target), true);
+    for (const img of root.querySelectorAll<HTMLImageElement>(".hoist-img")) if (img.complete && img.currentSrc && !img.naturalWidth) lost(img);
     open.addEventListener("click", async () => {
       open.setAttribute("aria-busy", "true");
       status.textContent = "";
       try {
         const { openViewer } = await import("./hoist-viewer");
         await openViewer(root.dataset.viewerSrc!, open);
-      } catch {
+      } catch (error) {
+        console.error("hoist: viewer not loaded", error);
         status.textContent = "The configuration could not be loaded. Check the connection and try again.";
       } finally {
         open.removeAttribute("aria-busy");
@@ -183,12 +191,17 @@ const values = [
     border-radius: var(--radius-md);
   }
 
+  /* A figure that failed to load leaves no broken image behind. */
+  .hoist[data-figure-failed] .hoist-card {
+    display: none;
+  }
+
   /* One figure per theme; the other is display:none and lazy, so it is never fetched. */
   .hoist-img {
     display: block;
     width: 100%;
     height: auto;
-    max-height: min(45vh, 36rem);
+    max-height: min(42vh, 36rem);
     object-fit: contain;
   }
 
@@ -220,20 +233,50 @@ const values = [
     gap: calc(var(--spacing) * 3) var(--spacing-component-lg);
   }
 
+  /* Phones: the whole card fits one screen under the header with room to spare. */
   @media (max-width: 47.99rem) {
     .hoist {
-      gap: calc(var(--spacing) * 3);
-      padding: var(--spacing-component);
+      gap: calc(var(--spacing) * 2);
+      padding: calc(var(--spacing) * 3);
+    }
+
+    /* The notices flow as text, "Details" at the end of the last line. */
+    .hoist-seals {
+      display: block;
+    }
+
+    .hoist-seals p,
+    .hoist-seals details:not([open]) {
+      display: inline;
+    }
+
+    .hoist-seals p {
+      margin-inline-end: calc(var(--spacing) * 2);
     }
 
     .hoist-img {
-      max-height: 40vh;
+      max-height: 30vh;
     }
 
     .hoist-values {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: calc(var(--spacing) * 3) var(--spacing-component);
+      gap: calc(var(--spacing) * 2) var(--spacing-component);
+    }
+
+    .hoist-values dd {
+      line-height: 1.3;
+    }
+
+    .hoist figcaption {
+      font-size: var(--text-meta);
+      line-height: 1.4;
+    }
+  }
+
+  @media (max-width: 47.99rem) and (max-height: 43.75rem) {
+    .hoist-img {
+      max-height: 20vh;
     }
   }
 
