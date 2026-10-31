@@ -10,7 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "test:content": "node --test scripts/validate-content-model.ts",
+    "test:content": "node --test scripts/validate-content-model.ts tests/hoist-demo.test.ts",
     "test:e2e": "playwright test",
     "test:budget": "node scripts/check-js-budget.mjs",
     "cv": "node cv/build.mjs",

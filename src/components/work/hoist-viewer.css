@@ -1,0 +1,500 @@
+/* Lifting-set viewer (hoist-viewer.ts). Its markup is fetched, so these rules
+   are global, scoped by the .hv class. Always the full viewport: the drawing beside
+   a panel; below 64rem the panel is a bottom sheet. */
+html:has(dialog.hv[open]) {
+  overflow: hidden;
+}
+
+.hv {
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  border: 0;
+  border-radius: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  overflow: hidden;
+}
+
+.hv[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.hv::backdrop {
+  background-color: var(--color-bg);
+}
+
+.hv-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-component);
+  padding: calc(var(--spacing) * 3) var(--spacing-component);
+  border-bottom: var(--border-hairline) solid var(--color-border);
+}
+
+.hv-head h2 {
+  font-size: var(--text-body);
+  font-weight: 600;
+}
+
+.hv-head-tools {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+}
+
+.hv-fs-exit,
+[data-hv-fullscreen][aria-pressed="true"] .hv-fs-enter {
+  display: none;
+}
+
+[data-hv-fullscreen][aria-pressed="true"] .hv-fs-exit {
+  display: inline-flex;
+}
+
+.hv-fs-enter {
+  display: inline-flex;
+}
+
+.hv-seals,
+.hv-muted,
+.hv-hint,
+.hv-load {
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.hv-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(22rem, 28vw, 28rem);
+  min-height: 0;
+}
+
+.hv-stage {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: calc(var(--spacing) * 2);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--spacing-component);
+}
+
+.hv-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+}
+
+.hv-tools-gap {
+  flex: 1;
+}
+
+.hv-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 2);
+  min-width: var(--target-min);
+  min-height: var(--target-min);
+  padding-inline: calc(var(--spacing) * 2);
+  border: var(--border-hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-small);
+  cursor: pointer;
+}
+
+.hv-tool:hover:not(:disabled) {
+  border-color: var(--color-text);
+}
+
+.hv-tool[hidden] {
+  display: none;
+}
+
+.hv-tool:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.hv-tool-wide {
+  padding-inline: calc(var(--spacing) * 3);
+}
+
+.hv-zoom-level {
+  min-width: 4.5ch;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.hv-figure {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: none;
+  border: var(--border-hairline) solid var(--color-border);
+}
+
+/* The drawing fills the stage and keeps its proportions (letterboxed). */
+.hv-figure .iso-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hv-loading {
+  padding: var(--spacing-component);
+}
+
+.hv-figure[data-compact] .callout-name,
+.hv-figure[data-tiny] .callouts {
+  display: none;
+}
+
+.hv-figure .callout circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(var(--hoist-ring, 1));
+}
+
+.hv-figure:focus-visible,
+.hv-tabpanel:focus-visible,
+.hv [role="tab"]:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.hv-panel {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-component);
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--spacing-component);
+  border-left: var(--border-hairline) solid var(--color-border);
+  font-size: var(--text-small);
+  line-height: 1.5;
+}
+
+.hv-config {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.hv-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+}
+
+.hv-status {
+  font-weight: 600;
+}
+
+.hv-status[data-valid="false"] {
+  border-left: 3px solid var(--color-accent);
+  padding-left: calc(var(--spacing) * 2);
+}
+
+.hv-sheet {
+  display: none;
+}
+
+.hv-panel-body {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-component);
+}
+
+.hv-tabs {
+  position: sticky;
+  top: calc(-1 * var(--spacing-component));
+  z-index: 1;
+  background-color: var(--color-bg);
+  display: flex;
+  gap: calc(var(--spacing) * 1);
+  overflow-x: auto;
+  border-bottom: var(--border-hairline) solid var(--color-border);
+}
+
+.hv [role="tab"] {
+  flex: none;
+  min-height: var(--target-min);
+  padding-inline: calc(var(--spacing) * 3);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--text-small);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.hv [role="tab"][aria-selected="true"] {
+  border-bottom-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.hv-tabpanel {
+  display: grid;
+  align-content: start;
+  gap: calc(var(--spacing) * 3);
+  border-radius: var(--radius-sm);
+}
+
+.hv-tabpanel[hidden] {
+  display: none;
+}
+
+.hv-select {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  font-size: var(--text-meta);
+  color: var(--color-text-muted);
+}
+
+.hv-select select {
+  min-height: var(--target-min);
+  padding-inline: var(--spacing-component);
+  border: var(--border-hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-small);
+}
+
+.hv-detail {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  min-height: 6rem;
+}
+
+.hv-detail h3 {
+  font-size: var(--text-body);
+  font-weight: 600;
+}
+
+.hv-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  list-style: none;
+  padding: 0;
+}
+
+.hv-jump {
+  min-height: var(--target-min);
+  padding-inline: calc(var(--spacing) * 3);
+  border: var(--border-hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-meta);
+  text-align: left;
+  cursor: pointer;
+}
+
+.hv-jump:hover {
+  background-color: var(--color-surface);
+}
+
+.hv-issues,
+.hv-legend,
+.hv-tour {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  list-style: none;
+  padding: 0;
+}
+
+.hv-issues code {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  color: var(--color-text-muted);
+}
+
+.hv-sev {
+  display: inline-block;
+  min-width: 4.5ch;
+  font-weight: 600;
+}
+
+.hv-issues li[data-severity="error"] .hv-sev::before {
+  content: "✕ ";
+}
+
+.hv-issues li[data-severity="warning"] .hv-sev::before {
+  content: "! ";
+}
+
+.hv-issues li[data-severity="info"] .hv-sev::before {
+  content: "i ";
+}
+
+.hv-legend .hv-jump {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  width: 100%;
+}
+
+.hv-n {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: var(--border-hairline) solid var(--color-text);
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  font-weight: 600;
+}
+
+.hv-tour li {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  justify-items: start;
+}
+
+.hv-ref {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.hv-ref :is(th, td) {
+  display: block;
+  padding: calc(var(--spacing) * 1) 0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.hv-ref thead {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.hv-ref tr {
+  display: block;
+  padding-block: calc(var(--spacing) * 2);
+  border-bottom: var(--border-hairline) solid var(--color-border);
+}
+
+.hv-ref .hv-jump {
+  border-color: transparent;
+  padding-inline: 0;
+  font-size: var(--text-small);
+  font-weight: 600;
+}
+
+/* Below 64rem: drawing on top, the panel as a bottom sheet. */
+@media (max-width: 63.99rem) {
+  .hv-main {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .hv-stage {
+    padding: calc(var(--spacing) * 2) var(--spacing-component) 0;
+  }
+
+  .hv-panel {
+    max-height: 55dvh;
+    gap: calc(var(--spacing) * 2);
+    padding-block: calc(var(--spacing) * 2) var(--spacing-component);
+    border-left: 0;
+    border-top: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background-color: var(--color-surface-raised);
+    box-shadow: 0 -0.5rem 1.5rem oklch(0 0 0 / 0.08);
+  }
+
+  .hv-hint,
+  .hv-zoom-level {
+    display: none;
+  }
+
+  .hv-tabs {
+    background-color: var(--color-surface-raised);
+  }
+
+  .hv-sheet {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-component);
+    min-height: var(--target-min);
+    padding-inline: calc(var(--spacing) * 3);
+    border: var(--border-hairline) solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--text-small);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .hv-sheet::after {
+    content: "";
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-135deg);
+  }
+
+  .hv-sheet[aria-expanded="true"]::after {
+    transform: rotate(45deg);
+  }
+
+  .hv-sheet-part {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 400;
+    color: var(--color-text-muted);
+    text-align: right;
+  }
+
+  .hv-panel:not([data-open]) .hv-panel-body {
+    display: none;
+  }
+}
+
+/* Phones: every control at least 44px. */
+@media (max-width: 47.99rem) {
+  .hv :is(.hv-tool, .button, .hv-jump, .hv-sheet, [role="tab"], select) {
+    min-height: 2.75rem;
+  }
+
+  .hv .hv-tool {
+    min-width: 2.75rem;
+  }
+
+  /* The dialog already fills a phone; the button would only cost header height. */
+  .hv [data-hv-fullscreen] {
+    display: none;
+  }
+}
