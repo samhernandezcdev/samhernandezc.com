@@ -1,0 +1,116 @@
+/* Lifting-set drawing (src/lib/hoist-figure.mjs), wherever it is shown: the
+   viewer's views are fetched SVG, so these rules are global, scoped by class.
+   The Anatomy kit tokens are mapped to the site tokens: one accent, both
+   themes. The `--anatomy-*` declarations are also embedded, resolved per theme,
+   in the article's figure files (figure-[theme].svg.ts reads them from here). */
+.hoist-figure {
+  --anatomy-paper: var(--color-surface-raised);
+  --anatomy-face: var(--color-surface-raised);
+  --anatomy-top: light-dark(oklch(1 0 0), color-mix(in oklab, var(--color-text) 16%, var(--color-surface-raised)));
+  --anatomy-shade-3: light-dark(oklch(0.965 0.004 95), color-mix(in oklab, var(--color-bg) 30%, var(--color-surface-raised)));
+  --anatomy-shade-2: light-dark(oklch(0.92 0.005 95), color-mix(in oklab, var(--color-bg) 55%, var(--color-surface-raised)));
+  --anatomy-shade-1: light-dark(oklch(0.865 0.006 95), color-mix(in oklab, var(--color-bg) 78%, var(--color-surface-raised)));
+  --anatomy-shade-0: light-dark(oklch(0.8 0.007 95), var(--color-bg));
+  --anatomy-lit-top: var(--anatomy-top);
+  --anatomy-lit-shade: var(--anatomy-shade-2);
+  --anatomy-hi: light-dark(oklch(0.3 0.01 80), oklch(0.86 0.01 85));
+  --anatomy-mid: light-dark(oklch(0.52 0.01 80), oklch(0.68 0.01 85));
+  --anatomy-lo: light-dark(oklch(0.68 0.008 85), oklch(0.5 0.008 80));
+  --anatomy-faint: light-dark(oklch(0.82 0.006 90), oklch(0.38 0.007 78));
+  --anatomy-lit: var(--color-accent);
+  --anatomy-halo: light-dark(oklch(0.6 0.01 90), oklch(0.1 0.005 75));
+  --anatomy-halo-opacity: 0.28;
+  --anatomy-dot: var(--color-text);
+  --anatomy-weight: 0.6px;
+  background-color: var(--color-surface-raised);
+  border-radius: var(--radius-md);
+}
+
+.hoist-figure .iso-halo {
+  filter: none;
+  opacity: 0.1;
+}
+
+.hoist-figure [data-removed]:not([data-ghost]),
+.hoist-figure [data-ghost]:not([data-removed]) {
+  display: none;
+}
+
+/* A removed part leaves a cross and the word "Missing" where it was. */
+.hoist-figure .ghost-text {
+  fill: var(--color-text);
+  font: 600 var(--hoist-ghost, 15px) var(--font-mono);
+  paint-order: stroke;
+  stroke: var(--color-surface-raised);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.hoist-figure [data-ghost] .iso-line {
+  stroke-width: 2px;
+}
+
+/* Numbered callouts: pointer and touch only; the numbered list is the keyboard route.
+   Their size is set in drawing units by the viewer so the text never renders under 11px. */
+.hoist-figure .callout {
+  cursor: pointer;
+}
+
+.hoist-figure .callout circle {
+  fill: var(--color-surface-raised);
+  stroke: var(--color-text);
+  stroke-width: 1px;
+}
+
+.hoist-figure .callout text {
+  fill: var(--color-text);
+  font: 600 var(--hoist-number, 16px) var(--font-mono);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.hoist-figure .callout .callout-name {
+  fill: var(--color-text-muted);
+  font: 500 var(--hoist-label, 17px) var(--font-sans);
+  text-anchor: start;
+}
+
+.hoist-figure .callout .callout-name.end {
+  text-anchor: end;
+}
+
+.hoist-figure .callout:hover circle {
+  stroke: var(--color-accent);
+  stroke-width: 2px;
+}
+
+.hoist-figure [data-component] {
+  cursor: pointer;
+  transition: opacity var(--motion-ui) var(--ease-standard);
+}
+
+/* Selection: the part and its direct connections keep full weight, the rest recedes. */
+.hoist-figure[data-selection] [data-component]:not([data-sel], [data-rel]) {
+  opacity: 0.3;
+}
+
+.hoist-figure [data-sel] :is(.iso-edge, .tb-edge) {
+  stroke: var(--color-accent);
+  stroke-width: 1.5px;
+}
+
+.hoist-figure [data-rel] :is(.iso-edge, .tb-edge) {
+  stroke: var(--color-accent);
+  stroke-width: 0.9px;
+}
+
+.hoist-figure [data-sel] :is(.iso-fill, .tb-body) {
+  fill: color-mix(in oklab, var(--color-accent) 22%, var(--anatomy-paper));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hoist-figure [data-component] {
+    transition: none;
+  }
+}

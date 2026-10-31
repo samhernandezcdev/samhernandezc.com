@@ -1,0 +1,269 @@
+---
+// Article card for the lifting-set demo: a generic offshore container lifted by
+// a four-leg set (padeyes, bolt-type shackles, wire-rope legs with thimbles and
+// pressed ferrules, two intermediate links, a master link and a crane hook).
+//
+// The drawing is built at build time with the Anatomy kit (src/lib/anatomy,
+// MIT) from src/lib/hoist-model.ts, the same model the viewer and the tests
+// read. It is ILLUSTRATIVE: shapes follow the topology of real components, but
+// no dimension, rating, brand, certificate or standard is represented, and it
+// is not an engineering simulation. Four-leg load sharing is not calculated.
+//
+// The card is static: the clean figure, a strip of synthetic values from the
+// model, the notices and the caption. "Explore configuration" opens the viewer
+// (hoist-viewer.ts), loaded with import() on click; it fetches its markup and
+// each view's SVG only when asked for.
+//
+// The card figure is a cacheable image per theme (figure-[theme].svg.ts), not
+// inline SVG: measured with Lighthouse mobile, inline SVG put the HTML at
+// 102 KB gz (LCP 1.96 s) against 16 KB gz with the image (LCP 1.66 s; the LCP
+// element is the header image either way). The card figure needs no interaction.
+//
+// Client JS justification: one click handler that loads the viewer on demand
+// (about 1.1 KB gz on the page, most of it Vite's preload helper for import();
+// the viewer is a separate chunk, reported by test:budget).
+// No-JS fallback: the figure, the values, the notices and the caption; the
+// button stays hidden. Accessibility: native button; load errors are announced
+// in a status line.
+import "@/lib/anatomy/figure.css";
+import "./hoist-figure.css";
+import "./hoist-viewer.css";
+import { FIGURE_LABEL, HEIGHT, WIDTH } from "@/lib/hoist-figure.mjs";
+import { COMPONENTS, DEFAULT_VARIANT, KINDS, SCENARIOS, VARIANTS, validate } from "@/lib/hoist-model";
+
+interface Props {
+  caption: string;
+}
+
+const { caption } = Astro.props;
+const base = "/work/industrial-engineering-platform/";
+const report = validate({ variant: DEFAULT_VARIANT, removed: [] });
+const count = (severity: string, one: string, many: string) => {
+  const n = report.issues.filter((issue) => issue.severity === severity).length;
+  return `${n} ${n === 1 ? one : many}`;
+};
+const scenario = SCENARIOS.find((item) => item.variant === DEFAULT_VARIANT && item.removed.length === 0)!;
+const values = [
+  ["Scenario", scenario.label],
+  ["Legs", `${VARIANTS[DEFAULT_VARIANT].angleDeg}° from the vertical`],
+  ["Demo rules", `${count("error", "error", "errors")} · ${count("warning", "warning", "warnings")} · ${count("info", "note", "notes")}`],
+  ["Parts", `${COMPONENTS.length} components · ${KINDS.length} kinds`],
+];
+---
+
+<figure class="diagram hoist" data-hoist data-viewer-src={`${base}viewer.html`}>
+  <div class="hoist-seals">
+    <p><strong>Illustrative drawing · Synthetic values · Not certified</strong></p>
+    <details>
+      <summary>Details</summary>
+      <ul>
+        <li><strong>Illustrative drawing.</strong> Based on the shape of real components; not to scale.</li>
+        <li><strong>Synthetic values.</strong> Angles and rules belong to the demo only.</li>
+        <li><strong>Not certified.</strong> Not an engineering simulation or a tool for real lifting decisions.</li>
+      </ul>
+    </details>
+  </div>
+
+  <div class="hoist-card">
+    <img class="hoist-img hoist-img-light" src={`${base}figure-light.svg`} width={WIDTH} height={HEIGHT} alt={FIGURE_LABEL} loading="lazy" decoding="async" />
+    <img class="hoist-img hoist-img-dark" src={`${base}figure-dark.svg`} width={WIDTH} height={HEIGHT} alt={FIGURE_LABEL} loading="lazy" decoding="async" />
+  </div>
+
+  <dl class="hoist-values" aria-label="Synthetic values of the demo">
+    {
+      values.map(([term, value]) => (
+        <div>
+          <dt>{term}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  <div class="hoist-open">
+    <button type="button" class="button" data-variant="primary" data-hoist-open hidden>Explore configuration</button>
+    <p class="hoist-open-status" data-hoist-open-status role="status"></p>
+  </div>
+
+  <figcaption>{caption}</figcaption>
+</figure>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-hoist]");
+  const open = root?.querySelector<HTMLButtonElement>("[data-hoist-open]");
+  if (root && open) {
+    const status = root.querySelector<HTMLElement>("[data-hoist-open-status]")!;
+    open.hidden = false;
+    open.addEventListener("click", async () => {
+      open.setAttribute("aria-busy", "true");
+      status.textContent = "";
+      try {
+        const { openViewer } = await import("./hoist-viewer");
+        await openViewer(root.dataset.viewerSrc!, open);
+      } catch {
+        status.textContent = "The configuration could not be loaded. Check the connection and try again.";
+      } finally {
+        open.removeAttribute("aria-busy");
+      }
+    });
+  }
+</script>
+
+<style>
+  .hoist {
+    display: grid;
+    gap: var(--spacing-component);
+  }
+
+  /* The notices in one line; their details open underneath. */
+  .hoist-seals {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--spacing-component);
+    row-gap: calc(var(--spacing) * 1);
+    font-size: var(--text-meta);
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+
+  .hoist-seals strong {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .hoist-seals details[open] {
+    flex-basis: 100%;
+  }
+
+  .hoist-seals ul {
+    display: grid;
+    gap: calc(var(--spacing) * 1);
+    margin-top: calc(var(--spacing) * 1);
+    list-style: none;
+    padding: 0;
+  }
+
+  /* The summary shows whether it is open and has a clear focus ring. */
+  .hoist summary {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    min-height: 1.5rem;
+    list-style: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .hoist summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .hoist summary::before {
+    content: "";
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+  }
+
+  .hoist details[open] > summary::before {
+    transform: rotate(45deg);
+  }
+
+  .hoist summary:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  .hoist-card {
+    background-color: var(--color-surface-raised);
+    border-radius: var(--radius-md);
+  }
+
+  /* One figure per theme; the other is display:none and lazy, so it is never fetched. */
+  .hoist-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: min(45vh, 36rem);
+    object-fit: contain;
+  }
+
+  .hoist-img-dark {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"]) .hoist-img-light {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"]) .hoist-img-dark {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) .hoist-img-light {
+      display: none;
+    }
+
+    :global(:root:not([data-theme="light"])) .hoist-img-dark {
+      display: block;
+    }
+  }
+
+  .hoist-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 3) var(--spacing-component-lg);
+  }
+
+  @media (max-width: 47.99rem) {
+    .hoist {
+      gap: calc(var(--spacing) * 3);
+      padding: var(--spacing-component);
+    }
+
+    .hoist-img {
+      max-height: 40vh;
+    }
+
+    .hoist-values {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: calc(var(--spacing) * 3) var(--spacing-component);
+    }
+  }
+
+  .hoist-values dt {
+    font-size: var(--text-meta);
+    color: var(--color-text-muted);
+  }
+
+  .hoist-values dd {
+    font-size: var(--text-small);
+    font-weight: 500;
+  }
+
+  .hoist-open {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-component);
+  }
+
+  .hoist-open-status {
+    font-size: var(--text-meta);
+    color: var(--color-text-muted);
+  }
+
+  .hoist-open-status:empty {
+    display: none;
+  }
+
+  .hoist [data-hoist-open][aria-busy="true"] {
+    cursor: progress;
+  }
+</style>

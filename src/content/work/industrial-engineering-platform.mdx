@@ -56,6 +56,7 @@ es:
 ---
 
 import Decision from "@/components/work/Decision.astro";
+import HoistDemo from "@/components/work/HoistDemo.astro";
 import SystemDiagram from "@/components/work/SystemDiagram.astro";
 
 ## Context
@@ -155,6 +156,17 @@ engineering rules. The frontend consumes that logic instead of reimplementing it
 PostgreSQL stores domain data and saved configurations. The ERP and the CRM sit
 outside the platform: it consumes product, availability and cost-related data
 from the ERP and passes technical configuration data into the commercial workflow.
+
+## A configuration, checked by rules
+
+This illustration is separate from the production system. It uses a generic
+offshore container and a four-leg lifting set as a physical example of a
+configuration: parts, the connections between them, and rules about both. The
+drawing follows the shape of real components but is not to scale, and the rules
+are invented for the demo. They are deterministic: the same set always gives the
+same result. Remove a part and the check names the rule that notices.
+
+<HoistDemo caption="Not to scale, not an engineering simulation and not a tool for real lifting decisions. Four-leg load sharing is not calculated. Nothing here comes from the production system, its data or its rules." />
 
 ## Correctness model
 
