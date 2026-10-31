@@ -235,6 +235,15 @@ const currentLanguage = languages.find((language) => language.code === locale)!;
     min-height: calc(var(--header-height) - var(--border-hairline));
   }
 
+  /* Below 360px the wordmark and the utilities share a 288px row with ~1px to
+     spare (more or less depending on the platform's text metrics): no column
+     gap there, so they never wrap. The wordmark's auto margin still separates them. */
+  @media (max-width: 22.49rem) {
+    .site-header-row {
+      column-gap: 0;
+    }
+  }
+
   .wordmark {
     display: inline-flex;
     align-items: center;

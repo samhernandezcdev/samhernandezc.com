@@ -49,6 +49,7 @@ const overlaps = (boxes) => {
 for (const [width, height] of [
   [1280, 720],
   [390, 844],
+  [320, 640],
 ]) {
   test(`hoist card: fits the screen under the header at ${width}x${height}`, async ({ browser, baseURL: base }) => {
     const ctx = await browser.newContext({ viewport: { width, height } });
@@ -60,7 +61,8 @@ for (const [width, height] of [
       const header = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
       return { top: card.top, bottom: card.bottom, header, inner: innerHeight, scroll: document.documentElement.scrollWidth, iw: innerWidth };
     });
-    check(`card is below the header and ends inside the screen at ${width}x${height}`, m.top >= m.header - 1 && m.bottom <= m.inner, JSON.stringify(m));
+    // 32px of room: Linux text metrics run a pixel or two wider than Windows (CI vs a local run).
+    check(`card is below the header and ends 32px inside the screen at ${width}x${height}`, m.top >= m.header - 1 && m.bottom <= m.inner - 32, JSON.stringify(m));
     check(`no horizontal overflow at ${width}`, m.scroll === m.iw, JSON.stringify(m));
     await ctx.close();
   });

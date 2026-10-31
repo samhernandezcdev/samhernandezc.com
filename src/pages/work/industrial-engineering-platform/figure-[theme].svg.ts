@@ -17,7 +17,7 @@ const declarations = (css: string, prefix: string) =>
 export const GET: APIRoute = ({ params }) => {
   const { svg } = buildFigure("a", { callouts: false, ghosts: false });
   const style = `:root{color-scheme:${params.theme};${declarations(tokens, "color-")};${declarations(mapping, "anatomy-")};background:var(--color-surface-raised)}${kit}.iso-halo{filter:none;opacity:.1}`;
-  return new Response(svg.replace(/<svg([^>]*)>/, `<svg xmlns="http://www.w3.org/2000/svg"$1><style><![CDATA[${style}]]></style>`), {
+  return new Response(svg.replace(/<svg([^>]*)>/, `<svg$1><style><![CDATA[${style}]]></style>`), {
     headers: { "Content-Type": "image/svg+xml" },
   });
 };

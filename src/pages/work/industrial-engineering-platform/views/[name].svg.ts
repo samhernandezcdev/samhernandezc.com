@@ -9,6 +9,6 @@ export const getStaticPaths = (() =>
   VIEWS.flatMap((view) => Object.keys(VARIANTS).map((variant) => ({ params: { name: `${view}-${variant}` }, props: { view, variant: variant as VariantId } })))) satisfies GetStaticPaths;
 
 export const GET: APIRoute = ({ props }) =>
-  new Response(buildFigure(props.variant, { view: props.view }).svg.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"'), {
+  new Response(buildFigure(props.variant, { view: props.view }).svg, {
     headers: { "Content-Type": "image/svg+xml" },
   });

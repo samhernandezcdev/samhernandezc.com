@@ -44,7 +44,7 @@ export async function openViewer(src: string, opener: HTMLElement) {
 
 async function create(src: string) {
   const response = await fetch(src);
-  if (!response.ok) throw new Error(`viewer ${response.status}`);
+  if (!response.ok) throw new Error(`${src} ${response.status}`);
   const template = document.createElement("template");
   template.innerHTML = await response.text();
   const dialog = template.content.querySelector<HTMLDialogElement>("dialog[data-hv]")!;
@@ -137,10 +137,11 @@ async function create(src: string) {
     try {
       let next = svgs.get(key);
       if (!next) {
-        const response = await fetch(`${data.base}${key}.svg`);
-        if (!response.ok) throw new Error(String(response.status));
+        const url = `${data.base}${key}.svg`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`${url} ${response.status}`);
         const doc = new DOMParser().parseFromString(await response.text(), "image/svg+xml");
-        if (doc.documentElement.nodeName !== "svg") throw new Error("parse");
+        if (doc.documentElement.nodeName !== "svg" || doc.querySelector("parsererror")) throw new Error(`${url} ${response.status} ${response.headers.get("content-type")} not parseable as SVG`);
         next = document.importNode(doc.documentElement, true) as unknown as SVGSVGElement;
         svgs.set(key, next);
       }
@@ -152,7 +153,8 @@ async function create(src: string) {
       load.textContent = `View ${view + 1} of ${data.views}.`;
       frame();
       paint();
-    } catch {
+    } catch (error) {
+      console.error("hoist: view not loaded", error);
       if (ticket === request) load.textContent = "This view could not be loaded. The drawing stays as it was.";
     } finally {
       if (ticket === request) figure.removeAttribute("aria-busy");
