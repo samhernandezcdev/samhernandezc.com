@@ -21,6 +21,7 @@ Record each decision as a row below: package · purpose · benefit · runtime im
 | `@playwright/test` (dev) | Screenshots for visual-review; smoke tests | no | −1 |
 | `@axe-core/playwright` (dev) | Accessibility tests | no | 8 |
 | `three` (dev) | Offline render of the Hero artifact in `scripts/hero-artifact.mjs` (stills + loop frames). Alternative: hand-written WebGL (far more code for the same output). Never shipped: no import from `src/`, zero runtime | no | 9 |
+| Anatomy kit (`src/lib/anatomy/`, MIT, copied with its LICENSE; not an npm package) | Build-time isometric SVG generation for `HoistDemo.astro` (solids, lathe parts, tubes). Alternative: hand-written projection and shading (far more code). Imported only from Astro frontmatter and tests, never from a client `<script>`: zero bytes shipped | no | lifting-set demo |
 | `webm-muxer` (dev) | Packages the WebCodecs VP9 frames of the Hero loop into WebM in the same script (Chromium has no built-in muxer; no ffmpeg on the machine). Never shipped | no | 9 |
 
 Built-in Shiki is used for code highlighting — no extra package.
